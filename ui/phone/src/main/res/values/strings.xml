@@ -168,10 +168,10 @@
     <string name="settings_clear_translation_models_failed_body">Some downloaded translation models could not be removed. Try again when the model download or system operation has finished.</string>
     <string name="settings_section_reset">RESET</string>
     <string name="settings_reset_aalyrics">Reset AALyrics</string>
-    <string name="settings_reset_aalyrics_info">Restores AALyrics settings, including both Karaoke switches, and onboarding state to their defaults; cancels app-owned update work, clears update recovery state, and removes downloaded app update files. Downloaded translation models, Android permissions, install-source permission, and Android Auto system settings are not changed.</string>
+    <string name="settings_reset_aalyrics_info">Restores AALyrics settings, including both Karaoke switches and the lyrics offset, and onboarding state to their defaults; cancels app-owned update work, clears update recovery state, and removes downloaded app update files. Downloaded translation models, Android permissions, install-source permission, and Android Auto system settings are not changed.</string>
     <string name="settings_reset_aalyrics_info_description">About resetting AALyrics</string>
     <string name="settings_reset_aalyrics_dialog_title">Reset AALyrics?</string>
-    <string name="settings_reset_aalyrics_dialog_body">AALyrics settings, including both Karaoke switches, and onboarding state will be restored to their defaults. Active app-owned update work will be cancelled, update recovery state will be cleared, and downloaded app update files will be removed. Downloaded translation models and system settings, including install-source permission, will not be changed.</string>
+    <string name="settings_reset_aalyrics_dialog_body">AALyrics settings, including both Karaoke switches and the lyrics offset, and onboarding state will be restored to their defaults. Active app-owned update work will be cancelled, update recovery state will be cleared, and downloaded app update files will be removed. Downloaded translation models and system settings, including install-source permission, will not be changed.</string>
     <string name="settings_reset">Reset</string>
     <string name="settings_cancel">Cancel</string>
     <string name="settings_done">Done</string>
@@ -182,7 +182,21 @@
     <string name="settings_brand_logo_description">AALyrics logo</string>
 
     <string name="sync_title">Sync</string>
-    <string name="sync_unavailable">Not available yet. Timing and calibration controls are still being redesigned.</string>
+    <string name="sync_help">Lyrics late? Advance (+). Lyrics early? Delay (−). Only the lyrics move; the music keeps playing normally.</string>
+    <string name="sync_offset_label">LYRICS OFFSET</string>
+    <string name="sync_offset_value">%1$s ms</string>
+    <string name="sync_scope">Saved for all songs on Phone and Android Auto. Range: −30,000 to +30,000 ms.</string>
+    <string name="sync_delay_100">Delay\n−100 ms</string>
+    <string name="sync_advance_100">Advance\n+100 ms</string>
+    <string name="sync_delay_500">Delay\n−500 ms</string>
+    <string name="sync_advance_500">Advance\n+500 ms</string>
+    <string name="sync_reset">Reset to 0 ms</string>
+    <string name="sync_preview">LIVE LYRICS PREVIEW</string>
+    <string name="sync_before_first_line">Waiting for the first line…</string>
+    <string name="sync_no_media">Play a song to adjust lyric timing. Your saved offset is kept.</string>
+    <string name="sync_loading">Waiting for timed lyrics…</string>
+    <string name="sync_plain">These lyrics have no timestamps, so timing cannot be adjusted. Your saved offset will apply to the next song with timed lyrics.</string>
+    <string name="sync_unavailable">No timed lyrics are available for this song. Try another song to adjust timing.</string>
 
     <string name="track_card_lyrics_loading">Loading...</string>
     <string name="track_card_lyrics_not_found">Lyrics not found</string>

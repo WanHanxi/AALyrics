@@ -165,6 +165,7 @@ internal fun PhoneRuntimeHost(
             playback.isPlaying &&
             (
                 selectedDestination == PhoneDestination.Lyrics ||
+                    selectedDestination == PhoneDestination.Sync ||
                     (
                         selectedDestination == PhoneDestination.Details &&
                             verboseDetailsEnabled
@@ -313,6 +314,9 @@ internal fun PhoneRuntimeHost(
             )
 
             PhoneDestination.Sync -> SyncScreen(
+                state = mapPhoneSyncState(lyricsUiState, lyricsTimingOffset),
+                onAdjust = { application.adjustLyricsTimingOffset(it.deltaMs()) },
+                onReset = application::resetLyricsTimingOffset,
                 bottomOverlayInset = bottomOverlayInset,
             )
 

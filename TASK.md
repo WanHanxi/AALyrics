@@ -14,7 +14,7 @@
 ## Checkpoints
 
 - [x] Persist calibration and connect timing consumers, with focused regression coverage.
-- [ ] Add responsive Sync UI, live preview, empty/plain states, and Compose previews.
+- [x] Add responsive Sync UI, live preview, empty/plain states, and Compose previews.
 - [ ] Align reset copy and docs; run architecture checks, unit tests and debug APK build.
 - [ ] Review changes, push checkpoints, open a Draft PR in the user's fork.
 
@@ -28,3 +28,5 @@
 ## Validation
 
 Timing checkpoint: architecture guardrails and focused persistence, Phone lyrics/Details, and Automotive mapper unit tests passed. Full validation follows UI integration.
+
+UI checkpoint: `./gradlew test :app:assembleDebug --max-workers=2 --no-parallel` passed with 748 tests, zero failures/errors/skips. Architecture checks and `git diff --check` passed. Emulator UI checks are in progress; real phone/audio and Android Auto verification are not yet performed.
