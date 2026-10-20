@@ -2,6 +2,7 @@ package io.github.whoxamxl.aalyrics
 
 import android.app.Application
 import android.graphics.Bitmap
+import android.os.SystemClock
 import io.github.whoxamxl.aalyrics.core.timing.LyricsTimingOffset
 import io.github.whoxamxl.aalyrics.core.lyrics.CandidateSelectionPreferences
 import io.github.whoxamxl.aalyrics.core.lyrics.CandidateSelector
@@ -84,6 +85,7 @@ class AALyricsApplication : Application() {
     private lateinit var translationSettingsStore: SharedPreferencesTranslationSettingsStore
     private lateinit var phonePresentationSettingsStore: SharedPreferencesPhonePresentationSettingsStore
     private lateinit var lyricsTimingSettings: LyricsTimingSettings
+    private lateinit var tapSyncCalibration: TapSyncCalibration
     private lateinit var translationBackgroundRuntime: TranslationBackgroundRuntime
     private lateinit var translationExecutionRuntime: TranslationExecutionRuntime
     private lateinit var translationCoordinator: TranslationCoordinator
@@ -131,9 +133,22 @@ class AALyricsApplication : Application() {
     val lyricsTimingOffset: StateFlow<LyricsTimingOffset>
         get() = lyricsTimingSettings.offset
 
-    internal fun adjustLyricsTimingOffset(deltaMs: Long) = lyricsTimingSettings.adjustBy(deltaMs)
+    internal val tapSyncState: StateFlow<TapSyncState>
+        get() = tapSyncCalibration.state
 
-    internal fun resetLyricsTimingOffset() = lyricsTimingSettings.resetToDefaults()
+    internal fun startTapSync() = tapSyncCalibration.start()
+    internal fun recordSyncTap() = tapSyncCalibration.tap()
+    internal fun cancelTapSync() = tapSyncCalibration.cancel()
+
+    internal fun adjustLyricsTimingOffset(deltaMs: Long) {
+        tapSyncCalibration.cancel()
+        lyricsTimingSettings.adjustBy(deltaMs)
+    }
+
+    internal fun resetLyricsTimingOffset() {
+        tapSyncCalibration.cancel()
+        lyricsTimingSettings.resetToDefaults()
+    }
 
     val playbackState: StateFlow<PlaybackSnapshot>
         get() = graph.playbackState
@@ -399,7 +414,7 @@ class AALyricsApplication : Application() {
         updateSuccessFeedbackRuntime.refresh()
         translationSettingsStore.resetToDefaults()
         phonePresentationSettingsStore.resetToDefaults()
-        lyricsTimingSettings.resetToDefaults()
+        resetLyricsTimingOffset()
         automaticUpdateCheckRuntime.resetCadence()
         applyCurrentPlaybackSourceEligibility()
     }
@@ -411,7 +426,10 @@ class AALyricsApplication : Application() {
     fun pause() = MediaSessionRuntimeHost.pause()
     fun skipToPrevious() = MediaSessionRuntimeHost.skipToPrevious()
     fun skipToNext() = MediaSessionRuntimeHost.skipToNext()
-    fun seekTo(positionMs: Long) = MediaSessionRuntimeHost.seekTo(positionMs)
+    fun seekTo(positionMs: Long) {
+        tapSyncCalibration.cancel()
+        MediaSessionRuntimeHost.seekTo(positionMs)
+    }
     fun skipToQueueItem(queueItemId: Long) = MediaSessionRuntimeHost.skipToQueueItem(queueItemId)
 
     override fun onCreate() {
@@ -493,6 +511,16 @@ class AALyricsApplication : Application() {
         playbackAppLauncher = SelectedPlaybackAppLauncher(this)
         playbackSourceAppInfoResolver = PlaybackSourceAppInfoResolver(this)
         graph = createProductionApplicationGraph(applicationScope)
+        tapSyncCalibration = TapSyncCalibration(
+            settings = lyricsTimingSettings,
+            readPlayback = { graph.playbackState.value },
+            readLyrics = { graph.lyricsState.value },
+            monotonicTimeMs = SystemClock::elapsedRealtime,
+        )
+        applicationScope.launch(Dispatchers.Main.immediate) {
+            combine(graph.playbackState, graph.lyricsState) { _, _ -> Unit }
+                .collect { tapSyncCalibration.onSourceChanged() }
+        }
         playbackSnapshotSink = PlaybackSnapshotSink { snapshot ->
             if (snapshot.trackIdentity != graph.playbackState.value.trackIdentity) {
                 mutableAutomotiveArtworkState.value = AutomotiveArtworkState(

@@ -1,36 +1,28 @@
-# Manual lyrics synchronization
+# Three-tap lyrics synchronization
 
 ## Scope
 
-- Branch: `feature/lyrics-sync-offset`; baseline: `e85c21c`.
-- Global calibration following upstream Auto Lyrics: positive advances lyrics; negative delays them.
-- Phone Sync: ±100 ms, ±500 ms, signed millisecond value, Reset, and live original/translated preview.
-- Persist across tracks and process restarts, bounded to ±30,000 ms.
-- Apply once to Phone lyrics/Karaoke, Sync preview, verbose Details, and Android Auto.
-- Reset AALyrics adds calibration zeroing to its existing explicit app-owned reset contract.
-- Per-track/car-specific offsets, tap/audio sync, Performance mode and new providers are deferred.
-- Preserve user-owned `gradle/gradle-daemon-jvm.properties` and local SDK settings.
+- Continue `feature/lyrics-sync-offset` from `7161124`, preserving the existing ±100/500 ms controls, Reset, persistence, and shared Phone/Android Auto offset.
+- Reference Auto Lyrics `854c5fa`, `MainActivity.onTapSyncPressed`: prompt three consecutive lyric starts and average three taps.
+- Show three fixed upcoming nonblank timed lines, highlight the line to listen for, then save the average after the third tap. Allow cancel/restart.
+- Compute each absolute offset as `lyric start - raw projected playback position` at the click's monotonic time; positive advances lyrics. Do not copy the upstream inverse-sign arithmetic.
+- Stop incomplete calibration on track/lyrics changes, pause/rate changes, observed timeline jumps, navigation, manual adjustment, and reset. Never persist partial samples.
+- Keep the existing ±30-second range; reject out-of-range calibration rather than silently applying it.
+- No microphone permission, automatic audio matching, per-track offsets, providers, or Performance mode.
+- Personal fork only: no PR or merge. Preserve user-owned Gradle/SDK settings.
 
 ## Checkpoints
 
-- [x] Persist calibration and connect timing consumers, with focused regression coverage.
-- [x] Add responsive Sync UI, live preview, empty/plain states, and Compose previews.
-- [x] Align reset copy and docs; run architecture checks, unit tests and debug APK build.
-- [x] Review branch-wide changes and push the completed implementation to the personal fork.
+- [x] Implement application-owned tap session, exact-time sampling, and regression tests.
+- [ ] Wire the three-line panel into Sync with preview coverage; retain existing manual controls.
+- [ ] Update user/architecture docs and reset semantics, run tests/build/architecture checks, inspect emulator layout.
+- [ ] Commit coherent checkpoints, push to the personal fork if authentication is available, and provide Android Studio phone testing instructions. The user has connected a phone and does not need an exported APK.
 
-## Acceptance
+## Acceptance and validation
 
-- Immediate adjustment including paused playback; no player seek, timestamp mutation or provider requests.
-- Correct sign in Phone and car, unchanged actual playback progress and Translation identity.
-- No-media/loading/plain messages, retained-offset reset, consistent navigation/rotation/seek behavior.
-- Installable debug APK with phone testing instructions; distinguish automated checks from device validation.
+- Three taps average and replace the saved offset; existing offset is not added twice.
+- Late/early examples, playback rate/source timestamp handling, skipped blanks/duplicate timestamps, and insufficient remaining lines are covered.
+- Partial/cancelled/stale/seek-interrupted sessions cannot change the saved value. Manual controls and Reset still work.
+- Unit/build checks and emulator evidence will be recorded separately from real-phone listening validation.
 
-## Validation
-
-Timing checkpoint: architecture guardrails and focused persistence, Phone lyrics/Details, and Automotive mapper unit tests passed.
-
-UI checkpoint: `./gradlew test :app:assembleDebug --max-workers=2 --no-parallel` passed with 748 tests, zero failures/errors/skips. Architecture checks and `git diff --check` passed.
-
-Emulator checks: Debug APK installation, onboarding-to-Sync navigation, timed/translated Compose fixture rendering, saved +300 ms restoration after process restart, and the actual Reset button persisting/displaying zero all passed. A 320dp / 1.3× font check exposed button-label wrapping; reduced horizontal padding and explicit body text size fixed it. Rebuilt and reinstalled the APK, verified readable controls, and scrolled to reach Reset and the preview. Real phone/audio and Android Auto verification remain manual follow-up.
-
-Delivery: implementation, documentation alignment, branch-wide scope review, and automated/emulator validation are complete. The completed branch is pushed to the personal fork and a verified debug APK is available. Following the user's personal-use direction, handoff does not require a pull request; nothing is submitted to the original repository. No merge or additional feature work is included.
+Core checkpoint: `:app:testDebugUnitTest` for `TapSyncCalibrationTest` and `LyricsTimingSettingsTest` passed (18 tests). Covers absolute sign/averaging, click-time clock projection, source updates, cancellation/stale input, range limits, and retained manual adjustment/reset.

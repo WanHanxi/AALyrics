@@ -21,9 +21,10 @@ internal class LyricsTimingSettings(
 
     fun resetToDefaults() = setOffset(0L)
 
-    private fun setOffset(milliseconds: Long) {
-        writeOffsetMs(milliseconds)
-        mutableOffset.value = LyricsTimingOffset(milliseconds)
+    fun setOffset(milliseconds: Long) {
+        val bounded = milliseconds.coerceIn(-MAX_OFFSET_MS, MAX_OFFSET_MS)
+        writeOffsetMs(bounded)
+        mutableOffset.value = LyricsTimingOffset(bounded)
     }
 
     companion object {
