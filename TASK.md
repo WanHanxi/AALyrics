@@ -14,7 +14,7 @@
 ## Checkpoints
 
 - [x] Implement application-owned tap session, exact-time sampling, and regression tests.
-- [ ] Wire the three-line panel into Sync with preview coverage; retain existing manual controls.
+- [x] Wire the three-line panel into Sync with preview coverage; retain existing manual controls.
 - [ ] Update user/architecture docs and reset semantics, run tests/build/architecture checks, inspect emulator layout.
 - [ ] Commit coherent checkpoints, push to the personal fork if authentication is available, and provide Android Studio phone testing instructions. The user has connected a phone and does not need an exported APK.
 
@@ -26,3 +26,5 @@
 - Unit/build checks and emulator evidence will be recorded separately from real-phone listening validation.
 
 Core checkpoint: `:app:testDebugUnitTest` for `TapSyncCalibrationTest` and `LyricsTimingSettingsTest` passed (18 tests). Covers absolute sign/averaging, click-time clock projection, source updates, cancellation/stale input, range limits, and retained manual adjustment/reset.
+
+UI checkpoint: presentation mapper tests and `test :app:assembleDebug` passed; architecture guardrails and `git diff --check` passed. The tap target uses fixed text sizing and a fixed marker column so the button stays in place as the highlighted line advances. Emulator layout verification follows.

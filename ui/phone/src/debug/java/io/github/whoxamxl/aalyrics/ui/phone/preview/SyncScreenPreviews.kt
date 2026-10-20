@@ -9,6 +9,8 @@ import io.github.whoxamxl.aalyrics.ui.phone.lyrics.LyricsViewportLineUiState
 import io.github.whoxamxl.aalyrics.ui.phone.sync.SyncAvailability
 import io.github.whoxamxl.aalyrics.ui.phone.sync.SyncScreen
 import io.github.whoxamxl.aalyrics.ui.phone.sync.SyncScreenUiState
+import io.github.whoxamxl.aalyrics.ui.phone.sync.TapSyncAvailability
+import io.github.whoxamxl.aalyrics.ui.phone.sync.TapSyncUiState
 
 @Preview(name = "Timed lyrics and translation", group = "Sync", widthDp = 412, heightDp = 820)
 @Preview(name = "Narrow and large font", group = "Sync", widthDp = 320, heightDp = 640, fontScale = 1.3f)
@@ -24,6 +26,7 @@ private fun SyncTimedPreview() = SyncPreview(
         previousLine = LyricsViewportLineUiState("A quiet road"),
         currentLine = LyricsViewportLineUiState("The lights are turning blue", translatedText = "灯光渐渐变蓝"),
         nextLine = LyricsViewportLineUiState("We walk toward the morning"),
+        tapSync = TapSyncUiState(availability = TapSyncAvailability.READY),
     ),
 )
 
@@ -41,6 +44,39 @@ private fun SyncPlainPreview() = SyncPreview(
 @Composable
 private fun SyncLimitPreview() = SyncPreview(
     SyncScreenUiState(offsetMs = 30_000L, availability = SyncAvailability.TIMED, canDelay = true),
+)
+
+@Preview(name = "Tap calibration - second line", group = "Sync", widthDp = 412, heightDp = 820)
+@Preview(name = "Tap calibration - narrow large font", group = "Sync", widthDp = 320, heightDp = 640, fontScale = 1.3f)
+@Composable
+private fun SyncTapListeningPreview() = SyncPreview(
+    SyncScreenUiState(
+        offsetMs = 300L,
+        availability = SyncAvailability.TIMED,
+        canAdvance = true,
+        canDelay = true,
+        tapSync = TapSyncUiState(
+            availability = TapSyncAvailability.READY,
+            active = true,
+            lines = listOf("A quiet road", "The lights are turning blue", "We walk toward the morning"),
+            completedTaps = 1,
+        ),
+    ),
+)
+
+@Preview(name = "Tap calibration saved", group = "Sync", widthDp = 412, heightDp = 820)
+@Composable
+private fun SyncTapSavedPreview() = SyncPreview(
+    SyncScreenUiState(
+        offsetMs = -450L,
+        tapSync = TapSyncUiState(availability = TapSyncAvailability.READY, savedOffsetMs = -450L),
+    ),
+)
+
+@Preview(name = "Not enough remaining lines", group = "Sync", widthDp = 360, heightDp = 740)
+@Composable
+private fun SyncTapEndPreview() = SyncPreview(
+    SyncScreenUiState(tapSync = TapSyncUiState(availability = TapSyncAvailability.NOT_ENOUGH_LINES)),
 )
 
 @Composable

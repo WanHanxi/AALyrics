@@ -33,6 +33,9 @@ fun SyncScreen(
     state: SyncScreenUiState,
     onAdjust: (SyncAdjustment) -> Unit,
     onReset: () -> Unit,
+    onStartTapSync: () -> Unit = {},
+    onSyncTap: () -> Unit = {},
+    onCancelTapSync: () -> Unit = {},
     modifier: Modifier = Modifier,
     bottomOverlayInset: Dp = 0.dp,
 ) {
@@ -53,11 +56,19 @@ fun SyncScreen(
             style = AALyricsTypography.LyricsSupporting,
             color = AALyricsColors.TextPrimary,
         )
-        Text(
-            text = stringResource(R.string.sync_help),
-            style = AALyricsTypography.TrackArtist,
-            color = AALyricsColors.TextSecondary,
+        TapSyncCard(
+            state = state.tapSync,
+            onStart = onStartTapSync,
+            onTap = onSyncTap,
+            onCancel = onCancelTapSync,
         )
+        if (!state.tapSync.active) {
+            Text(
+                text = stringResource(R.string.sync_help),
+                style = AALyricsTypography.TrackArtist,
+                color = AALyricsColors.TextSecondary,
+            )
+        }
         Surface(
             shape = RoundedCornerShape(16.dp),
             color = AALyricsColors.BackgroundSurface,

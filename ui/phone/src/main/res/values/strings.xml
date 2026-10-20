@@ -182,6 +182,18 @@
     <string name="settings_brand_logo_description">AALyrics logo</string>
 
     <string name="sync_title">Sync</string>
+    <string name="sync_tap_title">TAP TO SYNC</string>
+    <string name="sync_tap_help">Listen to three lines and tap as each one starts. After the third tap, the average offset is saved. You can still fine-tune below.</string>
+    <string name="sync_tap_start">Start 3-tap sync</string>
+    <string name="sync_tap_listen">Listen for line %1$d of 3.</string>
+    <string name="sync_tap_now">Tap at line start (%1$d/3)</string>
+    <string name="sync_tap_cancel">Cancel calibration</string>
+    <string name="sync_tap_saved">Saved %1$s ms from 3 taps.</string>
+    <string name="sync_tap_interrupted">Playback or lyrics changed. Start again when ready. Your saved offset is unchanged.</string>
+    <string name="sync_tap_out_of_range">That tap was outside the ±30-second range. Check the song and try again. Your saved offset is unchanged.</string>
+    <string name="sync_tap_play_first">Play a song to start tap calibration.</string>
+    <string name="sync_tap_timed_required">Waiting for lyrics with timestamps.</string>
+    <string name="sync_tap_not_enough_lines">Three more timed lines are needed. Seek to an earlier part of the song and try again.</string>
     <string name="sync_help">Lyrics late? Advance (+). Lyrics early? Delay (−). Only the lyrics move; the music keeps playing normally.</string>
     <string name="sync_offset_label">LYRICS OFFSET</string>
     <string name="sync_offset_value">%1$s ms</string>

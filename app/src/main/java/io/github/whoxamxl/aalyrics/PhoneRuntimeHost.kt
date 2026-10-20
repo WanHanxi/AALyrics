@@ -82,6 +82,7 @@ internal fun PhoneRuntimeHost(
         application.playbackSourceRuntimeState.collectAsStateWithLifecycle()
     val lyricsState by application.lyricsState.collectAsStateWithLifecycle()
     val lyricsTimingOffset by application.lyricsTimingOffset.collectAsStateWithLifecycle()
+    val tapSyncState by application.tapSyncState.collectAsStateWithLifecycle()
     val translationState by application.translationState.collectAsStateWithLifecycle()
     val playbackSurface by application.phonePlaybackSurfaceState.collectAsStateWithLifecycle()
     val playbackSourceAppInfo by
@@ -130,6 +131,9 @@ internal fun PhoneRuntimeHost(
 
     var selectedDestination by rememberSaveable {
         mutableStateOf(PhoneDestination.Home)
+    }
+    DisposableEffect(application, selectedDestination) {
+        onDispose { application.cancelTapSync() }
     }
     var updateProcessDialogDismissed by rememberSaveable {
         mutableStateOf(false)
@@ -314,9 +318,15 @@ internal fun PhoneRuntimeHost(
             )
 
             PhoneDestination.Sync -> SyncScreen(
-                state = mapPhoneSyncState(lyricsUiState, lyricsTimingOffset),
+                state = mapPhoneSyncState(
+                    lyricsUiState, lyricsTimingOffset,
+                    mapPhoneTapSyncState(tapSyncState, playback, lyricsState, lyricsUiState, lyricsTimingOffset, monotonicTimeMs),
+                ),
                 onAdjust = { application.adjustLyricsTimingOffset(it.deltaMs()) },
                 onReset = application::resetLyricsTimingOffset,
+                onStartTapSync = application::startTapSync,
+                onSyncTap = application::recordSyncTap,
+                onCancelTapSync = application::cancelTapSync,
                 bottomOverlayInset = bottomOverlayInset,
             )
 

@@ -18,6 +18,8 @@ import io.github.whoxamxl.aalyrics.ui.phone.lyrics.TrackCardLyricsStatus
 import io.github.whoxamxl.aalyrics.ui.phone.lyrics.TrackCardUiState
 import io.github.whoxamxl.aalyrics.ui.phone.sync.SyncAdjustment
 import io.github.whoxamxl.aalyrics.ui.phone.sync.SyncAvailability
+import io.github.whoxamxl.aalyrics.ui.phone.sync.TapSyncAvailability
+import io.github.whoxamxl.aalyrics.ui.phone.sync.TapSyncMessage
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -120,5 +122,56 @@ class PhoneSyncMapperTest {
         assertEquals("First", preview().currentLine?.text)
         assertEquals(4_800L, playback.positionMs)
         assertEquals(5_000L, (document.lines[1] as TimedLyricLine).startMs)
+    }
+
+    @Test
+    fun `tap panel uses frozen targets while existing fine controls remain available`() {
+        val listening = TapSyncState.Listening(listOf(
+            TapSyncTarget(0, 10_000L, "First"),
+            TapSyncTarget(1, 20_000L, "Second"),
+            TapSyncTarget(2, 30_000L, "Third"),
+        ), completedTaps = 1)
+        val ui = lyrics()
+        val tapUi = mapPhoneTapSyncState(
+            listening, PlaybackSnapshot(status = PlaybackStatus.PLAYING), LyricsState.Idle,
+            ui, LyricsTimingOffset(500L), now = 100_000L,
+        )
+        val sync = mapPhoneSyncState(ui, LyricsTimingOffset(500L), tapUi)
+        assertEquals(listOf("First", "Second", "Third"), sync.tapSync.lines)
+        assertEquals(1, sync.tapSync.completedTaps)
+        assertTrue(sync.tapSync.active)
+        assertTrue(sync.canAdvance && sync.canDelay)
+    }
+
+    @Test
+    fun `tap availability explains paused plain and end of song states`() {
+        val track = Track(title = "Song")
+        val playing = PlaybackSnapshot(track = track, status = PlaybackStatus.PLAYING, positionMs = 500L)
+        val document = LyricsDocument(listOf(
+            TimedLyricLine("First", 1_000L),
+            TimedLyricLine("Second", 2_000L),
+            TimedLyricLine("Third", 3_000L),
+        ))
+        val ready = LyricsState.Ready(
+            LyricsLookup(LyricsLookupId(1), track, requireNotNull(playing.trackIdentity)), document,
+        )
+        fun availability(playback: PlaybackSnapshot = playing, ui: LyricsScreenUiState = lyrics()) =
+            mapPhoneTapSyncState(TapSyncState.Idle, playback, ready, ui, LyricsTimingOffset.ZERO, 0).availability
+
+        assertEquals(TapSyncAvailability.READY, availability())
+        assertEquals(TapSyncAvailability.NEEDS_PLAYBACK, availability(playing.copy(status = PlaybackStatus.PAUSED)))
+        assertEquals(TapSyncAvailability.NEEDS_TIMED_LYRICS, availability(ui = lyrics(sync = LyricsSyncType.PLAIN)))
+        assertEquals(TapSyncAvailability.NOT_ENOUGH_LINES, availability(playing.copy(positionMs = 1_500L)))
+    }
+
+    @Test
+    fun `completed and interrupted tap sessions explain the result`() {
+        fun map(state: TapSyncState) = mapPhoneTapSyncState(
+            state, PlaybackSnapshot(), LyricsState.Idle, lyrics(), LyricsTimingOffset(-500L), 0L,
+        )
+        assertEquals(-500L, map(TapSyncState.Completed(-500L)).savedOffsetMs)
+        assertEquals(TapSyncMessage.SOURCE_CHANGED, map(TapSyncState.Stopped(TapSyncStopReason.SOURCE_CHANGED)).message)
+        assertEquals(TapSyncMessage.OUT_OF_RANGE, map(TapSyncState.Stopped(TapSyncStopReason.OUT_OF_RANGE)).message)
+        assertFalse(map(TapSyncState.Completed(-500L)).active)
     }
 }
