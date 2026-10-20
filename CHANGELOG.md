@@ -1,3 +1,11 @@
+## [Unreleased] — Fork changes
+
+### Added
+
+- Phone Sync controls to advance or delay lyrics by 100 ms or 500 ms, with a live original/translated lyric preview and Reset.
+- A saved global offset (±30 seconds) shared by Phone, Karaoke, verbose Details, and Android Auto. Playback position and provider timestamps remain unchanged.
+- Reset AALyrics also restores the lyrics offset to zero.
+
 ## [1.0.0-beta.1] - 2026-09-26
 
 ### Beta milestone

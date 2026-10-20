@@ -97,7 +97,7 @@ AALyrics has moved beyond the construction-only stage. Its primary purpose — f
 
 The **1.0 Beta** line means the intended product identity and core experience are established, while some advanced functionality is still evolving:
 
-- Sync calibration controls and persistence are still in development.
+- Manual Sync calibration is available in this fork: ±100/500 ms, live preview, and a saved global offset shared by Phone and Android Auto. Per-song and automatic calibration remain future work.
 - Phone WORD_SYNC Karaoke remains experimental and opt-in.
 - Android Auto is currently line-oriented Now Playing rather than full Phone feature parity or Karaoke presentation.
 
@@ -112,6 +112,12 @@ Phone lyrics automatically follow playback while still allowing manual browsing.
 Translation uses the established AALyrics Translation pipeline and on-device language models where supported. Translated text is secondary presentation only: it remains tied to the identity and timing of the canonical lyrics.
 
 Actual lyric availability and timing quality depend on the metadata exposed by the active media app and on matching lyric data available from the providers.
+
+### Manual lyrics sync (this fork)
+
+While playing a song with timed lyrics, open **Sync**. If lyrics are late, use **Advance (+100/+500 ms)**; if they are early, use **Delay (−100/−500 ms)**. The live preview follows the same timing as the Lyrics page. **Reset to 0 ms** restores the original timing.
+
+The offset is global, saved across songs and app restarts, and shared with Android Auto. It is limited to ±30 seconds and never seeks the music or rewrites source timestamps. Plain lyrics cannot be calibrated. **Settings → Advanced → Reset AALyrics** also clears the saved offset.
 
 ## Support AALyrics
 

@@ -7,7 +7,7 @@
 - Phone Sync: ±100 ms, ±500 ms, signed millisecond value, Reset, and live original/translated preview.
 - Persist across tracks and process restarts, bounded to ±30,000 ms.
 - Apply once to Phone lyrics/Karaoke, Sync preview, verbose Details, and Android Auto.
-- Reset AALyrics restores calibration to zero without clearing unrelated/external state.
+- Reset AALyrics adds calibration zeroing to its existing explicit app-owned reset contract.
 - Per-track/car-specific offsets, tap/audio sync, Performance mode and new providers are deferred.
 - Preserve user-owned `gradle/gradle-daemon-jvm.properties` and local SDK settings.
 
@@ -15,8 +15,8 @@
 
 - [x] Persist calibration and connect timing consumers, with focused regression coverage.
 - [x] Add responsive Sync UI, live preview, empty/plain states, and Compose previews.
-- [ ] Align reset copy and docs; run architecture checks, unit tests and debug APK build.
-- [ ] Review changes, push checkpoints, open a Draft PR in the user's fork.
+- [x] Align reset copy and docs; run architecture checks, unit tests and debug APK build.
+- [x] Review branch-wide changes and prepare the final push / Draft PR handoff in the user's fork.
 
 ## Acceptance
 
@@ -27,6 +27,10 @@
 
 ## Validation
 
-Timing checkpoint: architecture guardrails and focused persistence, Phone lyrics/Details, and Automotive mapper unit tests passed. Full validation follows UI integration.
+Timing checkpoint: architecture guardrails and focused persistence, Phone lyrics/Details, and Automotive mapper unit tests passed.
 
-UI checkpoint: `./gradlew test :app:assembleDebug --max-workers=2 --no-parallel` passed with 748 tests, zero failures/errors/skips. Architecture checks and `git diff --check` passed. Emulator UI checks are in progress; real phone/audio and Android Auto verification are not yet performed.
+UI checkpoint: `./gradlew test :app:assembleDebug --max-workers=2 --no-parallel` passed with 748 tests, zero failures/errors/skips. Architecture checks and `git diff --check` passed.
+
+Emulator checks: Debug APK installation, onboarding-to-Sync navigation, timed/translated Compose fixture rendering, saved +300 ms restoration after process restart, and the actual Reset button persisting/displaying zero all passed. A 320dp / 1.3× font check exposed button-label wrapping; reduced horizontal padding and explicit body text size fixed it. Rebuilt and reinstalled the APK, verified readable controls, and scrolled to reach Reset and the preview. Real phone/audio and Android Auto verification remain manual follow-up.
+
+Delivery: implementation, documentation alignment, branch-wide scope review, and automated/emulator validation are complete. Final handoff is a debug APK and a Draft PR; no merge or additional feature work is included.

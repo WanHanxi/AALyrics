@@ -6,7 +6,7 @@ Phase 11.3a (effective-position foundation), Phase 11.3b (existing current-line 
 
 The shared **Timing Semantic Engine** consumes canonical timed lyrics + `EffectiveLyricsPosition` and produces deterministic line/word/progress/boundary facts. The engine is mode-agnostic; Karaoke ON/OFF is not an input.
 
-Normal Phone timed presentation consumes the active-line fact. The authorized Phone WORD_SYNC Karaoke consumer may additionally consume the shared word/progress/boundary facts downstream without changing timing semantics. The authorized Android Auto Now Playing completion consumes the same shared active-line fact for both LINE_SYNC and WORD_SYNC while intentionally ignoring word/progress/boundary facts. Sync controls, persistence, non-zero production calibration, and Android Auto Karaoke remain outside this scope.
+Normal Phone timed presentation consumes the active-line fact. The authorized Phone WORD_SYNC Karaoke consumer may additionally consume the shared word/progress/boundary facts downstream without changing timing semantics. The authorized Android Auto Now Playing completion consumes the same shared active-line fact for both LINE_SYNC and WORD_SYNC while intentionally ignoring word/progress/boundary facts. This fork now adds manual Sync controls and a persisted global production offset. Android Auto Karaoke remains outside this scope.
 
 The working fork contains `lyrics/KaraokeTiming.kt` and `util/SyncCalibration.kt`. They were re-checked at `v1.13.0` on 2026-09-25. `SyncCalibration.offsetForTap(targetTimeMs, rawPositionMs) = targetTimeMs - rawPositionMs` preserves the approved sign convention. `KaraokeTiming` provides mature active-word boundary evidence that is **PRESERVE / REFACTOR**; Android-specific sweep/layout behaviour remains outside the shared engine.
 
@@ -170,7 +170,7 @@ normalized PlaybackSnapshot
         ↓
 shared projected playback clock
         ↓
-effectiveLyricsPosition(..., LyricsTimingOffset.ZERO)
+effectiveLyricsPosition(..., applicationOwnedLyricsOffset)
         ↓
 projectLyricsTiming(...)
         ↓
@@ -187,8 +187,8 @@ Stable rules for this surface:
 - Automotive must retire its independent current-line selector rather than keep a parallel `startMs <= position` implementation;
 - Automotive must not create a UI-observation-time fallback clock;
 - a valid source `positionUpdatedAtMonotonicMs` remains authoritative and the existing `positionSampledAtMonotonicMs` is the fallback when the source timestamp is unavailable;
-- production offset remains `LyricsTimingOffset.ZERO` in this slice;
-- this authorization does not add Sync controls, calibration persistence, or Android Auto Karaoke.
+- production offset comes from the application-owned global calibration flow, defaulting to zero;
+- Phone owns the manual controls; application persistence is shared with Automotive. Android Auto Karaoke is still deferred.
 
 The detailed presentation contract is `docs/ANDROID_AUTO_NOW_PLAYING.md`.
 
@@ -289,19 +289,11 @@ Translation:
 
 ## Calibration scope and persistence
 
-The sign convention and effective-position equation are now fixed. The **scope** of a non-zero offset is deliberately not fixed by the foundation.
+The manual Sync slice selects a **global** offset shared by all songs and surfaces. `LyricsTimingSettings` in `:app` owns a `StateFlow<LyricsTimingOffset>` initialized from app-private SharedPreferences (`lyrics_timing_settings` / `lyrics_offset_ms`). Values are bounded to −30,000…+30,000 ms. Phone controls emit semantic actions mapped to ±100/500 ms in the app; they do not calculate timing.
 
-Possible later scopes include:
+The offset survives navigation, activity/process recreation and track/provider changes. It is applied once by the existing effective-position boundary in Phone lyrics/Karaoke, Sync preview, verbose Details, and Automotive. Automotive observes offset changes even while paused. Translation remains attached to the current canonical line; calibration neither refetches nor retranslates lyrics.
 
-- transient/session offset;
-- global user offset;
-- Phone-specific presentation compensation;
-- Android Auto-specific presentation compensation;
-- track/provider-specific correction only if later evidence justifies it.
-
-Likewise, persistence is deferred. The foundation must not add a durable preference merely because a value type exists.
-
-When persistence is eventually authorized, the implementing PR must re-evaluate the `Reset AALyrics` contract.
+Sync Reset and `Reset AALyrics` both persist and publish zero. The timing reset writes only its own key. Reset AALyrics also restores its other explicitly listed settings; neither path removes downloaded translation models. Per-track offsets, separate device compensation, tap-to-sync, audio calibration, and drift correction remain deferred.
 
 ## Offset versus drift
 
@@ -323,20 +315,11 @@ Extreme arithmetic-overflow hardening may follow normal repository conventions; 
 
 ## Presentation and Sync UI boundary
 
-The current Phone `SyncScreen` remains a deliberate placeholder.
+`SyncScreen` renders presentation-ready state and emits `SyncAdjustment`/Reset callbacks. It displays a signed value, ±100/500 ms actions, a global-scope explanation, and the previous/current/next original lines with the current translation when available. `PhoneSyncMapper` reuses the calibrated Phone lyric projection rather than maintaining another clock.
 
-The timing foundation does not authorize:
+The Sync destination ticks at the existing 250 ms line cadence while music plays. While paused, offset updates still reproject the current position immediately. No-media/loading/unavailable/PLAIN states disable adjustment; a non-zero saved value can always be reset. Before the first timestamp, the preview shows an upcoming first line and leaves calibration enabled. Limits disable only the outward adjustment direction.
 
-- +/- buttons;
-- sliders;
-- offset text fields;
-- tap-to-sync;
-- auto-calibration;
-- persistence;
-- provider-specific correction;
-- Phone/Android Auto-specific offset settings.
-
-When Sync UI is later authorized, it must emit semantic offset changes to application/capability ownership. The UI must not implement the timing equation itself.
+The entire content scrolls with the Phone playback-overlay inset for narrow/landscape screens and large fonts. Source playback transport and progress remain independent.
 
 ## Diagnostics
 
@@ -381,7 +364,7 @@ Phase 11.4a — Shared Timing Semantic Engine              implemented
     LINE + WORD + progress + boundary semantics
     + behaviour-preserving Phone wiring
             ↓
-Phase 11.3c — Sync calibration UX                        deferred
+Phase 11.3c — Manual global Sync calibration             implemented in this fork
     controls + scope + persistence
             ↓
 Phase 11.4b/11.4c — Phone Karaoke consumer/rendering     ✅
