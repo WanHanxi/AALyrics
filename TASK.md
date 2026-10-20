@@ -1,34 +1,28 @@
-# Three-tap lyrics synchronization
+# Precise manual lyrics offset
 
 ## Scope
 
-- Continue `feature/lyrics-sync-offset` from `7161124`, preserving the existing ±100/500 ms controls, Reset, persistence, and shared Phone/Android Auto offset.
-- Reference Auto Lyrics `854c5fa`, `MainActivity.onTapSyncPressed`: prompt three consecutive lyric starts and average three taps.
-- Show three fixed upcoming nonblank timed lines, highlight the line to listen for, then save the average after the third tap. Allow cancel/restart.
-- Compute each absolute offset as `lyric start - raw projected playback position` at the click's monotonic time; positive advances lyrics. Do not copy the upstream inverse-sign arithmetic.
-- Stop incomplete calibration on track/lyrics changes, pause/rate changes, observed timeline jumps, navigation, manual adjustment, and reset. Never persist partial samples.
-- Keep the existing ±30-second range; reject out-of-range calibration rather than silently applying it.
-- No microphone permission, automatic audio matching, per-track offsets, providers, or Performance mode.
-- Personal fork only: no PR or merge. Preserve user-owned Gradle/SDK settings.
+- Continue `feature/lyrics-sync-offset` from `4a13ef8` in the personal fork. No PR or merge; preserve user-owned Gradle/SDK settings.
+- Change fixed adjustment controls to ±50/500 ms.
+- Make the displayed offset tappable to enter any signed integer millisecond value within the existing ±30,000 ms range.
+- Prefill/select the saved value, open the keyboard, and provide a sign toggle for numeric keyboards without a minus key.
+- Save (or keyboard Done) replaces the shared persisted offset; typing and dismissing never change it. Validate malformed and out-of-range input visibly.
+- Opening the editor cancels unfinished three-tap calibration. Keep the current three-tap behavior, Reset, and shared Phone/Android Auto timing.
+- No Undo, changes to tap sampling, per-song offsets, or unrelated features. The user will test through Android Studio; no exported APK.
 
 ## Checkpoints
 
-- [x] Implement application-owned tap session, exact-time sampling, and regression tests.
-- [x] Wire the three-line panel into Sync with preview coverage; retain existing manual controls.
-- [x] Update user/architecture docs and reset semantics, run tests/build/architecture checks, inspect emulator layout.
-- [x] Commit and push the tested implementation checkpoints to the personal fork; prepare the final documentation handoff and Android Studio phone testing instructions. The user has connected a phone and does not need an exported APK.
+- [x] Change fine adjustment to 50 ms with timing regression coverage and aligned docs.
+- [ ] Add exact-value editor, app callback, validation tests, and Preview coverage.
+- [ ] Verify tests/build, architecture, keyboard/dialog layout, reset semantics, and final docs; commit/push checkpoints.
 
 ## Acceptance and validation
 
-- Three taps average and replace the saved offset; existing offset is not added twice.
-- Late/early examples, playback rate/source timestamp handling, skipped blanks/duplicate timestamps, and insufficient remaining lines are covered.
-- Partial/cancelled/stale/seek-interrupted sessions cannot change the saved value. Manual controls and Reset still work.
-- Unit/build checks and emulator evidence will be recorded separately from real-phone listening validation.
-
-Core checkpoint: `:app:testDebugUnitTest` for `TapSyncCalibrationTest` and `LyricsTimingSettingsTest` passed (18 tests). Covers absolute sign/averaging, click-time clock projection, source updates, cancellation/stale input, range limits, and retained manual adjustment/reset.
-
-UI checkpoint: presentation mapper tests and `JAVA_HOME=/opt/android-studio/jbr ./gradlew test :app:assembleDebug --max-workers=2 --no-parallel --console=plain` passed (765 tests, 93 suites, zero failures/errors/skips). Architecture guardrails and branch-wide `git diff --check` passed. The tap target uses fixed text sizing and a fixed marker column so the button stays in place as the highlighted line advances.
-
-Visual verification: installed the build in a temporary emulator and rendered the active three-tap Compose fixture at ordinary width and at 320dp / 1.3× font scale. All three lines, current-line highlight, completed-line marker, tap/cancel actions, and retained manual controls render correctly. The PreviewActivity action bar overlays the fixture's top edge; it is not the production Phone shell. No runtime exception was logged. The temporary emulator was closed afterward; the user's connected phone was not operated.
-
-Handoff: current local checkout remains on `feature/lyrics-sync-offset`; use Android Studio Run to update AALyrics Debug on the connected phone, play timed lyrics, then open Sync and start three-tap calibration. Real listening alignment and Android Auto host testing remain user/device validation. No exported APK, PR, merge, or unrelated feature work is included.
+- Four +50 ms actions move the paused preview across the existing 200 ms boundary; 500 ms and Reset retain their behavior.
+- Exact values such as +125 and −275 ms persist and apply to the same shared clock. Zero and both range endpoints are valid.
+- Empty/sign-only, decimal, nonnumeric, overflowing, and out-of-range values cannot be saved. Cancel/back/outside dismissal keeps the previous offset.
+- Exact entry remains available without timed lyrics because it edits the global preference. The live preview and fixed-step controls retain their timed-lyrics requirements.
+- No new durable state: Reset AALyrics still cancels calibration and restores this same offset to zero. Editor drafts are presentation state only.
+- Previous three-tap implementation passed 765 tests plus build/architecture checks; the user subsequently reported successful phone and Android Auto testing.
+- Fine-step checkpoint: `:app:testDebugUnitTest --tests '*PhoneSyncMapperTest'` passed (7 tests), including four +50 ms steps across the paused lyric boundary and retained coarse/reset behavior. `git diff --check` passed.
+- Editor and final validation: pending.

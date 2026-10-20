@@ -242,7 +242,7 @@ The runtime now forwards selected-session artwork from `METADATA_KEY_ALBUM_ART`,
 
 ## Sync destination
 
-Sync collects the application-owned persisted lyrics offset. It maps existing calibrated Phone lyric state to `SyncScreenUiState`, forwards semantic ±100/500 ms actions and Reset to the application, and runs the normal 250 ms line tick while visible and playing. The preview includes previous/current/next original lines and an eligible current translation.
+Sync collects the application-owned persisted lyrics offset. It maps existing calibrated Phone lyric state to `SyncScreenUiState`, forwards semantic ±50/500 ms actions and Reset to the application, and runs the normal 250 ms line tick while visible and playing. The preview includes previous/current/next original lines and an eligible current translation.
 
 The tap panel also collects the application-owned `TapSyncState`, displays three frozen upcoming lines and the next target, and forwards Start/Tap/Cancel. Sampling uses a fresh source snapshot and monotonic time inside the application, not the Compose tick. Three taps replace the global offset with their average; incomplete sessions never persist. Leaving the destination or disposing the Activity cancels an unfinished session. Source changes, pause, and seeks are handled by the application. Existing fixed controls remain usable and cancel any unfinished tap calibration.
 

@@ -78,8 +78,8 @@ internal fun mapPhoneTapSyncState(
 }
 
 internal fun SyncAdjustment.deltaMs(): Long = when (this) {
-    SyncAdjustment.ADVANCE_FINE -> 100L
-    SyncAdjustment.DELAY_FINE -> -100L
+    SyncAdjustment.ADVANCE_FINE -> 50L
+    SyncAdjustment.DELAY_FINE -> -50L
     SyncAdjustment.ADVANCE_COARSE -> 500L
     SyncAdjustment.DELAY_COARSE -> -500L
 }

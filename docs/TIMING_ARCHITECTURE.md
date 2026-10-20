@@ -289,7 +289,7 @@ Translation:
 
 ## Calibration scope and persistence
 
-The manual Sync slice selects a **global** offset shared by all songs and surfaces. `LyricsTimingSettings` in `:app` owns a `StateFlow<LyricsTimingOffset>` initialized from app-private SharedPreferences (`lyrics_timing_settings` / `lyrics_offset_ms`). Values are bounded to −30,000…+30,000 ms. Phone controls emit semantic actions mapped to ±100/500 ms in the app; they do not calculate timing.
+The manual Sync slice selects a **global** offset shared by all songs and surfaces. `LyricsTimingSettings` in `:app` owns a `StateFlow<LyricsTimingOffset>` initialized from app-private SharedPreferences (`lyrics_timing_settings` / `lyrics_offset_ms`). Values are bounded to −30,000…+30,000 ms. Phone controls emit semantic actions mapped to ±50/500 ms in the app; they do not calculate timing.
 
 The offset survives navigation, activity/process recreation and track/provider changes. It is applied once by the existing effective-position boundary in Phone lyrics/Karaoke, Sync preview, verbose Details, and Automotive. Automotive observes offset changes even while paused. Translation remains attached to the current canonical line; calibration neither refetches nor retranslates lyrics.
 
@@ -323,7 +323,7 @@ Extreme arithmetic-overflow hardening may follow normal repository conventions; 
 
 ## Presentation and Sync UI boundary
 
-`SyncScreen` renders presentation-ready state and emits tap-calibration and `SyncAdjustment`/Reset callbacks. Its three-line tap panel is followed by the existing signed value, ±100/500 ms actions, global-scope explanation, and previous/current/next original lines with the current translation when available. `PhoneSyncMapper` reuses the calibrated Phone lyric projection rather than maintaining another clock. Tap calibration requires playing timed lyrics; fixed adjustments remain available during pause.
+`SyncScreen` renders presentation-ready state and emits tap-calibration and `SyncAdjustment`/Reset callbacks. Its three-line tap panel is followed by the existing signed value, ±50/500 ms actions, global-scope explanation, and previous/current/next original lines with the current translation when available. `PhoneSyncMapper` reuses the calibrated Phone lyric projection rather than maintaining another clock. Tap calibration requires playing timed lyrics; fixed adjustments remain available during pause.
 
 The Sync destination ticks at the existing 250 ms line cadence while music plays. While paused, offset updates still reproject the current position immediately. No-media/loading/unavailable/PLAIN states disable adjustment; a non-zero saved value can always be reset. Before the first timestamp, the preview shows an upcoming first line and leaves calibration enabled. Limits disable only the outward adjustment direction.
 

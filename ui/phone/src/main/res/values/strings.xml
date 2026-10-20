@@ -198,8 +198,8 @@
     <string name="sync_offset_label">LYRICS OFFSET</string>
     <string name="sync_offset_value">%1$s ms</string>
     <string name="sync_scope">Saved for all songs on Phone and Android Auto. Range: −30,000 to +30,000 ms.</string>
-    <string name="sync_delay_100">Delay\n−100 ms</string>
-    <string name="sync_advance_100">Advance\n+100 ms</string>
+    <string name="sync_delay_50">Delay\n−50 ms</string>
+    <string name="sync_advance_50">Advance\n+50 ms</string>
     <string name="sync_delay_500">Delay\n−500 ms</string>
     <string name="sync_advance_500">Advance\n+500 ms</string>
     <string name="sync_reset">Reset to 0 ms</string>

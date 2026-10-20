@@ -107,8 +107,10 @@ class PhoneSyncMapperTest {
             lyricsTimingOffset = settings.offset.value,
         ).let { mapPhoneSyncState(it, settings.offset.value) }
 
-        settings.adjustBy(SyncAdjustment.ADVANCE_FINE.deltaMs())
-        assertEquals("First", preview().currentLine?.text)
+        repeat(3) {
+            settings.adjustBy(SyncAdjustment.ADVANCE_FINE.deltaMs())
+            assertEquals("First", preview().currentLine?.text)
+        }
         settings.adjustBy(SyncAdjustment.ADVANCE_FINE.deltaMs())
         assertEquals("Second", preview().currentLine?.text)
         settings.adjustBy(SyncAdjustment.DELAY_COARSE.deltaMs())

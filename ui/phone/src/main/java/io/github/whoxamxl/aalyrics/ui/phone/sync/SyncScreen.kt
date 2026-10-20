@@ -173,7 +173,7 @@ private fun SyncAdjustmentRow(
             modifier = Modifier.weight(1f).heightIn(min = 48.dp),
         ) {
             Text(
-                stringResource(if (coarse) R.string.sync_delay_500 else R.string.sync_delay_100),
+                stringResource(if (coarse) R.string.sync_delay_500 else R.string.sync_delay_50),
                 style = AALyricsTypography.TrackArtist,
                 textAlign = TextAlign.Center,
             )
@@ -185,7 +185,7 @@ private fun SyncAdjustmentRow(
             modifier = Modifier.weight(1f).heightIn(min = 48.dp),
         ) {
             Text(
-                stringResource(if (coarse) R.string.sync_advance_500 else R.string.sync_advance_100),
+                stringResource(if (coarse) R.string.sync_advance_500 else R.string.sync_advance_50),
                 style = AALyricsTypography.TrackArtist,
                 textAlign = TextAlign.Center,
             )
