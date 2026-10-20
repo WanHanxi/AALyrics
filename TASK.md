@@ -16,7 +16,7 @@
 - [x] Persist calibration and connect timing consumers, with focused regression coverage.
 - [x] Add responsive Sync UI, live preview, empty/plain states, and Compose previews.
 - [x] Align reset copy and docs; run architecture checks, unit tests and debug APK build.
-- [x] Review branch-wide changes and prepare the final push / Draft PR handoff in the user's fork.
+- [x] Review branch-wide changes and push the completed implementation to the personal fork.
 
 ## Acceptance
 
@@ -33,4 +33,4 @@ UI checkpoint: `./gradlew test :app:assembleDebug --max-workers=2 --no-parallel`
 
 Emulator checks: Debug APK installation, onboarding-to-Sync navigation, timed/translated Compose fixture rendering, saved +300 ms restoration after process restart, and the actual Reset button persisting/displaying zero all passed. A 320dp / 1.3× font check exposed button-label wrapping; reduced horizontal padding and explicit body text size fixed it. Rebuilt and reinstalled the APK, verified readable controls, and scrolled to reach Reset and the preview. Real phone/audio and Android Auto verification remain manual follow-up.
 
-Delivery: implementation, documentation alignment, branch-wide scope review, and automated/emulator validation are complete. Final handoff is a debug APK and a Draft PR; no merge or additional feature work is included.
+Delivery: implementation, documentation alignment, branch-wide scope review, and automated/emulator validation are complete. The completed branch is pushed to the personal fork and a verified debug APK is available. Following the user's personal-use direction, handoff does not require a pull request; nothing is submitted to the original repository. No merge or additional feature work is included.
