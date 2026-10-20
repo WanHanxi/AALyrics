@@ -13,7 +13,7 @@
 ## Checkpoints
 
 - [x] Change fine adjustment to 50 ms with timing regression coverage and aligned docs.
-- [ ] Add exact-value editor, app callback, validation tests, and Preview coverage.
+- [x] Add exact-value editor, app callback, validation tests, and Preview coverage.
 - [ ] Verify tests/build, architecture, keyboard/dialog layout, reset semantics, and final docs; commit/push checkpoints.
 
 ## Acceptance and validation
@@ -25,4 +25,5 @@
 - No new durable state: Reset AALyrics still cancels calibration and restores this same offset to zero. Editor drafts are presentation state only.
 - Previous three-tap implementation passed 765 tests plus build/architecture checks; the user subsequently reported successful phone and Android Auto testing.
 - Fine-step checkpoint: `:app:testDebugUnitTest --tests '*PhoneSyncMapperTest'` passed (7 tests), including four +50 ms steps across the paused lyric boundary and retained coarse/reset behavior. `git diff --check` passed.
-- Editor and final validation: pending.
+- Editor checkpoint: exact-value validation and persistence tests passed. Full `JAVA_HOME=/opt/android-studio/jbr ./gradlew test :app:assembleDebug --max-workers=2 --no-parallel --console=plain` passed (771 tests in 94 suites; zero failures/errors/skips). Architecture checks and `git diff --check` passed.
+- Final visual verification and documentation handoff: pending.

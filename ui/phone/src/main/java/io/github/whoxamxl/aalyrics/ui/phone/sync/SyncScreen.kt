@@ -1,5 +1,6 @@
 package io.github.whoxamxl.aalyrics.ui.phone.sync
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -17,8 +18,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -33,12 +40,26 @@ fun SyncScreen(
     state: SyncScreenUiState,
     onAdjust: (SyncAdjustment) -> Unit,
     onReset: () -> Unit,
+    onSetOffset: (Long) -> Unit,
+    maxOffsetMs: Long,
     onStartTapSync: () -> Unit = {},
     onSyncTap: () -> Unit = {},
     onCancelTapSync: () -> Unit = {},
     modifier: Modifier = Modifier,
     bottomOverlayInset: Dp = 0.dp,
 ) {
+    var editingOffset by rememberSaveable { mutableStateOf(false) }
+    if (editingOffset) {
+        SyncOffsetEditor(
+            initialOffsetMs = state.offsetMs,
+            maxOffsetMs = maxOffsetMs,
+            onSave = {
+                onSetOffset(it)
+                editingOffset = false
+            },
+            onDismissRequest = { editingOffset = false },
+        )
+    }
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -82,14 +103,36 @@ fun SyncScreen(
                     style = AALyricsTypography.Label,
                     color = AALyricsColors.TextSecondary,
                 )
-                Text(
-                    text = stringResource(
-                        R.string.sync_offset_value,
-                        if (state.offsetMs > 0) "+${state.offsetMs}" else state.offsetMs.toString(),
-                    ),
-                    style = AALyricsTypography.LyricsCurrent,
-                    color = AALyricsColors.AccentCyan,
-                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 48.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable(
+                            role = Role.Button,
+                            onClickLabel = stringResource(R.string.sync_edit_offset),
+                        ) {
+                            onCancelTapSync()
+                            editingOffset = true
+                        },
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = stringResource(
+                            R.string.sync_offset_value,
+                            if (state.offsetMs > 0) "+${state.offsetMs}" else state.offsetMs.toString(),
+                        ),
+                        style = AALyricsTypography.LyricsCurrent,
+                        color = AALyricsColors.AccentCyan,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Text(
+                        stringResource(R.string.sync_offset_edit),
+                        style = AALyricsTypography.TrackArtist,
+                        color = AALyricsColors.AccentCyan,
+                    )
+                }
                 Text(
                     text = stringResource(R.string.sync_scope),
                     style = AALyricsTypography.TrackArtist,

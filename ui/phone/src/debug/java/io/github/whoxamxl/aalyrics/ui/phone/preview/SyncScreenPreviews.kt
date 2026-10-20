@@ -2,11 +2,18 @@ package io.github.whoxamxl.aalyrics.ui.phone.preview
 
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.whoxamxl.aalyrics.ui.designsystem.theme.AALyricsTheme
 import io.github.whoxamxl.aalyrics.ui.phone.lyrics.LyricsViewportLineUiState
 import io.github.whoxamxl.aalyrics.ui.phone.sync.SyncAvailability
+import io.github.whoxamxl.aalyrics.ui.phone.sync.SyncOffsetEditorDialog
 import io.github.whoxamxl.aalyrics.ui.phone.sync.SyncScreen
 import io.github.whoxamxl.aalyrics.ui.phone.sync.SyncScreenUiState
 import io.github.whoxamxl.aalyrics.ui.phone.sync.TapSyncAvailability
@@ -79,11 +86,46 @@ private fun SyncTapEndPreview() = SyncPreview(
     SyncScreenUiState(tapSync = TapSyncUiState(availability = TapSyncAvailability.NOT_ENOUGH_LINES)),
 )
 
+@Preview(name = "Exact offset editor", group = "Sync", widthDp = 412, heightDp = 820)
+@Preview(name = "Offset editor - narrow large font", group = "Sync", widthDp = 320, heightDp = 640, fontScale = 1.3f)
+@Preview(name = "Offset editor - landscape", group = "Sync", widthDp = 800, heightDp = 360)
+@Composable
+private fun SyncOffsetEditorPreview() = OffsetEditorPreview("-275")
+
+@Preview(name = "Offset outside range", group = "Sync", widthDp = 360, heightDp = 740)
+@Composable
+private fun SyncOffsetRangeErrorPreview() = OffsetEditorPreview("30001")
+
+@Preview(name = "Offset needs an integer", group = "Sync", widthDp = 360, heightDp = 740)
+@Composable
+private fun SyncOffsetInvalidPreview() = OffsetEditorPreview("-")
+
+@Composable
+private fun OffsetEditorPreview(text: String) {
+    var draft by remember { mutableStateOf(TextFieldValue(text, TextRange(0, text.length))) }
+    AALyricsTheme {
+        SyncOffsetEditorDialog(
+            draft = draft,
+            maxOffsetMs = 30_000L,
+            onDraftChange = { draft = it },
+            onSave = {},
+            onDismissRequest = {},
+        )
+    }
+}
+
 @Composable
 private fun SyncPreview(state: SyncScreenUiState) {
     AALyricsTheme {
         Surface {
-            SyncScreen(state = state, onAdjust = {}, onReset = {}, bottomOverlayInset = 80.dp)
+            SyncScreen(
+                state = state,
+                onAdjust = {},
+                onReset = {},
+                onSetOffset = {},
+                maxOffsetMs = 30_000L,
+                bottomOverlayInset = 80.dp,
+            )
         }
     }
 }

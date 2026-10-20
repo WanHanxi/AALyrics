@@ -197,6 +197,14 @@
     <string name="sync_help">Lyrics late? Advance (+). Lyrics early? Delay (−). Only the lyrics move; the music keeps playing normally.</string>
     <string name="sync_offset_label">LYRICS OFFSET</string>
     <string name="sync_offset_value">%1$s ms</string>
+    <string name="sync_offset_edit">Edit</string>
+    <string name="sync_edit_offset">Edit lyrics offset</string>
+    <string name="sync_offset_edit_help">Positive (+) advances lyrics. Negative (−) delays lyrics. Changes apply when you save.</string>
+    <string name="sync_offset_input_label">Offset (ms)</string>
+    <string name="sync_offset_change_sign">Change offset sign</string>
+    <string name="sync_offset_invalid_integer">Enter a whole number of milliseconds.</string>
+    <string name="sync_offset_range">Range: −%1$d to +%1$d ms.</string>
+    <string name="sync_offset_save">Save</string>
     <string name="sync_scope">Saved for all songs on Phone and Android Auto. Range: −30,000 to +30,000 ms.</string>
     <string name="sync_delay_50">Delay\n−50 ms</string>
     <string name="sync_advance_50">Advance\n+50 ms</string>
@@ -205,10 +213,10 @@
     <string name="sync_reset">Reset to 0 ms</string>
     <string name="sync_preview">LIVE LYRICS PREVIEW</string>
     <string name="sync_before_first_line">Waiting for the first line…</string>
-    <string name="sync_no_media">Play a song to adjust lyric timing. Your saved offset is kept.</string>
+    <string name="sync_no_media">Play a song to preview lyric timing. You can still edit the saved offset above.</string>
     <string name="sync_loading">Waiting for timed lyrics…</string>
-    <string name="sync_plain">These lyrics have no timestamps, so timing cannot be adjusted. Your saved offset will apply to the next song with timed lyrics.</string>
-    <string name="sync_unavailable">No timed lyrics are available for this song. Try another song to adjust timing.</string>
+    <string name="sync_plain">These lyrics have no timestamps. You can still edit the saved offset above; it will apply to the next song with timed lyrics.</string>
+    <string name="sync_unavailable">No timed lyrics are available for this song. You can still edit the saved offset above, or try another song to preview timing.</string>
 
     <string name="track_card_lyrics_loading">Loading...</string>
     <string name="track_card_lyrics_not_found">Lyrics not found</string>

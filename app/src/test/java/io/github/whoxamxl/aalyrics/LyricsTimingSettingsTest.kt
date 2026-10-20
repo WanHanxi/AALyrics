@@ -18,6 +18,23 @@ class LyricsTimingSettingsTest {
     }
 
     @Test
+    fun `exact entry replaces the saved value and retains precision after adjustment and restart`() {
+        var saved = 500L
+        fun settings() = LyricsTimingSettings({ saved }, { saved = it })
+        val current = settings()
+        current.setOffset(125L)
+        assertEquals(LyricsTimingOffset(125L), current.offset.value)
+        assertEquals(LyricsTimingOffset(125L), settings().offset.value)
+        current.setOffset(-275L)
+        assertEquals(-275L, saved)
+        current.adjustBy(50L)
+        assertEquals(LyricsTimingOffset(-225L), current.offset.value)
+        assertEquals(current.offset.value, settings().offset.value)
+        current.resetToDefaults()
+        assertEquals(LyricsTimingOffset.ZERO, settings().offset.value)
+    }
+
+    @Test
     fun `reset publishes and persists zero without clearing unrelated settings`() {
         val saved = mutableMapOf("offset" to 1_500L, "unrelated" to 42L)
         val settings = LyricsTimingSettings({ saved.getValue("offset") }, { saved["offset"] = it })

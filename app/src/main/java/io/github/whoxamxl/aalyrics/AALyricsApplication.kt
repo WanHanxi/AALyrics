@@ -145,6 +145,11 @@ class AALyricsApplication : Application() {
         lyricsTimingSettings.adjustBy(deltaMs)
     }
 
+    internal fun setLyricsTimingOffset(milliseconds: Long) {
+        tapSyncCalibration.cancel()
+        lyricsTimingSettings.setOffset(milliseconds)
+    }
+
     internal fun resetLyricsTimingOffset() {
         tapSyncCalibration.cancel()
         lyricsTimingSettings.resetToDefaults()

@@ -324,6 +324,8 @@ internal fun PhoneRuntimeHost(
                 ),
                 onAdjust = { application.adjustLyricsTimingOffset(it.deltaMs()) },
                 onReset = application::resetLyricsTimingOffset,
+                onSetOffset = application::setLyricsTimingOffset,
+                maxOffsetMs = LyricsTimingSettings.MAX_OFFSET_MS,
                 onStartTapSync = application::startTapSync,
                 onSyncTap = application::recordSyncTap,
                 onCancelTapSync = application::cancelTapSync,
