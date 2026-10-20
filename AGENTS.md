@@ -181,3 +181,14 @@ A PR is ready to leave the review loop when:
 5. remaining comments are theoretical, adversarial, future-scope, stylistic, or better handled by dedicated tooling/follow-up work.
 
 At that point, stop requesting repeated broad reviews and proceed to the normal pre-merge approval gate.
+
+## Local verification resource budget (personal fork)
+
+The user reported host memory exhaustion during agent verification on this 16 GiB workstation.
+
+- Reuse an already successful build when no source change requires rebuilding.
+- Run Gradle, tests, and emulator verification sequentially; stop the task-owned emulator before compiling.
+- For agent-initiated Gradle runs, use `--max-workers=1 --no-parallel --no-daemon`, `-Dorg.gradle.jvmargs="-Xmx1g -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8"`, and `-Pkotlin.compiler.execution.strategy=in-process`. Do not change the user's Android Studio settings or generated Gradle JVM file.
+- Inspect available host memory before starting heavy work. Prefer a task-specific systemd scope with a 3 GiB `MemoryMax` and `MemorySwapMax=0`; verify that the limit is active. Do not raise the budget simply to finish optional preview checks.
+- Close task-owned emulators and transient build processes after verification. Never kill unrelated processes or the user's IDE to recover memory.
+- If a preview cannot complete within the budget, record the limitation and use the existing Compose previews/phone testing handoff rather than repeatedly restarting unbounded emulators.
