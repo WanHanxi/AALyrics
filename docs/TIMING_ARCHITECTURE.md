@@ -289,7 +289,7 @@ Translation:
 
 ## Calibration scope and persistence
 
-The manual Sync slice selects a **global** offset shared by all songs and surfaces. `LyricsTimingSettings` in `:app` owns a `StateFlow<LyricsTimingOffset>` initialized from app-private SharedPreferences (`lyrics_timing_settings` / `lyrics_offset_ms`). Values are bounded to −30,000…+30,000 ms. Phone controls emit semantic actions mapped to ±50/500 ms in the app; they do not calculate timing.
+The manual Sync slice selects a **global** offset shared by all songs and surfaces. `LyricsTimingSettings` in `:app` owns a `StateFlow<LyricsTimingOffset>` initialized from app-private SharedPreferences (`lyrics_timing_settings` / `lyrics_offset_ms`). Values are bounded to −30,000…+30,000 ms. Phone controls emit semantic actions mapped to ±50/500 ms in the app, or submit an exact signed millisecond value; they do not calculate timing.
 
 The offset survives navigation, activity/process recreation and track/provider changes. It is applied once by the existing effective-position boundary in Phone lyrics/Karaoke, Sync preview, verbose Details, and Automotive. Automotive observes offset changes even while paused. Translation remains attached to the current canonical line; calibration neither refetches nor retranslates lyrics.
 
@@ -301,7 +301,7 @@ Sync Reset and `Reset AALyrics` both cancel any unfinished tap calibration and p
 
 Start freezes the next three nonblank timed lines after the current effective lyrics position, using distinct timestamps. All three stay visible and only taps advance the highlighted target. Fewer than three remaining lines disables Start. Each tap reads the latest normalized playback snapshot and the click's `SystemClock.elapsedRealtime()`, then uses the shared raw playback projection including source timestamp/fallback and playback rate. The 250 ms UI tick is never the sampling clock. Three absolute offsets are averaged, rounded to the nearest millisecond, and replace the saved global value once; partial samples do not write preferences. Taps less than 250 ms apart are ignored, and a sample beyond ±30 seconds rejects the session without changing the saved value.
 
-The app observes playback and lyrics changes on the main thread and revalidates at each tap. Track/lookup/document changes, pause or playback-rate changes, and source position discontinuities over 1 second cancel the unfinished session. Smaller source clock corrections are tolerated. In-app seeking, manual adjustment, either Reset, leaving Sync, and activity disposal also cancel it. An unfinished session is not persisted or restored across process recreation. No microphone, media seek, provider request, or translation work is initiated by tap calibration.
+The app observes playback and lyrics changes on the main thread and revalidates at each tap. Track/lookup/document changes, pause or playback-rate changes, and source position discontinuities over 1 second cancel the unfinished session. Smaller source clock corrections are tolerated. In-app seeking, manual adjustment, opening the exact-value editor, either Reset, leaving Sync, and activity disposal also cancel it. An unfinished session is not persisted or restored across process recreation. No microphone, media seek, provider request, or translation work is initiated by tap calibration.
 
 ## Offset versus drift
 
@@ -323,9 +323,11 @@ Extreme arithmetic-overflow hardening may follow normal repository conventions; 
 
 ## Presentation and Sync UI boundary
 
-`SyncScreen` renders presentation-ready state and emits tap-calibration and `SyncAdjustment`/Reset callbacks. Its three-line tap panel is followed by the existing signed value, ±50/500 ms actions, global-scope explanation, and previous/current/next original lines with the current translation when available. `PhoneSyncMapper` reuses the calibrated Phone lyric projection rather than maintaining another clock. Tap calibration requires playing timed lyrics; fixed adjustments remain available during pause.
+`SyncScreen` renders presentation-ready state and emits tap-calibration and `SyncAdjustment`/SetOffset/Reset callbacks. Its three-line tap panel is followed by a tappable signed value, ±50/500 ms actions, global-scope explanation, and previous/current/next original lines with the current translation when available. `PhoneSyncMapper` reuses the calibrated Phone lyric projection rather than maintaining another clock. Tap calibration requires playing timed lyrics; fixed adjustments remain available during pause.
 
-The Sync destination ticks at the existing 250 ms line cadence while music plays. While paused, offset updates still reproject the current position immediately. No-media/loading/unavailable/PLAIN states disable adjustment; a non-zero saved value can always be reset. Before the first timestamp, the preview shows an upcoming first line and leaves calibration enabled. Limits disable only the outward adjustment direction.
+The Sync destination ticks at the existing 250 ms line cadence while music plays. While paused, offset updates still reproject the current position immediately. No-media/loading/unavailable/PLAIN states disable fixed-step adjustment; the global value can always be edited, and a non-zero saved value can always be reset. Before the first timestamp, the preview shows an upcoming first line and leaves calibration enabled. Limits disable only the outward adjustment direction.
+
+The exact-value dialog receives its range from the application. It prefills and selects the saved value, focuses a numeric keyboard, and provides a sign toggle for keyboards without a minus key. Draft validation accepts signed integer milliseconds (including a pasted Unicode minus) and rejects malformed, overflowing, or out-of-range values instead of silently clamping them. Save and keyboard Done submit the absolute value through `AALyricsApplication.setLyricsTimingOffset`; typing and Cancel/back/outside dismissal never write preferences. Opening the editor cancels tap calibration so it cannot complete behind the dialog. The draft is saveable Compose presentation state, not a new durable preference; the existing explicit Reset AALyrics contract remains unchanged.
 
 The entire content scrolls with the Phone playback-overlay inset for narrow/landscape screens and large fonts. Source playback transport and progress remain independent.
 

@@ -342,7 +342,7 @@ The existing timing topic branch continues for this work. Draft PR #80 was close
 
 ### Phase 11.3c — Manual global Sync calibration — implemented in this fork
 
-Phone Sync now offers three-tap calibration alongside ±50/500 ms and Reset, a signed millisecond value, and a live original/translated preview. Three taps at the starts of three fixed upcoming lyric lines replace the saved offset with their average. One app-owned offset is saved across songs/restarts and consumed by Phone lyrics/Karaoke, verbose Details, and Android Auto. The range is ±30 seconds; Reset AALyrics also cancels unfinished calibration and restores zero. No-media/untimed lyrics cannot be calibrated, and playback progress/source timestamps remain unchanged.
+Phone Sync now offers three-tap calibration alongside ±50/500 ms and Reset, a tappable signed millisecond value with exact numeric entry, and a live original/translated preview. Three taps at the starts of three fixed upcoming lyric lines replace the saved offset with their average. One app-owned offset is saved across songs/restarts and consumed by Phone lyrics/Karaoke, verbose Details, and Android Auto. The range is ±30 seconds; Reset AALyrics also cancels unfinished calibration and restores zero. No-media/untimed lyrics disable tap and fixed-step calibration; exact global entry remains available with validation and Save/Cancel. Playback progress/source timestamps remain unchanged.
 
 Per-track/provider-specific offsets, separate Phone/Auto compensation, and automatic calibration remain deferred. See `TIMING_ARCHITECTURE.md`.
 
