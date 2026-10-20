@@ -2,6 +2,7 @@ package io.github.whoxamxl.aalyrics
 
 import android.app.Application
 import android.graphics.Bitmap
+import io.github.whoxamxl.aalyrics.core.timing.LyricsTimingOffset
 import io.github.whoxamxl.aalyrics.core.lyrics.CandidateSelectionPreferences
 import io.github.whoxamxl.aalyrics.core.lyrics.CandidateSelector
 import io.github.whoxamxl.aalyrics.core.lyrics.LyricsCoordinator
@@ -82,6 +83,7 @@ class AALyricsApplication : Application() {
     private lateinit var automotiveBinding: AutomotiveRuntimeBinding
     private lateinit var translationSettingsStore: SharedPreferencesTranslationSettingsStore
     private lateinit var phonePresentationSettingsStore: SharedPreferencesPhonePresentationSettingsStore
+    private lateinit var lyricsTimingSettings: LyricsTimingSettings
     private lateinit var translationBackgroundRuntime: TranslationBackgroundRuntime
     private lateinit var translationExecutionRuntime: TranslationExecutionRuntime
     private lateinit var translationCoordinator: TranslationCoordinator
@@ -125,6 +127,13 @@ class AALyricsApplication : Application() {
 
     val lyricsState: StateFlow<LyricsState>
         get() = graph.lyricsState
+
+    val lyricsTimingOffset: StateFlow<LyricsTimingOffset>
+        get() = lyricsTimingSettings.offset
+
+    internal fun adjustLyricsTimingOffset(deltaMs: Long) = lyricsTimingSettings.adjustBy(deltaMs)
+
+    internal fun resetLyricsTimingOffset() = lyricsTimingSettings.resetToDefaults()
 
     val playbackState: StateFlow<PlaybackSnapshot>
         get() = graph.playbackState
@@ -390,6 +399,7 @@ class AALyricsApplication : Application() {
         updateSuccessFeedbackRuntime.refresh()
         translationSettingsStore.resetToDefaults()
         phonePresentationSettingsStore.resetToDefaults()
+        lyricsTimingSettings.resetToDefaults()
         automaticUpdateCheckRuntime.resetCadence()
         applyCurrentPlaybackSourceEligibility()
     }
@@ -406,6 +416,7 @@ class AALyricsApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        lyricsTimingSettings = createLyricsTimingSettings(this)
         val updateUserAgent = "AALyrics/${BuildConfig.VERSION_NAME}"
         updateRecoveryStore = SharedPreferencesUpdateRecoveryStore(this)
         updateCheckCadenceStore = SharedPreferencesUpdateCheckCadenceStore(this)
@@ -622,6 +633,7 @@ class AALyricsApplication : Application() {
         automotiveBinding = AutomotiveRuntimeBinding(
             playback = graph.playbackState,
             lyrics = graph.lyricsState,
+            lyricsTimingOffset = lyricsTimingSettings.offset,
             artwork = mutableAutomotiveArtworkState.asStateFlow(),
             capabilities = graph.playbackControlState.map { state ->
                 val source = state.capabilities
