@@ -3,6 +3,7 @@ package io.github.whoxamxl.aalyrics.ui.phone.sync
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -157,20 +158,24 @@ private fun SyncAdjustmentRow(
         OutlinedButton(
             onClick = { onAdjust(if (coarse) SyncAdjustment.DELAY_COARSE else SyncAdjustment.DELAY_FINE) },
             enabled = state.canDelay,
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
             modifier = Modifier.weight(1f).heightIn(min = 48.dp),
         ) {
             Text(
                 stringResource(if (coarse) R.string.sync_delay_500 else R.string.sync_delay_100),
+                style = AALyricsTypography.TrackArtist,
                 textAlign = TextAlign.Center,
             )
         }
         Button(
             onClick = { onAdjust(if (coarse) SyncAdjustment.ADVANCE_COARSE else SyncAdjustment.ADVANCE_FINE) },
             enabled = state.canAdvance,
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
             modifier = Modifier.weight(1f).heightIn(min = 48.dp),
         ) {
             Text(
                 stringResource(if (coarse) R.string.sync_advance_500 else R.string.sync_advance_100),
+                style = AALyricsTypography.TrackArtist,
                 textAlign = TextAlign.Center,
             )
         }
