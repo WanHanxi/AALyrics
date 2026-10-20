@@ -293,7 +293,15 @@ The manual Sync slice selects a **global** offset shared by all songs and surfac
 
 The offset survives navigation, activity/process recreation and track/provider changes. It is applied once by the existing effective-position boundary in Phone lyrics/Karaoke, Sync preview, verbose Details, and Automotive. Automotive observes offset changes even while paused. Translation remains attached to the current canonical line; calibration neither refetches nor retranslates lyrics.
 
-Sync Reset and `Reset AALyrics` both persist and publish zero. The timing reset writes only its own key. Reset AALyrics also restores its other explicitly listed settings; neither path removes downloaded translation models. Per-track offsets, separate device compensation, tap-to-sync, audio calibration, and drift correction remain deferred.
+Sync Reset and `Reset AALyrics` both cancel any unfinished tap calibration and persist/publish zero. The timing reset writes only its own key. Reset AALyrics also restores its other explicitly listed settings; neither path removes downloaded translation models. Per-track offsets, separate device compensation, automatic audio calibration, and drift correction remain deferred.
+
+### Three-tap calibration
+
+`TapSyncCalibration` in `:app` owns a transient session; UI modules emit Start/Tap/Cancel only. The interaction follows [Auto Lyrics `854c5fa`, `MainActivity.onTapSyncPressed`](https://github.com/GitUpGitUp/auto-lyrics/blob/854c5fa032632a5703349dacb7ae91aa5e19f3d8/app/src/main/java/com/autolyrics/MainActivity.kt#L593). That upstream version computes `rawPosition - targetTime` even though its display clock adds the offset; this fork uses the established AALyrics equation `targetTime - rawPosition` instead.
+
+Start freezes the next three nonblank timed lines after the current effective lyrics position, using distinct timestamps. All three stay visible and only taps advance the highlighted target. Fewer than three remaining lines disables Start. Each tap reads the latest normalized playback snapshot and the click's `SystemClock.elapsedRealtime()`, then uses the shared raw playback projection including source timestamp/fallback and playback rate. The 250 ms UI tick is never the sampling clock. Three absolute offsets are averaged, rounded to the nearest millisecond, and replace the saved global value once; partial samples do not write preferences. Taps less than 250 ms apart are ignored, and a sample beyond ±30 seconds rejects the session without changing the saved value.
+
+The app observes playback and lyrics changes on the main thread and revalidates at each tap. Track/lookup/document changes, pause or playback-rate changes, and source position discontinuities over 1 second cancel the unfinished session. Smaller source clock corrections are tolerated. In-app seeking, manual adjustment, either Reset, leaving Sync, and activity disposal also cancel it. An unfinished session is not persisted or restored across process recreation. No microphone, media seek, provider request, or translation work is initiated by tap calibration.
 
 ## Offset versus drift
 
@@ -315,7 +323,7 @@ Extreme arithmetic-overflow hardening may follow normal repository conventions; 
 
 ## Presentation and Sync UI boundary
 
-`SyncScreen` renders presentation-ready state and emits `SyncAdjustment`/Reset callbacks. It displays a signed value, ±100/500 ms actions, a global-scope explanation, and the previous/current/next original lines with the current translation when available. `PhoneSyncMapper` reuses the calibrated Phone lyric projection rather than maintaining another clock.
+`SyncScreen` renders presentation-ready state and emits tap-calibration and `SyncAdjustment`/Reset callbacks. Its three-line tap panel is followed by the existing signed value, ±100/500 ms actions, global-scope explanation, and previous/current/next original lines with the current translation when available. `PhoneSyncMapper` reuses the calibrated Phone lyric projection rather than maintaining another clock. Tap calibration requires playing timed lyrics; fixed adjustments remain available during pause.
 
 The Sync destination ticks at the existing 250 ms line cadence while music plays. While paused, offset updates still reproject the current position immediately. No-media/loading/unavailable/PLAIN states disable adjustment; a non-zero saved value can always be reset. Before the first timestamp, the preview shows an upcoming first line and leaves calibration enabled. Limits disable only the outward adjustment direction.
 

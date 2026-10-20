@@ -938,6 +938,7 @@ After confirmation, reset restores:
 - Karaoke experimental feature gate -> OFF;
 - Karaoke live mode -> OFF;
 - Global lyrics timing offset -> 0 ms (shared Phone/Android Auto calibration);
+- Any unfinished three-tap calibration -> cancelled (transient samples are never persisted);
 - Plain lyrics auto-scroll -> its Phone default;
 - Ignore non-audio apps -> ON;
 - Allow unclassified apps -> OFF;

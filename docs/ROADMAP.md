@@ -313,7 +313,7 @@ Approved first-slice semantics:
 - do not integrate the new engine into Phone/Android Auto presentation yet;
 - do not add persistence, calibration controls, drift correction, or Karaoke semantics.
 
-The working-fork `SyncCalibration.offsetForTap(target, raw) = target - raw` sign behavior was re-checked at `v1.13.0` and is compatible with this contract. The old tap workflow itself remains deferred.
+The working-fork `SyncCalibration.offsetForTap(target, raw) = target - raw` sign behavior was re-checked at `v1.13.0` and is compatible with this contract. The three-tap workflow is now implemented in this fork's Phase 11.3c.
 
 The implementation contract and validation record are `TASK.md` plus `docs/TIMING_ARCHITECTURE.md`.
 
@@ -342,9 +342,9 @@ The existing timing topic branch continues for this work. Draft PR #80 was close
 
 ### Phase 11.3c — Manual global Sync calibration — implemented in this fork
 
-Phone Sync now offers ±100/500 ms and Reset, a signed millisecond value, and a live original/translated preview. One app-owned offset is saved across songs/restarts and consumed by Phone lyrics/Karaoke, verbose Details, and Android Auto. The range is ±30 seconds; Reset AALyrics also restores zero. No-media/untimed lyrics cannot be calibrated, and playback progress/source timestamps remain unchanged.
+Phone Sync now offers three-tap calibration alongside ±100/500 ms and Reset, a signed millisecond value, and a live original/translated preview. Three taps at the starts of three fixed upcoming lyric lines replace the saved offset with their average. One app-owned offset is saved across songs/restarts and consumed by Phone lyrics/Karaoke, verbose Details, and Android Auto. The range is ±30 seconds; Reset AALyrics also cancels unfinished calibration and restores zero. No-media/untimed lyrics cannot be calibrated, and playback progress/source timestamps remain unchanged.
 
-Per-track/provider-specific offsets, separate Phone/Auto compensation, tap-to-sync, and automatic calibration remain deferred. See `TIMING_ARCHITECTURE.md`.
+Per-track/provider-specific offsets, separate Phone/Auto compensation, and automatic calibration remain deferred. See `TIMING_ARCHITECTURE.md`.
 
 ### Phase 11.4b — Karaoke presentation mapping — implemented on Phone topic branch
 

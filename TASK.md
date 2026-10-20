@@ -15,8 +15,8 @@
 
 - [x] Implement application-owned tap session, exact-time sampling, and regression tests.
 - [x] Wire the three-line panel into Sync with preview coverage; retain existing manual controls.
-- [ ] Update user/architecture docs and reset semantics, run tests/build/architecture checks, inspect emulator layout.
-- [ ] Commit coherent checkpoints, push to the personal fork if authentication is available, and provide Android Studio phone testing instructions. The user has connected a phone and does not need an exported APK.
+- [x] Update user/architecture docs and reset semantics, run tests/build/architecture checks, inspect emulator layout.
+- [x] Commit and push the tested implementation checkpoints to the personal fork; prepare the final documentation handoff and Android Studio phone testing instructions. The user has connected a phone and does not need an exported APK.
 
 ## Acceptance and validation
 
@@ -27,4 +27,8 @@
 
 Core checkpoint: `:app:testDebugUnitTest` for `TapSyncCalibrationTest` and `LyricsTimingSettingsTest` passed (18 tests). Covers absolute sign/averaging, click-time clock projection, source updates, cancellation/stale input, range limits, and retained manual adjustment/reset.
 
-UI checkpoint: presentation mapper tests and `test :app:assembleDebug` passed; architecture guardrails and `git diff --check` passed. The tap target uses fixed text sizing and a fixed marker column so the button stays in place as the highlighted line advances. Emulator layout verification follows.
+UI checkpoint: presentation mapper tests and `JAVA_HOME=/opt/android-studio/jbr ./gradlew test :app:assembleDebug --max-workers=2 --no-parallel --console=plain` passed (765 tests, 93 suites, zero failures/errors/skips). Architecture guardrails and branch-wide `git diff --check` passed. The tap target uses fixed text sizing and a fixed marker column so the button stays in place as the highlighted line advances.
+
+Visual verification: installed the build in a temporary emulator and rendered the active three-tap Compose fixture at ordinary width and at 320dp / 1.3× font scale. All three lines, current-line highlight, completed-line marker, tap/cancel actions, and retained manual controls render correctly. The PreviewActivity action bar overlays the fixture's top edge; it is not the production Phone shell. No runtime exception was logged. The temporary emulator was closed afterward; the user's connected phone was not operated.
+
+Handoff: current local checkout remains on `feature/lyrics-sync-offset`; use Android Studio Run to update AALyrics Debug on the connected phone, play timed lyrics, then open Sync and start three-tap calibration. Real listening alignment and Android Auto host testing remain user/device validation. No exported APK, PR, merge, or unrelated feature work is included.
