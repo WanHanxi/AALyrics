@@ -31,9 +31,10 @@ class TapSyncCalibrationTest {
         LyricsLookup(LyricsLookupId(id), track, requireNotNull(playback.trackIdentity)), doc,
     )
     private var lyrics: LyricsState = ready()
-    private var saved = 700L
+    private var persisted = LyricsTimingOffsets(globalMs = 700L, androidAutoMs = -5_000L)
+    private val saved: Long get() = persisted.globalMs
     private var writes = 0
-    private val settings = LyricsTimingSettings({ saved }, { saved = it; writes++ })
+    private val settings = LyricsTimingSettings({ persisted }, { persisted = it; writes++ })
     private val calibration = TapSyncCalibration(settings, { playback }, { lyrics }, { now })
 
     @Test
@@ -52,7 +53,8 @@ class TapSyncCalibrationTest {
         assertEquals(TapSyncState.Completed(700L), calibration.state.value)
         assertEquals(700L, saved) // Not +1,400; replaces rather than adds to the old calibration.
         assertEquals(1, writes)
-        assertEquals(700L, LyricsTimingSettings({ saved }, {}).offset.value.milliseconds)
+        assertEquals(700L, LyricsTimingSettings({ persisted }, {}).offsets.value.globalMs)
+        assertEquals(-5_000L, persisted.androidAutoMs) // Taps calibrate only the global value.
         assertEquals(5_000L, playback.positionMs)
         assertEquals(document, (lyrics as LyricsState.Ready).lyrics)
     }

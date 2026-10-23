@@ -40,9 +40,9 @@ internal class TapSyncCalibration(
         val playback = readPlayback()
         val lyrics = readLyrics()
         val resolved = currentTapSyncLyrics(playback, lyrics) ?: return
-        val targets = nextTapSyncTargets(playback, lyrics, settings.offset.value, monotonicTimeMs())
+        val targets = nextTapSyncTargets(playback, lyrics, settings.offsets.value.global, monotonicTimeMs())
         if (targets.size != TAP_COUNT) return
-        session = Session(resolved, targets, settings.offset.value, playback)
+        session = Session(resolved, targets, settings.offsets.value.global, playback)
         mutableState.value = TapSyncState.Listening(targets, completedTaps = 0)
     }
 
@@ -93,7 +93,7 @@ internal class TapSyncCalibration(
             playback.trackIdentity != previous.trackIdentity ||
             playback.playbackRate != previous.playbackRate ||
             currentTapSyncLyrics(playback, lyrics) != active.lyrics ||
-            settings.offset.value != active.initialOffset
+            settings.offsets.value.global != active.initialOffset
         // Ordinary source clock corrections are tolerated; a seek must not mix two timelines.
         val jumped = abs(
             projectedPlaybackPosition(playback, now) - projectedPlaybackPosition(previous, now),

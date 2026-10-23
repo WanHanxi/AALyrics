@@ -81,7 +81,8 @@ internal fun PhoneRuntimeHost(
     val playbackSourceRuntimeState by
         application.playbackSourceRuntimeState.collectAsStateWithLifecycle()
     val lyricsState by application.lyricsState.collectAsStateWithLifecycle()
-    val lyricsTimingOffset by application.lyricsTimingOffset.collectAsStateWithLifecycle()
+    val lyricsTimingOffsets by application.lyricsTimingOffsets.collectAsStateWithLifecycle()
+    val lyricsTimingOffset = lyricsTimingOffsets.global
     val tapSyncState by application.tapSyncState.collectAsStateWithLifecycle()
     val translationState by application.translationState.collectAsStateWithLifecycle()
     val playbackSurface by application.phonePlaybackSurfaceState.collectAsStateWithLifecycle()

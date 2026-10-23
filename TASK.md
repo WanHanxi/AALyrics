@@ -1,23 +1,27 @@
-# Compact lyrics offset panel
+# Android Auto-specific lyrics offset
 
 ## Scope
 
-- Continue the personal `feature/lyrics-sync-offset` branch from `35775b9`. No PR or merge; preserve user-owned Gradle/SDK files.
-- Reduce the Lyrics Offset card height: combine the editable value and Reset in one header, use a smaller value size with a pencil affordance, and put −500 / −50 / +50 / +500 on one row with shared direction/unit labels.
-- Replace repeated help/range paragraphs with a short scope footer. Full direction/scope/range guidance stays in the exact-value editor.
-- Keep at least 48 dp touch heights, full accessibility action descriptions, and two grouped rows on very narrow displays or large font scales.
-- Preserve all timing, exact input, three-tap, persistence, limits, Reset, and Phone/Android Auto behavior. No new persisted state; the reset contract is unchanged.
+- Continue the personal `feature/lyrics-sync-offset` branch from `652b569`, preserving the established no-PR/no-merge handoff and user-owned Gradle/SDK files.
+- Preserve the global offset for Phone lyrics/Karaoke, Details, and three-tap calibration. Android Auto consumes global + an independently persisted AA offset, with the same positive-advance/negative-delay convention.
+- Keep the existing global preference key and default the new AA key to zero. Bound each setting to ±30 seconds; the car total is their unclamped sum (up to ±60 seconds).
+- Add a compact AA offset card in Phone Sync with ±50/500 ms, exact entry, independent Reset, and the effective car total. Offer explicitly labelled Phone/Android Auto lyric previews using the shared timing engine.
+- Each card Reset clears only its own setting. Reset AALyrics cancels calibration and resets both keys explicitly. Preserve canonical timestamps, real playback progress, provider/translation lifecycle, and downloaded models.
+- Keep three-tap calibration global. Separate per-car/device profiles, AA-side controls, automatic calibration, and per-track/provider correction remain follow-up work.
 
-## Plan
+## Checkpoints
 
-- [x] Implement the compact card and normal/narrow/large-font/limit previews.
-- [x] Verify build, existing timing/input regressions, and architecture; align docs and prepare the personal-branch handoff.
-- [x] Attempt bounded emulator verification and record its limits without increasing resource usage.
+- [x] Persist both offsets as one application-owned snapshot; wire the combined car offset and reset semantics; cover compatibility, bounds, independent changes/reset, and tap preservation.
+- [ ] Add scoped controls/editor/preview mapping and normal/narrow/large-font/limits/reset previews; test Phone/car separation and preview timing.
+- [ ] Align README, timing/Phone/Automotive/reset docs and stale Sync status; complete focused regression/build/architecture/diff validation, commit and push the handoff.
 
-## Validation
+## Validation plan
 
-- Resource constraint from the user: keep compilation and emulator checks sequential. Reuse the successful existing build. Future builds use one worker, no parallel execution, no persistent daemon, a 1 GiB Gradle heap, and in-process Kotlin compilation. Bound the temporary emulator to a 3 GiB cgroup with no extra swap; release it immediately after verification.
-- No new unit tests for this layout-only change; retain existing behavioral coverage and add targeted Compose previews.
-- Build and 31 focused regression tests passed (26 timing/calibration tests and 5 exact-input tests). Architecture guardrails and `git diff --check` passed. Six targeted interactive Compose fixtures cover normal/narrow/large-font/limit/zero/unavailable states. Actual visual verification could not finish: the API 37 emulator hung during boot and crashed before rendering the app. The isolated systemd scope enforced a 3 GiB hard limit with no additional swap; systemd reported a 2.5 GiB peak. No larger or repeated emulator run was attempted after that bounded check.
-- Cleanup confirmed: no task-owned emulator, Gradle daemon, or waiting emulator command remains. Available host memory recovered to about 9.9 GiB. The user can inspect the compact layout by running the app from Android Studio on their phone; no exported APK is needed.
-- Changes remain on the personal feature branch; no PR or merge. The generated Gradle JVM file remains untouched.
+- Run Gradle sequentially with `--max-workers=1 --no-parallel --no-daemon`, a 1 GiB heap / 512 MiB metaspace, and in-process Kotlin. Prefer a verified 3 GiB systemd scope with no swap; check host memory first.
+- Reuse completed checks where source is unchanged. Do not start another emulator after the earlier bounded boot failure; compile Compose previews and provide a phone/AA testing handoff.
+- Focused tests cover settings persistence/reset, tap calibration, exact input, Phone Sync/Details/lyrics, shared timing, and Automotive projection. Run architecture checks and branch-wide diff review.
+
+## Status
+
+- Checkpoint 1: 29 focused settings/tap/Sync mapper tests passed. Architecture checks and `git diff --check` passed. The Gradle scope verified `memory.max=3221225472` and `memory.swap.max=0`; the single-use daemon exited after the successful run.
+- Initial worktree contained only the pre-existing untracked `gradle/gradle-daemon-jvm.properties`; it remains untouched.

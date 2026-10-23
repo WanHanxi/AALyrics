@@ -97,15 +97,15 @@ class PhoneSyncMapperTest {
             LyricsLookup(LyricsLookupId(1L), track, requireNotNull(playback.trackIdentity)), document,
         )
         var stored = 0L
-        val settings = LyricsTimingSettings({ stored }, { stored = it })
+        val settings = LyricsTimingSettings({ LyricsTimingOffsets(globalMs = stored) }, { stored = it.globalMs })
         fun preview() = mapPhoneLyricsState(
             playback = playback,
             lyricsState = ready,
             plainLyricsAutoScrollEnabled = true,
             interactionMode = LyricsViewportInteractionMode.FOLLOW,
             currentMonotonicTimeMs = 20_000L,
-            lyricsTimingOffset = settings.offset.value,
-        ).let { mapPhoneSyncState(it, settings.offset.value) }
+            lyricsTimingOffset = settings.offsets.value.global,
+        ).let { mapPhoneSyncState(it, settings.offsets.value.global) }
 
         repeat(3) {
             settings.adjustBy(SyncAdjustment.ADVANCE_FINE.deltaMs())

@@ -3,7 +3,6 @@ package io.github.whoxamxl.aalyrics
 import android.app.Application
 import android.graphics.Bitmap
 import android.os.SystemClock
-import io.github.whoxamxl.aalyrics.core.timing.LyricsTimingOffset
 import io.github.whoxamxl.aalyrics.core.lyrics.CandidateSelectionPreferences
 import io.github.whoxamxl.aalyrics.core.lyrics.CandidateSelector
 import io.github.whoxamxl.aalyrics.core.lyrics.LyricsCoordinator
@@ -130,8 +129,8 @@ class AALyricsApplication : Application() {
     val lyricsState: StateFlow<LyricsState>
         get() = graph.lyricsState
 
-    val lyricsTimingOffset: StateFlow<LyricsTimingOffset>
-        get() = lyricsTimingSettings.offset
+    internal val lyricsTimingOffsets: StateFlow<LyricsTimingOffsets>
+        get() = lyricsTimingSettings.offsets
 
     internal val tapSyncState: StateFlow<TapSyncState>
         get() = tapSyncCalibration.state
@@ -151,6 +150,23 @@ class AALyricsApplication : Application() {
     }
 
     internal fun resetLyricsTimingOffset() {
+        tapSyncCalibration.cancel()
+        lyricsTimingSettings.setOffset(0L)
+    }
+
+    internal fun adjustAndroidAutoTimingOffset(deltaMs: Long) {
+        tapSyncCalibration.cancel()
+        lyricsTimingSettings.adjustAndroidAutoBy(deltaMs)
+    }
+
+    internal fun setAndroidAutoTimingOffset(milliseconds: Long) {
+        tapSyncCalibration.cancel()
+        lyricsTimingSettings.setAndroidAutoOffset(milliseconds)
+    }
+
+    internal fun resetAndroidAutoTimingOffset() = setAndroidAutoTimingOffset(0L)
+
+    private fun resetAllLyricsTimingOffsets() {
         tapSyncCalibration.cancel()
         lyricsTimingSettings.resetToDefaults()
     }
@@ -419,7 +435,7 @@ class AALyricsApplication : Application() {
         updateSuccessFeedbackRuntime.refresh()
         translationSettingsStore.resetToDefaults()
         phonePresentationSettingsStore.resetToDefaults()
-        resetLyricsTimingOffset()
+        resetAllLyricsTimingOffsets()
         automaticUpdateCheckRuntime.resetCadence()
         applyCurrentPlaybackSourceEligibility()
     }
@@ -666,7 +682,11 @@ class AALyricsApplication : Application() {
         automotiveBinding = AutomotiveRuntimeBinding(
             playback = graph.playbackState,
             lyrics = graph.lyricsState,
-            lyricsTimingOffset = lyricsTimingSettings.offset,
+            lyricsTimingOffset = lyricsTimingSettings.offsets.map { it.automotive }.stateIn(
+                scope = applicationScope,
+                started = SharingStarted.Eagerly,
+                initialValue = lyricsTimingSettings.offsets.value.automotive,
+            ),
             artwork = mutableAutomotiveArtworkState.asStateFlow(),
             capabilities = graph.playbackControlState.map { state ->
                 val source = state.capabilities
