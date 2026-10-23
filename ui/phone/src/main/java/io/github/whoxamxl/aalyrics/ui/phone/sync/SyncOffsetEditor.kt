@@ -43,6 +43,7 @@ internal fun SyncOffsetEditor(
     maxOffsetMs: Long,
     onSave: (Long) -> Unit,
     onDismissRequest: () -> Unit,
+    scope: SyncOffsetScope = SyncOffsetScope.GLOBAL,
 ) {
     var draft by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         val text = initialOffsetMs.toString()
@@ -54,6 +55,7 @@ internal fun SyncOffsetEditor(
         onDraftChange = { draft = it },
         onSave = onSave,
         onDismissRequest = onDismissRequest,
+        scope = scope,
     )
 }
 
@@ -64,7 +66,9 @@ internal fun SyncOffsetEditorDialog(
     onDraftChange: (TextFieldValue) -> Unit,
     onSave: (Long) -> Unit,
     onDismissRequest: () -> Unit,
+    scope: SyncOffsetScope = SyncOffsetScope.GLOBAL,
 ) {
+    val androidAuto = scope == SyncOffsetScope.ANDROID_AUTO
     val input = parseSyncOffsetInput(draft.text, maxOffsetMs)
     val value = (input as? SyncOffsetInput.Valid)?.milliseconds
     val focusRequester = remember { FocusRequester() }
@@ -75,7 +79,7 @@ internal fun SyncOffsetEditorDialog(
         onDismissRequest = onDismissRequest,
         title = {
             Text(
-                stringResource(R.string.sync_edit_offset),
+                stringResource(if (androidAuto) R.string.sync_edit_aa_offset else R.string.sync_edit_offset),
                 style = AALyricsTypography.TrackTitle,
             )
         },
@@ -87,7 +91,7 @@ internal fun SyncOffsetEditorDialog(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Text(
-                    stringResource(R.string.sync_offset_edit_help),
+                    stringResource(if (androidAuto) R.string.sync_aa_offset_edit_help else R.string.sync_offset_edit_help),
                     style = AALyricsTypography.TrackArtist,
                     color = AALyricsColors.TextSecondary,
                 )

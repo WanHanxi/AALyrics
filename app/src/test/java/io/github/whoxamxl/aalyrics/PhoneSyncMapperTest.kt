@@ -18,8 +18,10 @@ import io.github.whoxamxl.aalyrics.ui.phone.lyrics.TrackCardLyricsStatus
 import io.github.whoxamxl.aalyrics.ui.phone.lyrics.TrackCardUiState
 import io.github.whoxamxl.aalyrics.ui.phone.sync.SyncAdjustment
 import io.github.whoxamxl.aalyrics.ui.phone.sync.SyncAvailability
+import io.github.whoxamxl.aalyrics.ui.phone.sync.SyncScreenUiState
 import io.github.whoxamxl.aalyrics.ui.phone.sync.TapSyncAvailability
 import io.github.whoxamxl.aalyrics.ui.phone.sync.TapSyncMessage
+import io.github.whoxamxl.aalyrics.ui.phone.sync.TapSyncUiState
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -42,14 +44,78 @@ class PhoneSyncMapperTest {
         viewport = LyricsViewportUiState(lines = lines, syncType = sync, currentLineIndex = index),
     )
 
+    private fun mapGlobalSync(
+        lyrics: LyricsScreenUiState,
+        offset: LyricsTimingOffset,
+        tapSync: TapSyncUiState = TapSyncUiState(),
+    ) = mapPhoneSyncState(lyrics, LyricsTimingOffsets(globalMs = offset.milliseconds), lyrics, tapSync)
+
     @Test
     fun `preview reuses canonical line and translation selection`() {
-        val state = mapPhoneSyncState(lyrics(), LyricsTimingOffset(300L))
-        assertEquals(300L, state.offsetMs)
-        assertEquals(lines[0], state.previousLine)
-        assertEquals(lines[1], state.currentLine)
-        assertEquals(lines[2], state.nextLine)
-        assertTrue(state.canAdvance && state.canDelay)
+        val state = mapGlobalSync(lyrics(), LyricsTimingOffset(300L))
+        assertEquals(300L, state.globalOffset.offsetMs)
+        assertEquals(lines[0], state.phonePreview.previousLine)
+        assertEquals(lines[1], state.phonePreview.currentLine)
+        assertEquals(lines[2], state.phonePreview.nextLine)
+        assertTrue(state.globalOffset.canAdvance && state.globalOffset.canDelay)
+    }
+
+    @Test
+    fun `AA controls keep independent limits and display the combined total`() {
+        val state = mapPhoneSyncState(lyrics(), LyricsTimingOffsets(30_000L, -30_000L), lyrics(index = 0))
+        assertFalse(state.globalOffset.canAdvance)
+        assertTrue(state.globalOffset.canDelay)
+        assertTrue(state.androidAutoOffset.canAdvance)
+        assertFalse(state.androidAutoOffset.canDelay)
+        assertEquals(-30_000L, state.androidAutoOffset.offsetMs)
+        assertEquals(0L, state.androidAutoTotalOffsetMs)
+        assertEquals(lines[1], state.phonePreview.currentLine)
+        assertEquals(lines[0], state.androidAutoPreview.currentLine)
+    }
+
+    @Test
+    fun `AA changes move only car preview while global changes affect both`() {
+        val track = Track(title = "Song", durationMs = 20_000L)
+        val playback = PlaybackSnapshot(track = track, positionMs = 4_800L, status = PlaybackStatus.PAUSED)
+        val document = LyricsDocument(listOf(
+            TimedLyricLine("First", 0L),
+            TimedLyricLine("Second", 5_000L),
+            TimedLyricLine("Third", 10_000L),
+        ))
+        val ready = LyricsState.Ready(
+            LyricsLookup(LyricsLookupId(1L), track, requireNotNull(playback.trackIdentity)), document,
+        )
+        val settings = LyricsTimingSettings({ LyricsTimingOffsets(300L, -200L) }, {})
+        fun state(): SyncScreenUiState {
+            fun project(offset: LyricsTimingOffset) = mapPhoneLyricsState(
+                playback = playback,
+                lyricsState = ready,
+                plainLyricsAutoScrollEnabled = false,
+                interactionMode = LyricsViewportInteractionMode.FOLLOW,
+                currentMonotonicTimeMs = 20_000L,
+                lyricsTimingOffset = offset,
+            )
+            val offsets = settings.offsets.value
+            return mapPhoneSyncState(project(offsets.global), offsets, project(offsets.automotive))
+        }
+
+        assertEquals("Second", state().phonePreview.currentLine?.text)
+        assertEquals("First", state().androidAutoPreview.currentLine?.text) // 4,800 + 300 - 200, once.
+        assertEquals(100L, state().androidAutoTotalOffsetMs)
+        settings.setAndroidAutoOffset(0L)
+        assertEquals(state().phonePreview, state().androidAutoPreview)
+        settings.setAndroidAutoOffset(500L)
+        assertEquals("Second", state().phonePreview.currentLine?.text)
+        assertEquals("Second", state().androidAutoPreview.currentLine?.text)
+        settings.setOffset(-1_000L)
+        assertEquals("First", state().phonePreview.currentLine?.text)
+        assertEquals("First", state().androidAutoPreview.currentLine?.text)
+        assertEquals(500L, state().androidAutoOffset.offsetMs)
+        settings.resetToDefaults()
+        assertEquals(0L, state().androidAutoTotalOffsetMs)
+        assertEquals(state().phonePreview, state().androidAutoPreview)
+        assertEquals(4_800L, playback.positionMs)
+        assertEquals(5_000L, (document.lines[1] as TimedLyricLine).startMs)
     }
 
     @Test
@@ -62,27 +128,29 @@ class PhoneSyncMapperTest {
             lyrics(sync = LyricsSyncType.PLAIN) to SyncAvailability.PLAIN,
         )
         for ((input, expected) in cases) {
-            val state = mapPhoneSyncState(input, LyricsTimingOffset(-500L))
+            val state = mapGlobalSync(input, LyricsTimingOffset(-500L))
             assertEquals(expected, state.availability)
-            assertEquals(-500L, state.offsetMs)
-            assertFalse(state.canAdvance || state.canDelay)
-            assertNull(state.previousLine)
-            assertNull(state.currentLine)
-            assertNull(state.nextLine)
+            assertEquals(-500L, state.globalOffset.offsetMs)
+            assertFalse(state.globalOffset.canAdvance || state.globalOffset.canDelay)
+            assertFalse(state.androidAutoOffset.canAdvance || state.androidAutoOffset.canDelay)
+            assertNull(state.androidAutoPreview.currentLine)
+            assertNull(state.phonePreview.previousLine)
+            assertNull(state.phonePreview.currentLine)
+            assertNull(state.phonePreview.nextLine)
         }
     }
 
     @Test
     fun `before first line shows upcoming line and limits only disable outward actions`() {
-        val before = mapPhoneSyncState(lyrics(index = null), LyricsTimingOffset(-30_000L))
-        assertNull(before.currentLine)
-        assertEquals(lines.first(), before.nextLine)
-        assertTrue(before.canAdvance)
-        assertFalse(before.canDelay)
-        val end = mapPhoneSyncState(lyrics(index = 2), LyricsTimingOffset(30_000L))
-        assertNull(end.nextLine)
-        assertFalse(end.canAdvance)
-        assertTrue(end.canDelay)
+        val before = mapGlobalSync(lyrics(index = null), LyricsTimingOffset(-30_000L))
+        assertNull(before.phonePreview.currentLine)
+        assertEquals(lines.first(), before.phonePreview.nextLine)
+        assertTrue(before.globalOffset.canAdvance)
+        assertFalse(before.globalOffset.canDelay)
+        val end = mapGlobalSync(lyrics(index = 2), LyricsTimingOffset(30_000L))
+        assertNull(end.phonePreview.nextLine)
+        assertFalse(end.globalOffset.canAdvance)
+        assertTrue(end.globalOffset.canDelay)
     }
 
     @Test
@@ -105,23 +173,23 @@ class PhoneSyncMapperTest {
             interactionMode = LyricsViewportInteractionMode.FOLLOW,
             currentMonotonicTimeMs = 20_000L,
             lyricsTimingOffset = settings.offsets.value.global,
-        ).let { mapPhoneSyncState(it, settings.offsets.value.global) }
+        ).let { mapGlobalSync(it, settings.offsets.value.global) }
 
         repeat(3) {
             settings.adjustBy(SyncAdjustment.ADVANCE_FINE.deltaMs())
-            assertEquals("First", preview().currentLine?.text)
+            assertEquals("First", preview().phonePreview.currentLine?.text)
         }
         settings.adjustBy(SyncAdjustment.ADVANCE_FINE.deltaMs())
-        assertEquals("Second", preview().currentLine?.text)
+        assertEquals("Second", preview().phonePreview.currentLine?.text)
         settings.adjustBy(SyncAdjustment.DELAY_COARSE.deltaMs())
-        assertEquals("First", preview().currentLine?.text)
+        assertEquals("First", preview().phonePreview.currentLine?.text)
         settings.adjustBy(SyncAdjustment.ADVANCE_COARSE.deltaMs())
-        assertEquals("Second", preview().currentLine?.text)
+        assertEquals("Second", preview().phonePreview.currentLine?.text)
         settings.adjustBy(SyncAdjustment.DELAY_FINE.deltaMs())
-        assertEquals("First", preview().currentLine?.text)
+        assertEquals("First", preview().phonePreview.currentLine?.text)
         settings.resetToDefaults()
-        assertEquals(0L, preview().offsetMs)
-        assertEquals("First", preview().currentLine?.text)
+        assertEquals(0L, preview().globalOffset.offsetMs)
+        assertEquals("First", preview().phonePreview.currentLine?.text)
         assertEquals(4_800L, playback.positionMs)
         assertEquals(5_000L, (document.lines[1] as TimedLyricLine).startMs)
     }
@@ -138,11 +206,11 @@ class PhoneSyncMapperTest {
             listening, PlaybackSnapshot(status = PlaybackStatus.PLAYING), LyricsState.Idle,
             ui, LyricsTimingOffset(500L), now = 100_000L,
         )
-        val sync = mapPhoneSyncState(ui, LyricsTimingOffset(500L), tapUi)
+        val sync = mapGlobalSync(ui, LyricsTimingOffset(500L), tapUi)
         assertEquals(listOf("First", "Second", "Third"), sync.tapSync.lines)
         assertEquals(1, sync.tapSync.completedTaps)
         assertTrue(sync.tapSync.active)
-        assertTrue(sync.canAdvance && sync.canDelay)
+        assertTrue(sync.globalOffset.canAdvance && sync.globalOffset.canDelay)
     }
 
     @Test

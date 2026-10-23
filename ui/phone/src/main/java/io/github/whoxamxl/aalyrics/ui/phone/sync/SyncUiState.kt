@@ -5,17 +5,32 @@ import io.github.whoxamxl.aalyrics.ui.phone.lyrics.LyricsViewportLineUiState
 
 enum class SyncAvailability { NO_MEDIA, LOADING, UNAVAILABLE, PLAIN, TIMED }
 
-/** Presentation facts only; application ownership supplies the calibrated current line. */
+enum class SyncOffsetScope { GLOBAL, ANDROID_AUTO }
+
 @Immutable
-data class SyncScreenUiState(
+data class SyncOffsetUiState(
     val offsetMs: Long = 0L,
-    val availability: SyncAvailability = SyncAvailability.NO_MEDIA,
-    val trackTitle: String? = null,
     val canAdvance: Boolean = false,
     val canDelay: Boolean = false,
+)
+
+@Immutable
+data class SyncLyricsPreviewUiState(
     val previousLine: LyricsViewportLineUiState? = null,
     val currentLine: LyricsViewportLineUiState? = null,
     val nextLine: LyricsViewportLineUiState? = null,
+)
+
+/** Presentation facts only; application ownership supplies the calibrated current line. */
+@Immutable
+data class SyncScreenUiState(
+    val globalOffset: SyncOffsetUiState = SyncOffsetUiState(),
+    val androidAutoOffset: SyncOffsetUiState = SyncOffsetUiState(),
+    val androidAutoTotalOffsetMs: Long = 0L,
+    val availability: SyncAvailability = SyncAvailability.NO_MEDIA,
+    val trackTitle: String? = null,
+    val phonePreview: SyncLyricsPreviewUiState = SyncLyricsPreviewUiState(),
+    val androidAutoPreview: SyncLyricsPreviewUiState = SyncLyricsPreviewUiState(),
     val tapSync: TapSyncUiState = TapSyncUiState(),
 )
 

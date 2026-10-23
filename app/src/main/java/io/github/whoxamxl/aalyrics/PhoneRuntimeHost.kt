@@ -39,6 +39,7 @@ import io.github.whoxamxl.aalyrics.ui.phone.shell.PhoneAppShell
 import io.github.whoxamxl.aalyrics.ui.phone.state.PhoneShellUiState
 import io.github.whoxamxl.aalyrics.ui.phone.state.PlaybackQueueItemUiState
 import io.github.whoxamxl.aalyrics.ui.phone.sync.SyncScreen
+import io.github.whoxamxl.aalyrics.ui.phone.sync.SyncOffsetScope
 import io.github.whoxamxl.aalyrics.ui.phone.update.NewReleaseAvailableDialog
 import io.github.whoxamxl.aalyrics.ui.phone.update.NewReleaseAvailableDialogUiState
 import io.github.whoxamxl.aalyrics.ui.phone.update.UnifiedUpdateDialog
@@ -318,20 +319,48 @@ internal fun PhoneRuntimeHost(
                 onTranslationRetry = application::retryTranslation,
             )
 
-            PhoneDestination.Sync -> SyncScreen(
-                state = mapPhoneSyncState(
-                    lyricsUiState, lyricsTimingOffset,
-                    mapPhoneTapSyncState(tapSyncState, playback, lyricsState, lyricsUiState, lyricsTimingOffset, monotonicTimeMs),
-                ),
-                onAdjust = { application.adjustLyricsTimingOffset(it.deltaMs()) },
-                onReset = application::resetLyricsTimingOffset,
-                onSetOffset = application::setLyricsTimingOffset,
-                maxOffsetMs = LyricsTimingSettings.MAX_OFFSET_MS,
-                onStartTapSync = application::startTapSync,
-                onSyncTap = application::recordSyncTap,
-                onCancelTapSync = application::cancelTapSync,
-                bottomOverlayInset = bottomOverlayInset,
-            )
+            PhoneDestination.Sync -> {
+                val androidAutoLyricsPreview = mapPhoneLyricsState(
+                    playback = playback,
+                    lyricsState = lyricsState,
+                    plainLyricsAutoScrollEnabled = false,
+                    interactionMode = LyricsViewportInteractionMode.FOLLOW,
+                    currentMonotonicTimeMs = monotonicTimeMs,
+                    translationState = translationState,
+                    translationSettings = translationSettings,
+                    precomputedViewportLines = lyricsViewportLines,
+                    lyricsTimingOffset = lyricsTimingOffsets.automotive,
+                )
+                SyncScreen(
+                    state = mapPhoneSyncState(
+                        lyricsUiState, lyricsTimingOffsets, androidAutoLyricsPreview,
+                        mapPhoneTapSyncState(tapSyncState, playback, lyricsState, lyricsUiState, lyricsTimingOffset, monotonicTimeMs),
+                    ),
+                    onAdjust = { scope, adjustment ->
+                        when (scope) {
+                            SyncOffsetScope.GLOBAL -> application.adjustLyricsTimingOffset(adjustment.deltaMs())
+                            SyncOffsetScope.ANDROID_AUTO -> application.adjustAndroidAutoTimingOffset(adjustment.deltaMs())
+                        }
+                    },
+                    onReset = { scope ->
+                        when (scope) {
+                            SyncOffsetScope.GLOBAL -> application.resetLyricsTimingOffset()
+                            SyncOffsetScope.ANDROID_AUTO -> application.resetAndroidAutoTimingOffset()
+                        }
+                    },
+                    onSetOffset = { scope, value ->
+                        when (scope) {
+                            SyncOffsetScope.GLOBAL -> application.setLyricsTimingOffset(value)
+                            SyncOffsetScope.ANDROID_AUTO -> application.setAndroidAutoTimingOffset(value)
+                        }
+                    },
+                    maxOffsetMs = LyricsTimingSettings.MAX_OFFSET_MS,
+                    onStartTapSync = application::startTapSync,
+                    onSyncTap = application::recordSyncTap,
+                    onCancelTapSync = application::cancelTapSync,
+                    bottomOverlayInset = bottomOverlayInset,
+                )
+            }
 
             PhoneDestination.Details -> DetailsScreen(
                 state = if (verboseDetailsEnabled) {

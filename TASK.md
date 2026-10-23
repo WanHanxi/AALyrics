@@ -12,7 +12,7 @@
 ## Checkpoints
 
 - [x] Persist both offsets as one application-owned snapshot; wire the combined car offset and reset semantics; cover compatibility, bounds, independent changes/reset, and tap preservation.
-- [ ] Add scoped controls/editor/preview mapping and normal/narrow/large-font/limits/reset previews; test Phone/car separation and preview timing.
+- [x] Add scoped controls/editor/preview mapping and normal/narrow/large-font/limits/reset previews; test Phone/car separation and preview timing.
 - [ ] Align README, timing/Phone/Automotive/reset docs and stale Sync status; complete focused regression/build/architecture/diff validation, commit and push the handoff.
 
 ## Validation plan
@@ -24,4 +24,5 @@
 ## Status
 
 - Checkpoint 1: 29 focused settings/tap/Sync mapper tests passed. Architecture checks and `git diff --check` passed. The Gradle scope verified `memory.max=3221225472` and `memory.swap.max=0`; the single-use daemon exited after the successful run.
+- Checkpoint 2: Sync/AA controls, scoped editor, independent resets, car total, and selectable timing previews compile, including debug Compose fixtures. All 36 settings/tap/Sync mapper/exact-input tests passed in the same verified memory budget. Reset tooltip/dialog copy and previews now cover both offsets.
 - Initial worktree contained only the pre-existing untracked `gradle/gradle-daemon-jvm.properties`; it remains untouched.

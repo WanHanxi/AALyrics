@@ -37,13 +37,16 @@ import io.github.whoxamxl.aalyrics.ui.phone.R
 /** Compact manual controls; application callbacks retain all timing and persistence ownership. */
 @Composable
 internal fun SyncOffsetCard(
-    state: SyncScreenUiState,
+    state: SyncOffsetUiState,
     onAdjust: (SyncAdjustment) -> Unit,
     onReset: () -> Unit,
     onEdit: () -> Unit,
+    scope: SyncOffsetScope = SyncOffsetScope.GLOBAL,
+    totalOffsetMs: Long? = null,
     modifier: Modifier = Modifier,
 ) {
-    val resetDescription = stringResource(R.string.sync_reset)
+    val androidAuto = scope == SyncOffsetScope.ANDROID_AUTO
+    val resetDescription = stringResource(if (androidAuto) R.string.sync_aa_reset else R.string.sync_reset)
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),
@@ -64,13 +67,13 @@ internal fun SyncOffsetCard(
                         .clip(RoundedCornerShape(8.dp))
                         .clickable(
                             role = Role.Button,
-                            onClickLabel = stringResource(R.string.sync_edit_offset),
+                            onClickLabel = stringResource(if (androidAuto) R.string.sync_edit_aa_offset else R.string.sync_edit_offset),
                             onClick = onEdit,
                         ),
                     verticalArrangement = Arrangement.Center,
                 ) {
                     Text(
-                        stringResource(R.string.sync_offset_label),
+                        stringResource(if (androidAuto) R.string.sync_aa_offset_label else R.string.sync_offset_label),
                         style = AALyricsTypography.Label,
                         color = AALyricsColors.TextSecondary,
                     )
@@ -114,12 +117,19 @@ internal fun SyncOffsetCard(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    SyncAdjustmentGroup(state, onAdjust, delay = true, modifier = Modifier.weight(1f))
-                    SyncAdjustmentGroup(state, onAdjust, delay = false, modifier = Modifier.weight(1f))
+                    SyncAdjustmentGroup(state, onAdjust, scope, delay = true, modifier = Modifier.weight(1f))
+                    SyncAdjustmentGroup(state, onAdjust, scope, delay = false, modifier = Modifier.weight(1f))
                 }
             }
+            totalOffsetMs?.let {
+                Text(
+                    stringResource(R.string.sync_aa_total_offset, if (it > 0) "+$it" else it.toString()),
+                    style = AALyricsTypography.Label,
+                    color = AALyricsColors.AccentCyan,
+                )
+            }
             Text(
-                stringResource(R.string.sync_scope_compact),
+                stringResource(if (androidAuto) R.string.sync_aa_scope_compact else R.string.sync_scope_compact),
                 style = AALyricsTypography.Label,
                 color = AALyricsColors.TextSecondary,
             )
@@ -129,8 +139,9 @@ internal fun SyncOffsetCard(
 
 @Composable
 private fun SyncAdjustmentGroup(
-    state: SyncScreenUiState,
+    state: SyncOffsetUiState,
     onAdjust: (SyncAdjustment) -> Unit,
+    scope: SyncOffsetScope,
     delay: Boolean,
     modifier: Modifier = Modifier,
 ) {
@@ -148,6 +159,7 @@ private fun SyncAdjustmentGroup(
                     coarse = coarse,
                     enabled = if (delay) state.canDelay else state.canAdvance,
                     onAdjust = onAdjust,
+                    scope = scope,
                     modifier = Modifier.weight(1f),
                 )
             }
@@ -161,10 +173,16 @@ private fun SyncStepButton(
     coarse: Boolean,
     enabled: Boolean,
     onAdjust: (SyncAdjustment) -> Unit,
+    scope: SyncOffsetScope,
     modifier: Modifier = Modifier,
 ) {
     val description = stringResource(
-        if (delay) R.string.sync_delay_description else R.string.sync_advance_description,
+        when {
+            scope == SyncOffsetScope.ANDROID_AUTO && delay -> R.string.sync_aa_delay_description
+            scope == SyncOffsetScope.ANDROID_AUTO -> R.string.sync_aa_advance_description
+            delay -> R.string.sync_delay_description
+            else -> R.string.sync_advance_description
+        },
         if (coarse) 500 else 50,
     )
     val buttonModifier = modifier.heightIn(min = 48.dp).semantics { contentDescription = description }

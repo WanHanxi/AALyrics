@@ -9,13 +9,16 @@ import io.github.whoxamxl.aalyrics.ui.phone.lyrics.TrackCardLyricsStatus
 import io.github.whoxamxl.aalyrics.ui.phone.sync.SyncAdjustment
 import io.github.whoxamxl.aalyrics.ui.phone.sync.SyncAvailability
 import io.github.whoxamxl.aalyrics.ui.phone.sync.SyncScreenUiState
+import io.github.whoxamxl.aalyrics.ui.phone.sync.SyncOffsetUiState
+import io.github.whoxamxl.aalyrics.ui.phone.sync.SyncLyricsPreviewUiState
 import io.github.whoxamxl.aalyrics.ui.phone.sync.TapSyncAvailability
 import io.github.whoxamxl.aalyrics.ui.phone.sync.TapSyncMessage
 import io.github.whoxamxl.aalyrics.ui.phone.sync.TapSyncUiState
 
 internal fun mapPhoneSyncState(
     lyrics: LyricsScreenUiState,
-    offset: LyricsTimingOffset,
+    offsets: LyricsTimingOffsets,
+    androidAutoLyrics: LyricsScreenUiState,
     tapSync: TapSyncUiState = TapSyncUiState(),
 ): SyncScreenUiState {
     val viewport = lyrics.viewport
@@ -30,16 +33,29 @@ internal fun mapPhoneSyncState(
         }
     }
     val timed = availability == SyncAvailability.TIMED
-    val index = viewport.currentLineIndex
+    fun offsetState(value: Long) = SyncOffsetUiState(
+        offsetMs = value,
+        canAdvance = timed && value < LyricsTimingSettings.MAX_OFFSET_MS,
+        canDelay = timed && value > -LyricsTimingSettings.MAX_OFFSET_MS,
+    )
+    fun preview(lyrics: LyricsScreenUiState): SyncLyricsPreviewUiState {
+        if (!timed) return SyncLyricsPreviewUiState()
+        val lines = lyrics.viewport.lines
+        val index = lyrics.viewport.currentLineIndex
+        return SyncLyricsPreviewUiState(
+            previousLine = index?.let { lines.getOrNull(it - 1) },
+            currentLine = index?.let { lines.getOrNull(it) },
+            nextLine = lines.getOrNull(index?.plus(1) ?: 0),
+        )
+    }
     return SyncScreenUiState(
-        offsetMs = offset.milliseconds,
+        globalOffset = offsetState(offsets.globalMs),
+        androidAutoOffset = offsetState(offsets.androidAutoMs),
+        androidAutoTotalOffsetMs = offsets.automotive.milliseconds,
         availability = availability,
         trackTitle = lyrics.trackCard.title.takeUnless { availability == SyncAvailability.NO_MEDIA },
-        canAdvance = timed && offset.milliseconds < LyricsTimingSettings.MAX_OFFSET_MS,
-        canDelay = timed && offset.milliseconds > -LyricsTimingSettings.MAX_OFFSET_MS,
-        previousLine = if (timed && index != null) viewport.lines.getOrNull(index - 1) else null,
-        currentLine = if (timed && index != null) viewport.lines.getOrNull(index) else null,
-        nextLine = if (timed) viewport.lines.getOrNull(index?.plus(1) ?: 0) else null,
+        phonePreview = preview(lyrics),
+        androidAutoPreview = preview(androidAutoLyrics),
         tapSync = tapSync,
     )
 }

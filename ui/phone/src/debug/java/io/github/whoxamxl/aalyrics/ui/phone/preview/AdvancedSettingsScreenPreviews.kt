@@ -113,11 +113,12 @@ private fun AdvancedClearModelsFailureDialogPreview() {
 }
 
 @Preview(
-    name = "Reset confirmation",
+    name = "Reset confirmation - both lyrics offsets",
     group = "AdvancedSettings",
     widthDp = 412,
     heightDp = 760,
 )
+@Preview(name = "Reset both offsets - narrow large font", group = "AdvancedSettings", widthDp = 320, heightDp = 760, fontScale = 1.3f)
 @Composable
 private fun AdvancedResetDialogPreview() {
     AALyricsTheme {

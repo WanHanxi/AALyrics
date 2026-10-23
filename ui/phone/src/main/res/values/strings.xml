@@ -168,10 +168,10 @@
     <string name="settings_clear_translation_models_failed_body">Some downloaded translation models could not be removed. Try again when the model download or system operation has finished.</string>
     <string name="settings_section_reset">RESET</string>
     <string name="settings_reset_aalyrics">Reset AALyrics</string>
-    <string name="settings_reset_aalyrics_info">Restores AALyrics settings, including both Karaoke switches and the lyrics offset, and onboarding state to their defaults; cancels app-owned update work, clears update recovery state, and removes downloaded app update files. Downloaded translation models, Android permissions, install-source permission, and Android Auto system settings are not changed.</string>
+    <string name="settings_reset_aalyrics_info">Restores AALyrics settings, including both Karaoke switches and the global and Android Auto lyrics offsets, and onboarding state to their defaults; cancels app-owned update work, clears update recovery state, and removes downloaded app update files. Downloaded translation models, Android permissions, install-source permission, and Android Auto system settings are not changed.</string>
     <string name="settings_reset_aalyrics_info_description">About resetting AALyrics</string>
     <string name="settings_reset_aalyrics_dialog_title">Reset AALyrics?</string>
-    <string name="settings_reset_aalyrics_dialog_body">AALyrics settings, including both Karaoke switches and the lyrics offset, and onboarding state will be restored to their defaults. Active app-owned update work will be cancelled, update recovery state will be cleared, and downloaded app update files will be removed. Downloaded translation models and system settings, including install-source permission, will not be changed.</string>
+    <string name="settings_reset_aalyrics_dialog_body">AALyrics settings, including both Karaoke switches and the global and Android Auto lyrics offsets, and onboarding state will be restored to their defaults. Active app-owned update work will be cancelled, update recovery state will be cleared, and downloaded app update files will be removed. Downloaded translation models and system settings, including install-source permission, will not be changed.</string>
     <string name="settings_reset">Reset</string>
     <string name="settings_cancel">Cancel</string>
     <string name="settings_done">Done</string>
@@ -182,8 +182,8 @@
     <string name="settings_brand_logo_description">AALyrics logo</string>
 
     <string name="sync_title">Sync</string>
-    <string name="sync_tap_title">TAP TO SYNC</string>
-    <string name="sync_tap_help">Listen to three lines and tap as each one starts. After the third tap, the average offset is saved. You can still fine-tune below.</string>
+    <string name="sync_tap_title">GLOBAL TAP SYNC</string>
+    <string name="sync_tap_help">Listen to three lines and tap as each one starts. After the third tap, the global offset is saved. For car-only adjustments, use Android Auto Offset below.</string>
     <string name="sync_tap_start">Start 3-tap sync</string>
     <string name="sync_tap_listen">Listen for line %1$d of 3.</string>
     <string name="sync_tap_now">Tap at line start (%1$d/3)</string>
@@ -194,9 +194,17 @@
     <string name="sync_tap_play_first">Play a song to start tap calibration.</string>
     <string name="sync_tap_timed_required">Waiting for lyrics with timestamps.</string>
     <string name="sync_tap_not_enough_lines">Three more timed lines are needed. Seek to an earlier part of the song and try again.</string>
-    <string name="sync_offset_label">LYRICS OFFSET</string>
+    <string name="sync_offset_label">GLOBAL OFFSET</string>
+    <string name="sync_aa_offset_label">ANDROID AUTO OFFSET</string>
     <string name="sync_offset_value">%1$s ms</string>
-    <string name="sync_edit_offset">Edit lyrics offset</string>
+    <string name="sync_edit_offset">Edit global lyrics offset</string>
+    <string name="sync_edit_aa_offset">Edit Android Auto offset</string>
+    <string name="sync_aa_offset_edit_help">Positive (+) advances lyrics. Negative (−) delays lyrics. This value is added to the global offset for Android Auto only. Phone lyrics stay unchanged. Changes apply when you save.</string>
+    <string name="sync_aa_scope_compact">Car only · Added to global offset</string>
+    <string name="sync_aa_total_offset">Total for Android Auto: %1$s ms</string>
+    <string name="sync_aa_reset">Reset Android Auto offset to 0 ms</string>
+    <string name="sync_aa_delay_description">Delay Android Auto lyrics by %1$d milliseconds</string>
+    <string name="sync_aa_advance_description">Advance Android Auto lyrics by %1$d milliseconds</string>
     <string name="sync_offset_edit_help">Positive (+) advances lyrics. Negative (−) delays lyrics. Saved for all songs on Phone and Android Auto. Changes apply when you save.</string>
     <string name="sync_offset_input_label">Offset (ms)</string>
     <string name="sync_offset_change_sign">Change offset sign</string>
@@ -212,14 +220,16 @@
     <string name="sync_advance_500">+500</string>
     <string name="sync_delay_description">Delay lyrics by %1$d milliseconds</string>
     <string name="sync_advance_description">Advance lyrics by %1$d milliseconds</string>
-    <string name="sync_reset">Reset to 0 ms</string>
+    <string name="sync_reset">Reset global offset to 0 ms</string>
     <string name="sync_reset_short">Reset</string>
-    <string name="sync_preview">LIVE LYRICS PREVIEW</string>
+    <string name="sync_preview">LYRICS TIMING PREVIEW</string>
+    <string name="sync_preview_phone">Phone</string>
+    <string name="sync_preview_aa">Android Auto</string>
     <string name="sync_before_first_line">Waiting for the first line…</string>
-    <string name="sync_no_media">Play a song to preview lyric timing. You can still edit the saved offset above.</string>
+    <string name="sync_no_media">Play a song to preview lyric timing. You can still edit the saved offsets above.</string>
     <string name="sync_loading">Waiting for timed lyrics…</string>
-    <string name="sync_plain">These lyrics have no timestamps. You can still edit the saved offset above; it will apply to the next song with timed lyrics.</string>
-    <string name="sync_unavailable">No timed lyrics are available for this song. You can still edit the saved offset above, or try another song to preview timing.</string>
+    <string name="sync_plain">These lyrics have no timestamps. You can still edit the saved offsets above; they will apply to the next song with timed lyrics.</string>
+    <string name="sync_unavailable">No timed lyrics are available for this song. You can still edit the saved offsets above, or try another song to preview timing.</string>
 
     <string name="track_card_lyrics_loading">Loading...</string>
     <string name="track_card_lyrics_not_found">Lyrics not found</string>
