@@ -153,7 +153,7 @@ Subsequent Phone presentation work has substantially advanced the production sur
 
 Presentation uses `:ui:designsystem` for shared tokens/components, `:ui:phone` for phone-specific composition, and `:ui:automotive` for automotive-specific composition. Production UI lives in `src/main`; deterministic Preview/development fixtures live in `src/debug` and render the production composables. Phone and automotive remain separate presentation surfaces rather than one universal UI model.
 
-PR #49 implements the approved read-only Details destination plus the Settings-owned Advanced surface with a persisted presentation-only Verbose Details preference and an intentionally disabled/unwired Karaoke affordance. The original Sync placeholder is superseded by manual global calibration in this fork.
+PR #49 implements the approved read-only Details destination plus the Settings-owned Advanced surface with a persisted presentation-only Verbose Details preference and an intentionally disabled/unwired Karaoke affordance. The original Sync placeholder is superseded by global calibration and additional AA compensation in this fork.
 
 PR #50 established the **Phone runtime host / device-test enablement** boundary documented in `docs/PHONE_RUNTIME_HOST.md`. Subsequent merged Phone work completed the Settings legal/help surfaces, playback-source eligibility and diagnostics, storage/reset controls, queue/artwork refinements, and the verified in-app update flow. `MainActivity` continues to preserve onboarding while hosting live application-owned Lyrics/Playback/Details/Settings state. This fork adds the manual global Sync destination described below. The separately authorized Phase 11.4b/11.4c Phone slice adds gated WORD_SYNC Karaoke presentation. Android Auto Now Playing intentionally remains line-oriented and does not adopt Karaoke presentation.
 
@@ -340,11 +340,11 @@ The current Phone production path consumes only `activeLineIndex` after semantic
 
 The existing timing topic branch continues for this work. Draft PR #80 was closed before review because it represented only the earlier 11.3a/11.3b checkpoint.
 
-### Phase 11.3c — Manual global Sync calibration — implemented in this fork
+### Phase 11.3c — Global and Android Auto Sync calibration — implemented in this fork
 
-Phone Sync now offers three-tap calibration alongside ±50/500 ms and Reset, a tappable signed millisecond value with exact numeric entry, and a live original/translated preview. Three taps at the starts of three fixed upcoming lyric lines replace the saved offset with their average. One app-owned offset is saved across songs/restarts and consumed by Phone lyrics/Karaoke, verbose Details, and Android Auto. The range is ±30 seconds; Reset AALyrics also cancels unfinished calibration and restores zero. No-media/untimed lyrics disable tap and fixed-step calibration; exact global entry remains available with validation and Save/Cancel. Playback progress/source timestamps remain unchanged.
+Phone Sync offers global three-tap calibration and compact Global/Android Auto cards with ±50/500 ms actions, exact signed millisecond entry, and independent Reset. Three taps replace only the global value. Both settings survive songs/restarts and each is bounded to ±30 seconds. Phone lyrics/Karaoke and verbose Details use the global value; Automotive uses the combined total once, without clamping it again. Reset AALyrics cancels unfinished calibration and resets both settings together. Phone/AA timing previews make the scopes visible. No-media/untimed lyrics disable tap and fixed-step calibration; exact editing remains available with validation and Save/Cancel. Real playback progress and canonical timestamps stay unchanged.
 
-Per-track/provider-specific offsets, separate Phone/Auto compensation, and automatic calibration remain deferred. See `TIMING_ARCHITECTURE.md`.
+Per-track/provider correction, per-car/device profiles, AA-side adjustment controls, and automatic calibration remain deferred. See `TIMING_ARCHITECTURE.md`.
 
 ### Phase 11.4b — Karaoke presentation mapping — implemented on Phone topic branch
 

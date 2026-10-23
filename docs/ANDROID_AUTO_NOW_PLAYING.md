@@ -116,7 +116,7 @@ Do not add these to Now Playing:
 - playback source/app/package information;
 - queue presentation;
 - Translation Provider attribution;
-- Sync/calibration controls or non-zero calibration persistence;
+- Automotive-owned Sync/calibration controls or preference storage (application-owned calibration is consumed downstream);
 - Browse/Expanded Lyrics screens;
 - Car App Library / `CarAppService` / `MediaPlaybackTemplate` / `SectionedItemTemplate`;
 - provider selection changes or general/manual refetch behavior changes; the one bounded transient-failure retry defined by the process-recovery contract is the only retry exception in this slice.
@@ -134,7 +134,7 @@ normalized PlaybackSnapshot
         ↓
 shared projected playback clock
         ↓
-effectiveLyricsPosition(projectedPlaybackPosition, applicationOwnedLyricsOffset)
+effectiveLyricsPosition(projectedPlaybackPosition, applicationOwnedGlobalPlusAaOffset)
         ↓
 projectLyricsTiming(canonicalLyrics, effectivePosition)
         ↓
@@ -146,8 +146,9 @@ Automotive one-line presentation
 Rules:
 
 - canonical provider timestamps remain unchanged;
-- the global offset is supplied by the application and observed live, including during pause;
-- Android Auto consumes the same persisted offset adjusted in Phone Sync; it does not own a second setting or clock;
+- the application supplies the combined global + AA-specific offset, observed live including during pause;
+- Phone Sync owns the controls for both persisted values through application callbacks; Automotive owns neither preference storage nor a second clock;
+- the combined offset is applied once at the effective-position boundary; resetting AA compensation preserves the global value;
 - LINE_SYNC and WORD_SYNC both use `activeLineIndex`;
 - WORD_SYNC ignores `activeWordIndex`, `wordProgress`, and `wordBoundary` for automotive presentation;
 - PLAIN lyrics do not enter timing projection for visible current-line text;
@@ -157,7 +158,7 @@ Rules:
 - when it is unavailable, the existing AALyrics-side `positionSampledAtMonotonicMs` fallback must be honored rather than anchoring to the time the Automotive UI happens to observe the snapshot;
 - track identity and timeline coherence remain a `:platform:media` invariant.
 
-For the same normalized playback sample and monotonic instant, Phone normal timed presentation and Android Auto agree on the active line.
+For the same normalized playback sample and monotonic instant, Phone normal timed presentation and Android Auto agree on the active line when AA compensation is zero. A non-zero AA value intentionally shifts only car lyric timing; real playback progress stays unchanged.
 
 ## Lyrics presentation contract
 

@@ -126,7 +126,7 @@ Timing/calibration preserves canonical source timing and derives a lyrics-only v
 
 The shared timing-semantic layer consumes canonical timed lyrics + effective lyrics position and deterministically projects active line/word/progress/boundary facts. These facts are independent of Karaoke enablement and are shared by Normal presentation and the implemented Phone Karaoke consumer.
 
-Offset scope, persistence, Sync UI, provider/track/device-specific correction, and drift/rate correction remain deferred.
+This fork implements persisted global and additional AA offsets plus Phone Sync controls/previews. Application ownership supplies global to Phone and global + AA to Automotive, applied once at the effective-position boundary. Per-track/provider correction, per-device profiles, automatic calibration, and drift/rate correction remain deferred.
 
 See `docs/TIMING_ARCHITECTURE.md`.
 
@@ -268,7 +268,7 @@ Persistent cache
   -> separate later capability only when explicitly authorized
 ```
 
-Phone Translation presentation is complete and preserves canonical line/timing ownership by adding only identity-aligned text to the existing row. Effective timing, shared semantic projection, and current-line integration are implemented. The PR #84 Android Auto Now Playing slice consumes those existing capabilities downstream while remaining line-oriented and adds only bounded lookup/process recovery around the existing playback-to-lyrics spine; Sync UX, Android Auto Karaoke, and broader automotive Browse/templates remain separate work.
+Phone Translation presentation is complete and preserves canonical line/timing ownership by adding only identity-aligned text to the existing row. Effective timing, shared semantic projection, and current-line integration are implemented. The PR #84 Android Auto Now Playing slice consumes those existing capabilities downstream while remaining line-oriented and adds only bounded lookup/process recovery around the existing playback-to-lyrics spine; Sync global/AA calibration is implemented separately in this fork, while Android Auto Karaoke and broader automotive Browse/templates remain separate work.
 
 This sequencing reduces architectural churn while preserving Cache as an independent capability. It does not forbid non-persistent in-memory lifecycle state needed by Translation execution.
 
@@ -315,7 +315,7 @@ This umbrella intentionally does not decide:
 - whether each capability needs its own Gradle module;
 - cache placement, schema, storage engine, TTL, or invalidation policy;
 - concrete Translation Provider request/candidate signatures, contextual batching heuristics, LanguageProfiler thresholds, or persistent Translation cache implementation;
-- calibration scope, persistence, drift algorithm, or editing workflow;
+- additional calibration scope, per-device profiles, or drift algorithms beyond the global/AA timing contract;
 - Karaoke consumer/rendering DTOs, update cadence, visual styling, lexical layout, or sweep animation;
 - shared presentation-facts DTO, ViewModel structure, DI framework, Flow composition, or surface state fields;
 - final implementation order when product evidence justifies a different sequence.

@@ -97,7 +97,7 @@ AALyrics has moved beyond the construction-only stage. Its primary purpose — f
 
 The **1.0 Beta** line means the intended product identity and core experience are established, while some advanced functionality is still evolving:
 
-- Manual Sync calibration is available in this fork: three-tap calibration, ±50/500 ms, exact millisecond entry, live preview, and a saved global offset shared by Phone and Android Auto. Per-song and automatic calibration remain future work.
+- Manual Sync calibration is available in this fork: three-tap calibration, ±50/500 ms, exact millisecond entry, live preview, a saved global offset, and additional Android Auto-only compensation. Per-song and automatic calibration remain future work.
 - Phone WORD_SYNC Karaoke remains experimental and opt-in.
 - Android Auto is currently line-oriented Now Playing rather than full Phone feature parity or Karaoke presentation.
 
@@ -117,11 +117,11 @@ Actual lyric availability and timing quality depend on the metadata exposed by t
 
 While a song with timed lyrics is playing, open **Sync → Start 3-tap sync**. The app shows three upcoming lyric lines and highlights the first one. Tap **Tap at line start** when you hear the highlighted line begin; repeat for the next two lines. After three taps, their average offset is saved automatically. **Cancel calibration** keeps the old offset. Pause, a track/lyrics change, a detected seek, leaving Sync, or manual adjustment ends an unfinished calibration; start again when ready. If fewer than three lines remain, seek to an earlier part of the song first.
 
-While playing a song with timed lyrics, open **Sync**. If lyrics are late, use **Advance (+50/+500 ms)**; if they are early, use **Delay (−50/−500 ms)**. The four compact controls are ordered **−500 / −50 / +50 / +500 ms**, with Delay and Advance labels. The live preview follows the same timing as the Lyrics page. **Reset** beside the current value restores the original timing.
+While playing a song with timed lyrics, open **Sync**. If lyrics are late, use **Advance (+50/+500 ms)**; if they are early, use **Delay (−50/−500 ms)**. The four compact controls are ordered **−500 / −50 / +50 / +500 ms**, with Delay and Advance labels. The **Global Offset** card affects Phone and Android Auto. Use **Android Auto Offset** for additional car-only correction; its total shows global + AA compensation. Each card has its own **Reset**, which clears only that value. The timing preview has **Phone** and **Android Auto** selectors and follows the card you adjust.
 
-For an exact value, tap the number under **LYRICS OFFSET** (or its pencil icon). Enter a whole number of milliseconds, such as `125` to advance or `-275` to delay. Use **±** if your keyboard has no minus key. **Save** or keyboard **Done** applies it; **Cancel**, Back, or dismissing the dialog keeps the previous value. Opening the editor cancels unfinished three-tap calibration. Exact entry is available even without timed lyrics.
+For an exact value, tap the number under **GLOBAL OFFSET** or **ANDROID AUTO OFFSET** (or its pencil icon). Enter a whole number of milliseconds, such as `125` to advance or `-275` to delay. Use **±** if your keyboard has no minus key. **Save** or keyboard **Done** applies it; **Cancel**, Back, or dismissing the dialog keeps the previous value. Opening the editor cancels unfinished three-tap calibration. Exact entry is available even without timed lyrics.
 
-The offset is global, saved across songs and app restarts, and shared with Android Auto. It is limited to ±30 seconds and never seeks the music or rewrites source timestamps. Plain lyrics cannot be calibrated. **Settings → Advanced → Reset AALyrics** also clears the saved offset.
+Both values are saved across songs and app restarts. Phone uses the global offset; Android Auto uses global + AA offset. For example, global `+300 ms` and AA `−750 ms` give Phone `+300 ms` and Android Auto `−450 ms`. Each setting is limited to ±30 seconds; their car total can reach ±60 seconds. Three-tap calibration changes only the global value and preserves AA compensation. Calibration never seeks the music or rewrites source timestamps. Plain lyrics cannot be calibrated. **Settings → Advanced → Reset AALyrics** clears both values. Separate profiles for different cars or audio devices are not implemented.
 
 ## Support AALyrics
 

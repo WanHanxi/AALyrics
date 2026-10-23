@@ -72,7 +72,7 @@ The demand-gating slice adds an application-lifecycle boundary in front of `Play
 
 The Translation background scaffold also lets `:app` compose persisted Translation settings with a process-level ML Kit target-model preparation runtime. That runtime does not observe canonical lyrics, execute lyric Translation, or publish foreground state.
 
-Translation execution and Phone presentation are composed through their dedicated capability/application boundaries. The PR #84 legacy Android Auto Now Playing path also consumes the existing Translation state downstream without moving Translation execution into `:app` or `:ui:automotive`. Future persistent cache, Sync/calibration UX, Android Auto Karaoke, and Car App Library presentation may be wired from appropriate composition roots, but the composition root must not become the owner of their feature logic.
+Translation execution and Phone presentation are composed through their dedicated capability/application boundaries. The PR #84 legacy Android Auto Now Playing path also consumes the existing Translation state downstream without moving Translation execution into `:app` or `:ui:automotive`. The implemented global/AA Sync calibration and future persistent cache, Android Auto Karaoke, and Car App Library presentation may be wired from appropriate composition roots, but the composition root must not become the owner of their feature logic.
 
 ### `:core:model`
 
@@ -432,7 +432,7 @@ Stable rules:
 - optional capability failure must not erase valid lower-level lyrics state;
 - providers, MediaSession runtime, `LyricsCoordinator`, and UI must not absorb unrelated capability ownership.
 
-This foundation generally avoids speculative concrete modules and APIs. Translation introduced concrete modules only when implementation justified them; timing extends the existing `:core:timing` module with shared semantic projection over `:core:model`, and the Phone WORD_SYNC Karaoke consumer/rendering contract is now implemented downstream of that engine. Cache storage, timing persistence/scope, Sync UX, dedicated calibration/drift-offset algorithms, Android Auto Karaoke, ViewModels, and additional final UI-state shapes remain deferred until their own evidence-bearing slices.
+This foundation generally avoids speculative concrete modules and APIs. Translation introduced concrete modules only when implementation justified them; timing extends the existing `:core:timing` module with shared semantic projection over `:core:model`, and the Phone WORD_SYNC Karaoke consumer/rendering contract is now implemented downstream of that engine. This fork implements application-owned global/AA timing persistence and Sync UX, including reset and shared-engine previews. Cache storage, per-device calibration profiles, drift correction, Android Auto Karaoke, ViewModels, and additional final UI-state shapes remain deferred until their own evidence-bearing slices.
 
 ## Core responsibilities
 
@@ -489,7 +489,7 @@ As future capability modules become concrete, their implementation slices should
 
 ## Future extension points
 
-The architecture seam for cache, translation, timing/calibration, Karaoke consumption/rendering, and presentation state is defined. Translation is implemented through Phone presentation, `:core:timing` owns the effective lyrics clock plus shared LINE/WORD timing projection, and the current Phone topic branch implements gated WORD_SYNC Karaoke presentation after that shared projection. Sync UX/persistence and Android Auto Karaoke remain separate later slices.
+The architecture seam for cache, translation, timing/calibration, Karaoke consumption/rendering, and presentation state is defined. Translation is implemented through Phone presentation, `:core:timing` owns the effective lyrics clock plus shared LINE/WORD timing projection, and the current Phone topic branch implements gated WORD_SYNC Karaoke presentation after that shared projection. This fork implements Sync UX/persistence through application-owned global/AA settings; Android Auto Karaoke remains a separate later slice.
 
 Settings/persistence, release/signing, and other later features remain separate responsibilities. Their future existence must not be used as a reason to mix those concerns into `LyricsCoordinator`, `PlaybackLyricsController`, the media-session runtime, demand gate, provider selection, concrete provider adapters, capability services, or shared design-system components.
 

@@ -4,9 +4,9 @@
 
 The Phone information architecture and persistent Compose shell are established. Lyrics, Settings, and the shell-owned Playback Surface are implemented in production Compose. PR #46 replaced the legacy fixed three-button playback bar with the compact collapsed Playback Bar plus on-demand Expanded Player defined in `docs/PHONE_PLAYBACK_SURFACE.md`.
 
-PR #49 implements the approved Details contract from `docs/PHONE_DETAILS.md` together with the narrow `Settings > Advanced` extension from `docs/PHONE_SETTINGS.md`. Details remains read-only and Verbose Details is presentation-only. The later Phone Karaoke slice makes the Advanced Karaoke row a persisted experimental gate and adds a separate live switch in Expanded Player Quick controls. Sync remains intentionally deferred while its timing/calibration interaction model is reconsidered.
+PR #49 implements the approved Details contract from `docs/PHONE_DETAILS.md` together with the narrow `Settings > Advanced` extension from `docs/PHONE_SETTINGS.md`. Details remains read-only and Verbose Details is presentation-only. The later Phone Karaoke slice makes the Advanced Karaoke row a persisted experimental gate and adds a separate live switch in Expanded Player Quick controls. This fork implements Sync global calibration and additional Android Auto compensation; see `TIMING_ARCHITECTURE.md`.
 
-PR #50 implements the application-composition slice defined in `docs/PHONE_RUNTIME_HOST.md`. `MainActivity` preserves the existing entry gates and now hosts the production `PhoneAppShell` for READY. Live app-owned state drives Lyrics, Playback Surface, Details, and Settings; Sync remains an explicit non-functional placeholder. Physical-device iteration on this branch also established selected-session artwork with branded fallback, Translation opt-in defaults, human-readable playback-source labeling with package fallback, in-app License presentation, and shared Phone popup/subscreen/Markdown primitives. The playback-source metadata contract now extends that application-owned package resolution to the selected app icon for the persistent Top Bar and Android application category plus min/target SDK levels for Verbose Details diagnostics. The generated debug APK is suitable for continued physical-device Phone UI validation.
+PR #50 implements the application-composition slice defined in `docs/PHONE_RUNTIME_HOST.md`. `MainActivity` preserves the existing entry gates and now hosts the production `PhoneAppShell` for READY. Live app-owned state drives Lyrics, Playback Surface, Details, and Settings; Sync now provides global and AA-specific calibration in this fork. Physical-device iteration on this branch also established selected-session artwork with branded fallback, Translation opt-in defaults, human-readable playback-source labeling with package fallback, in-app License presentation, and shared Phone popup/subscreen/Markdown primitives. The playback-source metadata contract now extends that application-owned package resolution to the selected app icon for the persistent Top Bar and Android application category plus min/target SDK levels for Verbose Details diagnostics. The generated debug APK is suitable for continued physical-device Phone UI validation.
 
 ## Product intent
 
@@ -79,7 +79,7 @@ Before provider lookup starts, the application layer evaluates the selected sour
 
 ### Sync
 
-Reserved for synchronization-focused controls and status. The underlying timing foundation now fixes one semantic rule before any controls exist: `effectiveLyricsPosition = projectedPlaybackPosition + lyricsOffset`, where positive advances lyrics and negative delays them. The Sync destination itself remains a non-functional placeholder; control layout, step sizes, scope, persistence, and calibration workflow are still intentionally deferred.
+Sync provides global three-tap calibration, compact Global/Android Auto offset cards, and selectable Phone/AA lyric timing previews. Both cards offer ±50/500 ms, exact signed entry, and independent Reset; the AA card displays the combined total. Positive advances lyrics and negative delays them. Phone uses the global offset; AA uses global + AA compensation through the same shared timing boundary. Each value is saved across songs/restarts with a ±30-second limit. Reset AALyrics clears both. Detailed ownership, cancellation, and preview behavior are defined in `TIMING_ARCHITECTURE.md`.
 
 ### Details
 
@@ -289,7 +289,7 @@ The navigation bar distinguishes first selection from reselection. Tapping a dif
 Current reselection behavior:
 
 - Lyrics: return the lyrics viewport from manual browse to FOLLOW;
-- Sync: no visible change while the destination remains a root-only placeholder;
+- Sync: no destination-specific reset on tab reselection; leaving the destination cancels unfinished tap calibration;
 - Details: return the read-only Details surface to its top scroll position;
 - Settings: dismiss modal/draft UI, discard uncommitted Target-language selection, leave Advanced/Changelog/License, return to Settings home, and restore the main Settings scroll position to the top.
 
@@ -422,7 +422,7 @@ ui/phone/src/main/java/io/github/whoxamxl/aalyrics/ui/phone/
 
 The persistent shell, navigation identity, and shell-level state files contain production Compose behavior. PR #46 completed the `PlaybackSurface` replacement of the legacy `PlaybackControlsBar`. `LyricsScreen` is the production Lyrics destination composition, and Settings follows `docs/PHONE_SETTINGS.md`.
 
-PR #49 replaces the Details placeholder with the approved read-only production surface and adds the Settings-owned Advanced sub-surface. `SyncScreen.kt` remains a placeholder and its interaction model remains deferred; do not invent Sync behavior merely to complete the tree.
+PR #49 replaces the Details placeholder with the approved read-only production surface and adds the Settings-owned Advanced sub-surface. `SyncScreen.kt` now implements the global/AA calibration surface in this fork and emits scoped actions to application ownership.
 
 ## Preview and validation direction
 
@@ -469,9 +469,9 @@ The persistent shell implementation intentionally still does not decide or imple
 - speculative ViewModel layers; the approved runtime-host slice may add minimal application-owned presentation mappers
 - media-session ownership
 - provider behavior
-- final Sync interaction model
+- additional Sync workflows beyond the implemented global/AA calibration contract
 - Details capabilities beyond the approved `PHONE_DETAILS` contract
 - functional Karaoke mode or Karaoke runtime wiring
 - Settings features outside the approved Settings + Advanced taxonomy
 - Settings application/runtime wiring
-- Sync destination implementation or its destination-specific Compose API
+- per-device Sync profiles, AA-side controls, and automatic calibration

@@ -6,7 +6,7 @@ Phase 11.3a (effective-position foundation), Phase 11.3b (existing current-line 
 
 The shared **Timing Semantic Engine** consumes canonical timed lyrics + `EffectiveLyricsPosition` and produces deterministic line/word/progress/boundary facts. The engine is mode-agnostic; Karaoke ON/OFF is not an input.
 
-Normal Phone timed presentation consumes the active-line fact. The authorized Phone WORD_SYNC Karaoke consumer may additionally consume the shared word/progress/boundary facts downstream without changing timing semantics. The authorized Android Auto Now Playing completion consumes the same shared active-line fact for both LINE_SYNC and WORD_SYNC while intentionally ignoring word/progress/boundary facts. This fork now adds manual Sync controls and a persisted global production offset. Android Auto Karaoke remains outside this scope.
+Normal Phone timed presentation consumes the active-line fact. The authorized Phone WORD_SYNC Karaoke consumer may additionally consume the shared word/progress/boundary facts downstream without changing timing semantics. The authorized Android Auto Now Playing completion consumes the same shared active-line fact for both LINE_SYNC and WORD_SYNC while intentionally ignoring word/progress/boundary facts. This fork adds manual Sync controls, a persisted global offset, and additional Android Auto-only compensation. Android Auto Karaoke remains outside this scope.
 
 The working fork contains `lyrics/KaraokeTiming.kt` and `util/SyncCalibration.kt`. They were re-checked at `v1.13.0` on 2026-09-25. `SyncCalibration.offsetForTap(targetTimeMs, rawPositionMs) = targetTimeMs - rawPositionMs` preserves the approved sign convention. `KaraokeTiming` provides mature active-word boundary evidence that is **PRESERVE / REFACTOR**; Android-specific sweep/layout behaviour remains outside the shared engine.
 
@@ -170,7 +170,7 @@ normalized PlaybackSnapshot
         ↓
 shared projected playback clock
         ↓
-effectiveLyricsPosition(..., applicationOwnedLyricsOffset)
+effectiveLyricsPosition(..., applicationOwnedGlobalPlusAaOffset)
         ↓
 projectLyricsTiming(...)
         ↓
@@ -187,7 +187,7 @@ Stable rules for this surface:
 - Automotive must retire its independent current-line selector rather than keep a parallel `startMs <= position` implementation;
 - Automotive must not create a UI-observation-time fallback clock;
 - a valid source `positionUpdatedAtMonotonicMs` remains authoritative and the existing `positionSampledAtMonotonicMs` is the fallback when the source timestamp is unavailable;
-- production offset comes from the application-owned global calibration flow, defaulting to zero;
+- production offset is the application-owned sum of global + AA calibration, defaulting to zero;
 - Phone owns the manual controls; application persistence is shared with Automotive. Android Auto Karaoke is still deferred.
 
 The detailed presentation contract is `docs/ANDROID_AUTO_NOW_PLAYING.md`.
@@ -289,19 +289,25 @@ Translation:
 
 ## Calibration scope and persistence
 
-The manual Sync slice selects a **global** offset shared by all songs and surfaces. `LyricsTimingSettings` in `:app` owns a `StateFlow<LyricsTimingOffset>` initialized from app-private SharedPreferences (`lyrics_timing_settings` / `lyrics_offset_ms`). Values are bounded to −30,000…+30,000 ms. Phone controls emit semantic actions mapped to ±50/500 ms in the app, or submit an exact signed millisecond value; they do not calculate timing.
+The Sync slice owns two persisted values in `:app`: a **global** offset and an additional **Android Auto** offset. `LyricsTimingSettings` publishes one `StateFlow<LyricsTimingOffsets>` snapshot, keeping both values and multi-setting reset coherent. App-private SharedPreferences (`lyrics_timing_settings`) retain the existing `lyrics_offset_ms` key and add `aa_offset_ms`, defaulting to zero. Existing global-only installs therefore keep their behavior. Each setting is bounded to −30,000…+30,000 ms. Phone controls emit scope + semantic ±50/500 ms actions, or submit an exact signed millisecond value; they do not calculate timing.
 
-The offset survives navigation, activity/process recreation and track/provider changes. It is applied once by the existing effective-position boundary in Phone lyrics/Karaoke, Sync preview, verbose Details, and Automotive. Automotive observes offset changes even while paused. Translation remains attached to the current canonical line; calibration neither refetches nor retranslates lyrics.
+```text
+Phone / Karaoke / Details offset = global
+Android Auto offset              = global + AA compensation
+lyrics position                  = projected playback position + surface offset
+```
 
-Sync Reset and `Reset AALyrics` both cancel any unfinished tap calibration and persist/publish zero. The timing reset writes only its own key. Reset AALyrics also restores its other explicitly listed settings; neither path removes downloaded translation models. Per-track offsets, separate device compensation, automatic audio calibration, and drift correction remain deferred.
+The car total is not clamped again: two independently bounded settings can sum to ±60 seconds. The application derives that total once and publishes it to the existing Automotive timing input. Automotive observes changes even while paused. Phone Sync derives both timing previews through the existing Phone mapper/shared timing engine, using the global or combined offset at the same monotonic instant. The AA preview describes lyric timing, not the car host's layout. Translation remains attached to the current canonical line; calibration neither refetches nor retranslates lyrics.
+
+Both values survive navigation, activity/process recreation, and track/provider changes. A card's Reset cancels unfinished tap calibration and clears only its own value. `Reset AALyrics` cancels calibration and persists/publishes both zero values in one snapshot. Persistence writes only the two named keys in one editor transaction; it never clears the preference file. Downloaded translation models are preserved. Per-car/device profiles, AA-side adjustment controls, per-track/provider correction, automatic audio calibration, and drift correction remain deferred.
 
 ### Three-tap calibration
 
 `TapSyncCalibration` in `:app` owns a transient session; UI modules emit Start/Tap/Cancel only. The interaction follows [Auto Lyrics `854c5fa`, `MainActivity.onTapSyncPressed`](https://github.com/GitUpGitUp/auto-lyrics/blob/854c5fa032632a5703349dacb7ae91aa5e19f3d8/app/src/main/java/com/autolyrics/MainActivity.kt#L593). That upstream version computes `rawPosition - targetTime` even though its display clock adds the offset; this fork uses the established AALyrics equation `targetTime - rawPosition` instead.
 
-Start freezes the next three nonblank timed lines after the current effective lyrics position, using distinct timestamps. All three stay visible and only taps advance the highlighted target. Fewer than three remaining lines disables Start. Each tap reads the latest normalized playback snapshot and the click's `SystemClock.elapsedRealtime()`, then uses the shared raw playback projection including source timestamp/fallback and playback rate. The 250 ms UI tick is never the sampling clock. Three absolute offsets are averaged, rounded to the nearest millisecond, and replace the saved global value once; partial samples do not write preferences. Taps less than 250 ms apart are ignored, and a sample beyond ±30 seconds rejects the session without changing the saved value.
+Start freezes the next three nonblank timed lines after the current effective lyrics position, using distinct timestamps. All three stay visible and only taps advance the highlighted target. Fewer than three remaining lines disables Start. Each tap reads the latest normalized playback snapshot and the click's `SystemClock.elapsedRealtime()`, then uses the shared raw playback projection including source timestamp/fallback and playback rate. The 250 ms UI tick is never the sampling clock. Three absolute offsets are averaged, rounded to the nearest millisecond, and replace the saved global value once, preserving AA compensation; partial samples do not write preferences. Taps less than 250 ms apart are ignored, and a sample beyond ±30 seconds rejects the session without changing the saved value.
 
-The app observes playback and lyrics changes on the main thread and revalidates at each tap. Track/lookup/document changes, pause or playback-rate changes, and source position discontinuities over 1 second cancel the unfinished session. Smaller source clock corrections are tolerated. In-app seeking, manual adjustment, opening the exact-value editor, either Reset, leaving Sync, and activity disposal also cancel it. An unfinished session is not persisted or restored across process recreation. No microphone, media seek, provider request, or translation work is initiated by tap calibration.
+The app observes playback and lyrics changes on the main thread and revalidates at each tap. Track/lookup/document changes, pause or playback-rate changes, and source position discontinuities over 1 second cancel the unfinished session. Smaller source clock corrections are tolerated. In-app seeking, manual adjustment, opening the exact-value editor, either card Reset, Reset AALyrics, leaving Sync, and activity disposal also cancel it. An unfinished session is not persisted or restored across process recreation. No microphone, media seek, provider request, or translation work is initiated by tap calibration.
 
 ## Offset versus drift
 
@@ -323,15 +329,15 @@ Extreme arithmetic-overflow hardening may follow normal repository conventions; 
 
 ## Presentation and Sync UI boundary
 
-`SyncScreen` renders presentation-ready state and emits tap-calibration and `SyncAdjustment`/SetOffset/Reset callbacks. Its three-line tap panel is followed by the compact `SyncOffsetCard` (editable signed value/pencil and Reset in one header, −500/−50/+50/+500 ms actions with shared direction/unit labels, and a short global-scope footer), and previous/current/next original lines with the current translation when available. `PhoneSyncMapper` reuses the calibrated Phone lyric projection rather than maintaining another clock. Tap calibration requires playing timed lyrics; fixed adjustments remain available during pause.
+`SyncScreen` renders presentation-ready state and emits scoped adjustment/SetOffset/Reset callbacks plus global tap-calibration actions. Its three-line tap panel is followed by two compact `SyncOffsetCard` instances for Global and Android Auto. Each has an editable signed value/pencil and Reset in one header, −500/−50/+50/+500 ms actions with shared direction/unit labels, and a short scope footer. The AA card also shows the application-derived combined car total.
 
-The Sync destination ticks at the existing 250 ms line cadence while music plays. While paused, offset updates still reproject the current position immediately. No-media/loading/unavailable/PLAIN states disable fixed-step adjustment; the global value can always be edited, and a non-zero saved value can always be reset. Before the first timestamp, the preview shows an upcoming first line and leaves calibration enabled. Limits disable only the outward adjustment direction.
+The preview has Phone and Android Auto selectors and previous/current/next original lines with the current translation when available. Adjusting, resetting, or opening a card's editor selects the corresponding preview; starting three-tap calibration selects Phone. `PhoneSyncMapper` consumes already-calibrated projections rather than maintaining another clock. Tap calibration requires playing timed lyrics; fixed adjustments remain available during pause.
 
-The exact-value dialog receives its range from the application. It prefills and selects the saved value, focuses a numeric keyboard, and provides a sign toggle for keyboards without a minus key. Draft validation accepts signed integer milliseconds (including a pasted Unicode minus) and rejects malformed, overflowing, or out-of-range values instead of silently clamping them. Save and keyboard Done submit the absolute value through `AALyricsApplication.setLyricsTimingOffset`; typing and Cancel/back/outside dismissal never write preferences. Opening the editor cancels tap calibration so it cannot complete behind the dialog. The draft is saveable Compose presentation state, not a new durable preference; the existing explicit Reset AALyrics contract remains unchanged.
+Sync uses the existing 250 ms line cadence while music plays. While paused, offset changes still reproject immediately. No-media/loading/unavailable/PLAIN states disable fixed-step adjustment; either saved value can always be edited, and either non-zero value can always be reset. Before the first timestamp, the preview shows an upcoming first line. Limits disable only the outward direction for that setting, independently of the other offset and the combined total.
 
-The manual card keeps 48 dp minimum touch heights and full spoken action descriptions. Its two direction groups sit side by side on ordinary screens; below 240 dp of inner card width or above 1.5× font scale they stack. Detailed sign/range/scope copy stays in the editor rather than occupying the main card. No timing policy, persisted preference, or reset semantics change with this presentation.
+The scoped exact-value dialog receives its range from the application. It selects the saved value, focuses a numeric keyboard, and provides a sign toggle. Validation accepts signed integer milliseconds (including a pasted Unicode minus) and rejects malformed, overflowing, or out-of-range drafts. Save and keyboard Done submit the absolute value through `setLyricsTimingOffset` or `setAndroidAutoTimingOffset`; typing and Cancel/back/outside dismissal never write preferences. Opening either editor cancels tap calibration. Drafts and preview selection are saveable Compose presentation state, not durable preferences.
 
-The entire content scrolls with the Phone playback-overlay inset for narrow/landscape screens and large fonts. Source playback transport and progress remain independent.
+Both cards keep 48 dp minimum touch heights and scope-specific spoken action descriptions. Direction groups sit side by side on ordinary screens and stack below 240 dp of inner width or above 1.5× font scale. Preview selectors wrap on narrow screens. The entire destination scrolls with the Phone playback-overlay inset. Source playback transport and progress remain independent.
 
 ## Diagnostics
 
@@ -376,8 +382,8 @@ Phase 11.4a — Shared Timing Semantic Engine              implemented
     LINE + WORD + progress + boundary semantics
     + behaviour-preserving Phone wiring
             ↓
-Phase 11.3c — Manual global Sync calibration             implemented in this fork
-    controls + scope + persistence
+Phase 11.3c — Global and AA Sync calibration             implemented in this fork
+    global + AA controls, scope, persistence, and reset
             ↓
 Phase 11.4b/11.4c — Phone Karaoke consumer/rendering     ✅
     consumes shared WORD semantic facts; does not recompute them
@@ -400,5 +406,5 @@ The implementation must preserve these invariants:
 - `:core:timing` may depend on `:core:model` for semantic projection, but not Android/UI/provider/Translation/runtime infrastructure;
 - the shared semantic engine does not accept Karaoke enablement/mode as input;
 - normal Phone timed presentation consumes the active-line fact, while the authorized Phone WORD_SYNC Karaoke path may consume the shared word/progress/boundary facts downstream;
-- Sync UI and persistence remain out of scope until separately authorized;
+- Sync UI and persistence belong to the application-owned global/AA slice; per-device profiles and automatic calibration require separate work;
 - Karaoke consumers use shared semantic output and never reapply the offset or duplicate line/word timing semantics.

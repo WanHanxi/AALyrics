@@ -7,7 +7,9 @@
 - A compact Lyrics Offset card with one row of adjustment controls, an inline Reset action, and adaptive grouping for large fonts.
 - Tap the current lyrics offset to enter an exact signed millisecond value, with a numeric keyboard, sign toggle, validation, and Save/Cancel.
 - A saved global offset (±30 seconds) shared by Phone, Karaoke, verbose Details, and Android Auto. Playback position and provider timestamps remain unchanged.
-- Reset AALyrics also restores the lyrics offset to zero.
+- An independently saved Android Auto offset (±30 seconds), added to the global value only for car lyrics. Phone Sync provides a compact AA card with fine/coarse adjustment, exact input, its own Reset, and the combined total.
+- Selectable Phone/Android Auto timing previews; three-tap calibration continues to update only the global offset.
+- Reset AALyrics restores both lyrics offsets to zero. Each Sync card Reset preserves the other value.
 
 ## [1.0.0-beta.1] - 2026-09-26
 
