@@ -2,4 +2,7 @@
 <resources>
     <string name="app_name">AALyrics</string>
     <string name="foundation_build">AALyrics\nFoundation build</string>
+    <string name="connection_diagnostics_saving">Saving connection diagnostics…</string>
+    <string name="connection_diagnostics_saved">Connection diagnostics saved. You can share the file from your file manager.</string>
+    <string name="connection_diagnostics_failed">Could not save connection diagnostics. Please try another destination.</string>
 </resources>

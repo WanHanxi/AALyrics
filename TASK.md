@@ -11,7 +11,7 @@
 ## Checkpoints
 
 - [x] Add platform diagnostic events, bounded persistent storage and focused regression tests.
-- [ ] Wire Debug-only process monitoring, automatic stall captures, phone export and Compose previews.
+- [x] Wire Debug-only process monitoring, automatic stall captures, phone export and Compose previews.
 - [ ] Align documentation and reset retention, run focused tests / architecture / build checks within the workstation budget, inspect the complete diff.
 - [ ] Commit and push checkpoints; deliver a locally signed Debug APK and open a Draft PR targeting `WanHanxi/AALyrics:main`, then stop.
 
@@ -28,6 +28,7 @@
 ## Validation
 
 - Checkpoint 1: platform Debug tests and focused app `*Connection*Test` passed (31 seconds) in a verified 3 GiB / zero-swap scope.
+- Checkpoint 2: all app, media and Phone Debug unit tests passed (35 seconds); Debug Compose previews compiled. Architecture and whitespace checks passed.
 - Run Gradle sequentially in a verified 3 GiB systemd scope with no swap, one worker, no parallel tasks, no daemon reuse, 1 GiB JVM and in-process Kotlin.
 - No task emulator is running. Prefer compiled Compose previews and a phone handoff over optional resource-intensive emulator checks.
 

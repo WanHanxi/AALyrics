@@ -48,6 +48,7 @@ fun SettingsScreen(
     onSupportAALyrics: () -> Unit,
     modifier: Modifier = Modifier,
     bottomOverlayInset: Dp = 0.dp,
+    onExportConnectionDiagnostics: (() -> Unit)? = null,
 ) {
     var targetLanguagePickerVisible by rememberSaveable { mutableStateOf(false) }
     var activeSubscreen by rememberSaveable {
@@ -67,6 +68,7 @@ fun SettingsScreen(
 
     when (activeSubscreen) {
         SettingsSubscreen.ADVANCED -> AdvancedSettingsScreen(
+            onExportConnectionDiagnostics = onExportConnectionDiagnostics,
             ignoreNonAudioApps = state.ignoreNonAudioApps,
             allowUnclassifiedApps = state.allowUnclassifiedApps,
             verboseDetailsEnabled = state.verboseDetailsEnabled,

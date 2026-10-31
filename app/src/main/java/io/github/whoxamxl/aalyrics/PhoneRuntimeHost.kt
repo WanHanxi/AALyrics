@@ -76,6 +76,7 @@ internal fun PhoneRuntimeHost(
     onOpenHelpFeedback: (HelpFeedbackDestination) -> Unit,
     onOpenSupportAALyrics: () -> Unit,
     onOpenUpdateRelease: (String) -> Unit = {},
+    onExportConnectionDiagnostics: (() -> Unit)? = null,
 ) {
     val playback by application.playbackState.collectAsStateWithLifecycle()
     val playbackSourceRuntimeState by
@@ -351,6 +352,7 @@ internal fun PhoneRuntimeHost(
 
             PhoneDestination.Settings -> SettingsScreen(
                 state = settingsState,
+                onExportConnectionDiagnostics = onExportConnectionDiagnostics,
                 rootResetKey = destinationRootResetKey,
                 onPlainLyricsAutoScrollChanged = { plainLyricsAutoScrollEnabled = it },
                 onIgnoreNonAudioAppsChanged = application::setIgnoreNonAudioApps,

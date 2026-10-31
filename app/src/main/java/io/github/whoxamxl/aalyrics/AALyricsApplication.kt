@@ -2,6 +2,7 @@ package io.github.whoxamxl.aalyrics
 
 import android.app.Application
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.SystemClock
 import io.github.whoxamxl.aalyrics.core.timing.LyricsTimingOffset
 import io.github.whoxamxl.aalyrics.core.lyrics.CandidateSelectionPreferences
@@ -20,6 +21,7 @@ import io.github.whoxamxl.aalyrics.provider.petitlyrics.PetitLyricsProvider
 import io.github.whoxamxl.aalyrics.provider.selection.CrossProviderCandidateSelector
 import io.github.whoxamxl.aalyrics.provider.synclrc.SyncLrcProvider
 import io.github.whoxamxl.aalyrics.platform.media.MediaBrowserClientTrust
+import io.github.whoxamxl.aalyrics.platform.media.MediaConnectionDiagnostics
 import io.github.whoxamxl.aalyrics.platform.media.MediaSessionListenerService
 import io.github.whoxamxl.aalyrics.platform.media.MediaSessionRuntimeHost
 import io.github.whoxamxl.aalyrics.platform.media.PlaybackArtworkSink
@@ -38,6 +40,7 @@ import io.github.whoxamxl.aalyrics.ui.automotive.AutomotiveTransport
 import io.github.whoxamxl.aalyrics.ui.automotive.AutomotiveTransportCapabilities
 import io.github.whoxamxl.aalyrics.ui.phone.details.DetailsScreenUiState
 import io.github.whoxamxl.aalyrics.ui.phone.state.PlaybackSurfaceUiState
+import io.github.whoxamxl.aalyrics.ui.phone.state.PlaybackSourceConnectionUiState
 import io.github.whoxamxl.aalyrics.translation.api.TranslationModelPhase
 import io.github.whoxamxl.aalyrics.translation.api.TranslationModelState
 import io.github.whoxamxl.aalyrics.translation.api.TranslationSettings
@@ -79,6 +82,7 @@ private data class TranslationDetailsFacts(
 /** Process-level owner of the first production lyrics object graph. */
 class AALyricsApplication : Application() {
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private var connectionDiagnostics: ConnectionDiagnosticsRuntime? = null
     private lateinit var graph: ApplicationGraph
     private lateinit var demandLifecycle: LyricsDemandLifecycle
     private lateinit var automotiveBinding: AutomotiveRuntimeBinding
@@ -413,6 +417,8 @@ class AALyricsApplication : Application() {
     }
 
     fun resetAppOwnedSettings() {
+        // Preserve bounded diagnostics so troubleshooting resets do not erase the incident.
+        MediaConnectionDiagnostics.record("app_settings_reset")
         installPermissionPromptRuntime.dismiss()
         updateReleasePromptRuntime.reset()
         appUpdateCheckRuntime.reset()
@@ -439,6 +445,9 @@ class AALyricsApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        if (BuildConfig.DEBUG) {
+            connectionDiagnostics = ConnectionDiagnosticsRuntime(this, applicationScope)
+        }
         lyricsTimingSettings = createLyricsTimingSettings(this)
         val updateUserAgent = "AALyrics/${BuildConfig.VERSION_NAME}"
         updateRecoveryStore = SharedPreferencesUpdateRecoveryStore(this)
@@ -533,6 +542,7 @@ class AALyricsApplication : Application() {
                 )
             }
             graph.playbackSnapshotSink.onPlaybackSnapshot(snapshot)
+            connectionDiagnostics?.onPlayback(snapshot)
             val sourceEligible = playbackSourceEligibility(snapshot) is
                 PlaybackSourceEligibility.Allowed
             graph.lyricsDemandGate.onPlaybackSnapshot(
@@ -686,6 +696,9 @@ class AALyricsApplication : Application() {
             translationState = translationCoordinator.state,
             canonicalLyricsIdentity = { state -> state.canonicalLyricsOrNull()?.identity },
             hostDemand = AutomotiveHostDemand { active ->
+                MediaConnectionDiagnostics.record("automotive_host_demand") {
+                    mapOf("active" to active.toString())
+                }
                 graph.lyricsDemandGate.setAutomotiveHostActive(active)
                 if (active) {
                     MediaSessionListenerService.requestSystemRebind(this)
@@ -708,9 +721,43 @@ class AALyricsApplication : Application() {
         )
         AutomotiveRuntimeHost.attach(automotiveBinding)
         demandLifecycle = LyricsDemandLifecycle(this, graph.lyricsDemandGate).also { it.start() }
+        connectionDiagnostics?.start(::connectionDiagnosticState)
+    }
+
+    internal fun onPhoneResumedForDiagnostics() {
+        connectionDiagnostics?.onPhoneResume()
+    }
+
+    internal fun exportConnectionDiagnostics(uri: Uri, onComplete: (Boolean) -> Unit) {
+        val diagnostics = connectionDiagnostics
+        if (diagnostics == null) onComplete(false) else diagnostics.export(uri, onComplete)
+    }
+
+    private fun connectionDiagnosticState(): ConnectionDiagnosticState {
+        val playback = graph.playbackState.value
+        val runtime = effectivePlaybackSourceRuntimeStateFlow.value
+        val appInfo = phonePlaybackSourceAppInfoStateFlow.value
+        val presentation = mapPhonePlaybackSourcePresentationState(runtime, playback, appInfo)
+        val demandActive = graph.lyricsDemandGate.isActive()
+        return ConnectionDiagnosticState(
+            connecting = presentation.connectionState == PlaybackSourceConnectionUiState.CONNECTING,
+            demandActive = demandActive,
+            fields = mapOf(
+                "runtime" to graph.playbackSourceRuntimeState.value.toString(),
+                "effective_runtime" to runtime.toString(),
+                "presentation" to presentation.connectionState.name,
+                "playback_source" to (playback.source?.id ?: "none"),
+                "app_info_source" to (appInfo?.packageName ?: "none"),
+                "control_source" to (graph.playbackControlState.value.sourcePackageName ?: "none"),
+                "has_track" to (playback.track != null).toString(),
+                "playback" to playback.status.name,
+                "demand_active" to demandActive.toString(),
+            ),
+        )
     }
 
     override fun onTerminate() {
+        MediaConnectionDiagnostics.detach()
         translationExecutionRuntime.stop()
         translationLanguageIdentifier.close()
         translationBackgroundRuntime.stop()

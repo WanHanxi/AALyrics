@@ -3,6 +3,7 @@ package io.github.whoxamxl.aalyrics
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -18,6 +19,20 @@ class MainActivity : ComponentActivity() {
     private lateinit var androidAutoCompatibilityOnboarding: AndroidAutoCompatibilityOnboarding
     private var renderedEntryState: AppEntryState? = null
     private var compatibilitySetupRequested = false
+    private val connectionDiagnosticsExportLauncher =
+        registerForActivityResult(ActivityResultContracts.CreateDocument("text/plain")) { uri ->
+            if (uri != null && BuildConfig.DEBUG) {
+                val app = application as AALyricsApplication
+                Toast.makeText(app, R.string.connection_diagnostics_saving, Toast.LENGTH_SHORT).show()
+                app.exportConnectionDiagnostics(uri) { succeeded ->
+                    Toast.makeText(
+                        app,
+                        if (succeeded) R.string.connection_diagnostics_saved else R.string.connection_diagnostics_failed,
+                        Toast.LENGTH_LONG,
+                    ).show()
+                }
+            }
+        }
     private val installSourceTrustSettingsLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             (application as? AALyricsApplication)
@@ -51,6 +66,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        (application as? AALyricsApplication)?.onPhoneResumedForDiagnostics()
         renderEntryState()
     }
 
@@ -100,6 +116,9 @@ class MainActivity : ComponentActivity() {
                     AALyricsTheme {
                         PhoneRuntimeHost(
                             application = application as AALyricsApplication,
+                            onExportConnectionDiagnostics = if (BuildConfig.DEBUG) {
+                                { exportConnectionDiagnostics() }
+                            } else null,
                             androidAutoStatus = androidAutoCompatibilityOnboarding
                                 .status()
                                 .toUiStatus(),
@@ -165,6 +184,17 @@ class MainActivity : ComponentActivity() {
                 Uri.parse(url),
             ),
         )
+    }
+
+    private fun exportConnectionDiagnostics() {
+        val timestamp = java.time.LocalDateTime.now().format(
+            java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"),
+        )
+        try {
+            connectionDiagnosticsExportLauncher.launch("aalyrics-connection-$timestamp.txt")
+        } catch (_: RuntimeException) {
+            Toast.makeText(this, R.string.connection_diagnostics_failed, Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun openCustomTabUrl(url: String) {

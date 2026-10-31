@@ -1,6 +1,6 @@
 # AALyrics Privacy Policy
 
-**Effective date:** September 24, 2026
+**Effective date:** October 31, 2026
 
 AALyrics is an Android application for displaying synchronized lyrics for music playing on your device. This policy describes the data AALyrics accesses, stores, and sends when you use the app.
 
@@ -75,6 +75,8 @@ AALyrics does not currently maintain a persistent history of the songs you play 
 
 Current playback, lyrics, and related presentation state are primarily held in memory while the app is running.
 
+Debug builds additionally save a bounded local connection-diagnostics record to investigate playback detection problems. It contains timestamps, app/build and device/OS details, media app package names, connection/playback states, relevant system-access facts and exception types. It does not contain song titles, lyrics, media identifiers, notification contents or exception messages. The records are excluded from Android backup and are not uploaded automatically. You can save a report to a destination you choose through **Settings > Advanced > Debug > Export connection diagnostics** and share that file yourself. Release builds do not record these diagnostics or display that action.
+
 Android may include eligible app-local data in its standard device backup/restore mechanisms according to your Android and Google backup settings.
 
 ## Permissions
@@ -102,6 +104,8 @@ AALyrics does not send data to advertising or analytics services. Track metadata
 App settings remain on the device until they are changed, reset, cleared by Android, or the app is uninstalled, subject to Android backup/restore behavior.
 
 Downloaded Translation models remain managed by ML Kit until they are removed through AALyrics, removed by the system/provider, or the app/device data is cleared.
+
+Debug connection diagnostics rotate automatically within a total local storage limit of 1.375 MiB. They survive app restarts and Reset AALyrics to preserve troubleshooting evidence, and are removed when you clear app storage or uninstall. Any report copies you export remain in your chosen destination until you remove them there.
 
 AALyrics does not operate its own server-side user account or analytics database from which user data must be separately deleted.
 

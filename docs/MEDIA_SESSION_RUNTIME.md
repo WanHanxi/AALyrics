@@ -200,6 +200,12 @@ Demand gating belongs between the platform playback sink and `PlaybackLyricsCont
 - Android framework objects do not leak into pure core/provider APIs.
 - Live runtime callbacks do not start provider work directly; they feed normalized playback through the application boundary.
 
+### Debug connection diagnostics
+
+The optional `MediaConnectionDiagnostics` sink reports service create/connect/disconnect/destroy, observation registration/failures, session summaries/selection, controller callbacks and rebind requests/results to application-owned bounded storage. With no sink installed, diagnostic field lambdas are not evaluated. Diagnostic reads/sink failures cannot propagate into playback. Notification callbacks contribute only a count, never notification content. Repeated identical session/selection summaries are suppressed.
+
+The Debug application also records permission and lifecycle/demand facts, normalized playback availability, raw/effective/runtime presentation state, and a bounded recent-context capture after a demanded Connecting episode lasts 30 seconds. That observer uses the same Phone source-state mapper even when only Android Auto is active. It never queries a new session list or changes discovery/rebind behavior; therefore the logs can distinguish missing listener callbacks from observed-session or presentation mismatches without concealing the original fault. See `docs/PHONE_SETTINGS.md` for export and retention.
+
 ## Phone playback-surface follow-up
 
 The later Phone playback-surface contract is defined in `docs/PHONE_PLAYBACK_SURFACE.md`.

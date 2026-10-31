@@ -78,7 +78,8 @@ Advanced
 ├─ Playback source
 │  └─ Allow unclassified apps           [switch]  ⓘ
 ├─ Debug
-│  └─ Verbose details                  [switch]
+│  ├─ Verbose details                  [switch]
+│  └─ Export connection diagnostics    ⓘ  Export  (Debug builds only)
 ├─ Experimental features
 │  └─ Karaoke mode                   [switch]  ⓘ
 ├─ Storage
@@ -92,7 +93,17 @@ AALyrics
 Version: vX.X.X
 © <current year> Yuta Miura (whoxamxl)
 ```
-Provider preferences, appearance/theme selection, log export, and other future taxonomy remain out of scope. The approved Advanced surface remains narrow: Playback source owns only the unclassified-app escape hatch, Verbose Details controls read-only diagnostic presentation, Karaoke mode is the persisted experimental feature-availability gate, Storage owns explicit Translation-model cleanup, and Reset restores only AALyrics-owned state.
+Provider preferences, appearance/theme selection, production log export, and other future taxonomy remain out of scope. Debug builds additionally expose the narrow connection-diagnostics export described below. The approved Advanced surface remains narrow: Playback source owns only the unclassified-app escape hatch, Verbose Details controls read-only diagnostic presentation, Karaoke mode is the persisted experimental feature-availability gate, Storage owns explicit Translation-model cleanup, and Reset restores only AALyrics-owned state.
+
+### Debug connection diagnostics
+
+Debug builds automatically record bounded media-connection events on the device. `Settings > Advanced > Debug > Export connection diagnostics` opens Android's document picker to save a plain-text report, which the user can later share from their file manager. Cancelling the picker leaves the records alone; saving reports success or failure through a Toast. The application owns recording, storage, export IO and system facts; Phone receives only an optional export callback. Release builds supply no callback and do not initialize the recorder.
+
+This is independent of Verbose details and works with the Phone closed while Android Auto requests lyrics. A process-level observer samples existing connection/presentation state every five seconds. After at least 30 seconds of continuous Connecting with active lyrics demand, it freezes recent event context once for that episode. It does not refresh sessions, rebind the listener or change connection status. A successful rebind request is logged separately from the actual listener-connected callback.
+
+Records include UTC/monotonic timestamps, build/device identity, package names, permission and battery/background-restriction facts, lifecycle events, observed session summaries, selected source, playback state and exception class names. They exclude notification contents, song titles, lyrics, media IDs/URIs, credentials and exception messages. No diagnostics are uploaded automatically. This is app instrumentation, not a full Android bug report; OEM-specific autostart restrictions are not readable through these public facts.
+
+Storage is private `noBackupFilesDir/connection-diagnostics`: four 256 KiB event files and three 128 KiB incident files (1.375 MiB total). A 256-command queue bounds pending work; IO runs off the main thread. Export waits for earlier accepted events and reports dropped-event and write-failure totals. Old events/incidents rotate across process restarts. Diagnostics intentionally survive Reset AALyrics so resetting while troubleshooting does not erase evidence; the Debug reset dialog says so. Android Clear storage or uninstall removes local records. Exported copies are user-owned and remain outside the reset/storage boundary. Compose previews cover the export row at normal/narrow/landscape sizes and the diagnostic-retention reset dialog.
 
 ## Destination composition
 
@@ -950,6 +961,7 @@ After confirmation, reset restores:
 Reset does **not**:
 
 - delete downloaded translation models;
+- delete bounded Debug connection diagnostics or user-exported report files;
 - revoke Notification Access or other Android permissions;
 - change Android Auto Developer Mode / Unknown sources;
 - modify any other application's state.
@@ -1099,7 +1111,7 @@ The first Settings slice does not define or implement:
 
 - provider ordering/preferences;
 - theme/appearance selection;
-- diagnostics log viewer/export beyond the approved Verbose Details fields;
+- a general diagnostics log viewer or production export beyond the narrow Debug connection-diagnostics action;
 - notification-access management;
 - Translation Provider selection UI;
 - Android Auto runtime/projection settings;

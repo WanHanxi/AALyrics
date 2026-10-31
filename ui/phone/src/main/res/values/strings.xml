@@ -324,4 +324,9 @@
     <string name="playback_close">Close</string>
     <string name="playback_position">Playback position</string>
     <string name="playback_position_state">%1$s of %2$s</string>
+    <string name="settings_export_connection_diagnostics">Export connection diagnostics</string>
+    <string name="settings_export">Export</string>
+    <string name="settings_connection_diagnostics_info">Connection events are saved automatically on this device, including prolonged Connecting states. Export later to investigate a problem. Records contain device details, app package names and connection states, without song titles, lyrics or notification content. Older records rotate automatically within 1.4 MiB. Records survive app restarts and Reset AALyrics.</string>
+    <string name="settings_connection_diagnostics_info_description">About connection diagnostics</string>
+    <string name="settings_connection_diagnostics_reset_retained">Saved connection diagnostics will be kept for troubleshooting.</string>
 </resources>
