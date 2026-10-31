@@ -21,6 +21,7 @@
 - [x] Versioned bounded file adapter and application wiring, with restart/offline/corruption/eviction tests.
 - [x] Documentation/privacy/reset alignment, architecture checks, full tests and Debug build; branch-wide regression review.
 - [x] Commit and push completed checkpoints; prepare upstream-ready handoff.
+- [x] Record successful user phone testing and authorization to open the upstream PR ready for review.
 
 ## Validation constraints
 
@@ -39,7 +40,8 @@
 - Final `test :app:assembleDebug` passed in 62 seconds at `12b9d23`; 762 tests across 93 suites, zero failures/errors/skips. Existing successful tasks were reused.
 - Architecture guardrails and branch-wide whitespace/scope review passed. A final fetch confirmed `upstream/main` remains `e85c21c`; the branch contains only the cache feature and supporting tests/docs. Personal main and the existing Sync/diagnostics branches are unchanged.
 - Final build startup verified `MemoryMax=3221225472`, `MemorySwapMax=0`; the scope is now inactive/dead. No Gradle/Kotlin daemon or emulator remains. The generated Gradle JVM file checksum is unchanged (`6c13aa5ba36690ccfbbb25a8807d01d98c15833e446d7ae82ddc726472cb8ef7`).
-- Existing Debug Compose previews compiled; no layout changes or new UI controls were introduced. The reset tooltip/dialog now explicitly mentions retained cached lyrics. No emulator or physical-device test was run.
+- Existing Debug Compose previews compiled; no layout changes or new UI controls were introduced. The reset tooltip/dialog now explicitly mentions retained cached lyrics. Agent verification used no emulator or physical device.
+- On 2026-10-31, the user reported successful phone testing with no issues and authorized opening the upstream PR. Android Auto physical-device testing was not separately reported.
 - APK package/version/signature checked using aapt2/apksigner: `io.github.whoxamxl.aalyrics.debug`, `1.0.0-beta.1-dev+12b9d23`, local Android Debug signer SHA-256 `bbcffafa7296076c0a8c9565798a83c49f4860856e6743d758fa4d5aad1f5703`.
 - APK: `app/build/outputs/apk/debug/aalyrics-offline-cache-12b9d23.apk`, 91,948,775 bytes. SHA-256: `e3bcc3035fd7f9116968512121598b885efa4521e163f23e3bf15fd513b997c0`.
 - Only documentation status/alignment changes follow the validated build; reuse that APK without another build.
@@ -51,4 +53,4 @@
 3. Stop/reopen AALyrics while offline and return to A again. Previously saved, valid entries should still be available.
 4. Check the shared behavior on Phone and Android Auto. Translation still depends on separately available local models; Translation output is not cached here.
 
-All implementation checkpoints are on the fork's `feature/persistent-lyrics-cache` branch, based on the original repository's main for the requested later upstream PR. No upstream PR, review request or merge was performed in this implementation handoff. The future PR target is explicitly `whoxamxl/AALyrics:main`, with head `WanHanxi:feature/persistent-lyrics-cache`.
+All implementation checkpoints and final validation are complete on the fork's `feature/persistent-lyrics-cache` branch. A fresh upstream fetch on 2026-10-31 confirmed that `upstream/main` remains `e85c21c`, with no baseline reconciliation needed. After successful phone testing, the user explicitly requested a regular upstream PR ready for review, overriding the default Draft PR workflow for this submission. The PR target is explicitly `whoxamxl/AALyrics:main`, with head `WanHanxi:feature/persistent-lyrics-cache`. Stop after creating the PR; automated review requests and merging require separate authorization.
