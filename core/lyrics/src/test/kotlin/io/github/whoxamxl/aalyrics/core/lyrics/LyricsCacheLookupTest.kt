@@ -208,6 +208,28 @@ class LyricsCacheLookupTest {
         assertIs<LyricsState.Ready>(coordinator.state.value)
     }
 
+    @Test
+    fun `late cache write completion after clear cannot resurrect lyrics`() = runTest {
+        val release = CompletableDeferred<Unit>()
+        var writeStarted = false
+        val cache = object : LyricsCache {
+            override suspend fun get(key: LyricsCacheKey): LyricsDocument? = null
+            override suspend fun put(key: LyricsCacheKey, lyrics: LyricsDocument) {
+                writeStarted = true
+                withContext(NonCancellable) { release.await() }
+            }
+        }
+        val coordinator = LyricsCoordinator(listOf(Provider()), selector, this, cache = cache)
+        coordinator.startLookup(track)
+        runCurrent()
+        assertTrue(writeStarted)
+        coordinator.clear()
+        release.complete(Unit)
+        advanceUntilIdle()
+        assertEquals(LyricsState.Idle, coordinator.state.value)
+        assertEquals(LyricsLookupDiagnostics(), coordinator.diagnostics.value)
+    }
+
     private class MemoryCache : LyricsCache {
         val values = mutableMapOf<LyricsCacheKey, LyricsDocument>()
         override suspend fun get(key: LyricsCacheKey) = values[key]

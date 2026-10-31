@@ -84,21 +84,20 @@ The same coroutine and atomic state reducer govern cache and network work. Cance
 
 The encoded key includes:
 
-- normalized title, ordered artist names, album and album artist (trimmed and lowercased with `Locale.ROOT`);
-- exact optional duration in milliseconds;
-- all catalog references, sorted by namespace/value with opaque values preserved;
+- when present, all stable catalog references sorted by namespace/value, with opaque values preserved;
+- otherwise normalized title, ordered artist names, album and album artist (trimmed and lowercased with `Locale.ROOT`), plus exact optional duration in milliseconds;
 - the preferred synchronization type, including the distinct unset preference;
 - the sorted active lyrics-provider IDs;
 - a cache format/selection-policy version.
 
-This is deliberately conservative request equivalence, not fuzzy metadata matching. Different recordings, changed references, metadata/duration changes, selection preferences or provider sets miss. Reordered reference/provider sets do not miss. Playback position, player session identity, calibration and Translation settings are not inputs. Unknown duration and known duration remain distinct; improved metadata may cause another fetch. Provider or selector changes that invalidate previous winners must bump the cache policy version.
+Stable catalog references identify the recording, consistent with `PlaybackSnapshot.trackIdentity` and the existing corrected-metadata playback tests. With identical references, a later title correction or known duration reuses the document. Different references, selection preferences or provider sets miss; reference/provider set order does not matter. Without references the metadata fallback is conservative: album/version/duration changes miss rather than fuzzy-match another recording, and unknown/known duration remain distinct. Adding or removing catalog identity also misses; there is no weaker-key alias fallback. Playback position, transient player session identity, calibration and Translation settings are not inputs. Provider or selector changes that invalidate previous winners must bump the cache policy version.
 
 Only documents containing nonblank lyric text are stored. Both full and partially successful provider runs may supply usable cached lyrics. NotFound, failures and blank/empty documents are never cached. Schema/key mismatches, malformed data and invalid model invariants invalidate an entry and fall through to normal retrieval. There is no time-based expiry or automatic revalidation in this slice; selection preference changes use a distinct entry instead of overwriting another variant.
 
 ## File adapter and retention
 
 - `:cache:files` is a JVM storage adapter depending on the core cache port, not the reverse. It uses explicit versioned JSON encoding/decoding and reconstructs validated domain models.
-- Production storage is `noBackupFilesDir/lyrics_cache`, not Android's disposable `cacheDir`. No directory creation or file reads run in the application constructor/onCreate path; operations use the I/O dispatcher.
+- Production storage is `noBackupFilesDir/lyrics_cache`, not Android's disposable `cacheDir`. The adapter constructor performs no cache-directory creation or file reads; operations use the I/O dispatcher.
 - A single process-owned adapter serializes its operations. Writes use a same-directory temporary file, flush/sync and atomic replacement; unsuccessful replacement preserves the previous entry. Interrupted temporary files are cleaned on the next adapter access.
 - Limits: 256 documents, 32 MiB total payload and 1 MiB per entry. Read access updates recency; writes evict the least recently used entries when necessary. Oversized documents remain displayable but are not cached.
 - Valid entries survive process/activity recreation, ordinary app updates and Reset AALyrics. Reset restores settings and intentionally preserves reusable downloaded lyrics, consistent with the downloaded-assets policy.

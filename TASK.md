@@ -11,14 +11,14 @@
 
 - Cache selected canonical lyrics behind a core port and a separate JVM file-storage adapter. Preserve PLAIN/LINE/WORD data, optional end times, language and attribution.
 - Cache-first: a valid hit completes a fresh lookup without networking. Save only positive usable results, including results obtained despite another provider failing. Never persist failures or NotFound.
-- Identity includes normalized request metadata (title, ordered artists, album, album artist, exact optional duration), sorted catalog references, selection preferences and the active provider set. Preserve opaque reference values. Conservative metadata changes miss rather than risk the wrong recording. Version the format/selection policy.
+- Identity uses sorted stable catalog references when present; otherwise normalized metadata (title, ordered artists, album, album artist, exact optional duration). Selection preferences and the active provider set also participate. Preserve opaque reference values. Stable IDs tolerate corrected metadata/late duration, as playback ownership already does; metadata-only changes conservatively miss. Version the format/selection policy.
 - App-private no-backup storage, atomic replacement, off-main-thread I/O, 256 entries / 32 MiB with least-recently-used eviction and a 1 MiB entry limit. No age expiry, automatic refresh or prefetch, so age alone cannot remove offline availability.
 - Reset AALyrics preserves the cache. Eviction, clearing app storage or uninstall removes it. Translation output and calibrated/UI state are never persisted here.
 
 ## Checkpoints
 
 - [x] Core cache contract and lookup integration, with lifecycle/failure/preference tests.
-- [ ] Versioned bounded file adapter and application wiring, with restart/offline/corruption/eviction tests.
+- [x] Versioned bounded file adapter and application wiring, with restart/offline/corruption/eviction tests.
 - [ ] Documentation/privacy/reset alignment, architecture checks, full tests and Debug build; branch-wide regression review.
 - [ ] Commit and push completed checkpoints; prepare upstream-ready handoff.
 
@@ -35,3 +35,4 @@
 ## Validation record
 
 - Checkpoint 1: `:core:lyrics:test` passed in 24 seconds in verified 3 GiB / zero-swap scope; architecture and whitespace checks passed.
+- Checkpoint 2: file-cache and app tests passed; after stable-reference identity alignment and cancelled-write coverage, `:core:lyrics:test :cache:files:test :app:testDebugUnitTest` passed in 43 seconds (50 core, 13 file-cache, 345 app tests). All runs used the verified memory budget.
