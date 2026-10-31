@@ -14,7 +14,7 @@
 - [x] Wire Debug-only process monitoring, automatic stall captures, phone export and Compose previews.
 - [x] Align documentation and reset retention, run focused tests / architecture / build checks within the workstation budget, inspect the complete diff.
 - [x] Commit and push implementation checkpoints; prepare the locally signed Debug APK.
-- Publication gate: implementation, validation and APK handoff are complete. After committing this delivery record, the final action is to open a Draft PR targeting `WanHanxi/AALyrics:main` and stop.
+- Implementation, validation and APK handoff are complete. All checkpoints are pushed to the personal topic branch. Draft PR creation was attempted against `WanHanxi/AALyrics:main`, but the GitHub integration returned HTTP 403 (`Resource not accessible by integration`). No PR was created and no merge was performed. The prepared branch is available for manual Draft PR creation or retry after integration permissions are corrected.
 
 ## Acceptance and retention
 
