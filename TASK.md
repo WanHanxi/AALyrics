@@ -37,5 +37,6 @@
 ## Delivery and deferred work
 
 - The one-time personal-main bootstrap is explicitly authorized. Subsequent workflow-documentation integration follows the ordinary Draft PR and merge-approval process in the personal repository.
+- Workflow documentation is committed and pushed on `chore/personal-fork-workflow`. Internal PR publication is pending: the GitHub connector returned HTTP 403 (`Resource not accessible by integration`), and the browser access host was unavailable. No internal PR was created. Use [the personal-repository compare page](https://github.com/WanHanxi/AALyrics/compare/main...chore/personal-fork-workflow?expand=1) to create it as Draft when access is available.
 - Application update source, release assets/versioning, installation identity/signing, and help links remain separate follow-up decisions. Adding Git remotes does not change the current upstream-facing application URLs.
 - Do not change, close, mark ready, or merge upstream PR #91. Do not begin an unrelated personal feature as part of this setup.
