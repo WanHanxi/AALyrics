@@ -68,7 +68,7 @@ negative offset:
 She'd take the | world off my shoulders if it was ever hard to move
 ```
 
-This convention must stay identical across future Phone Sync controls, diagnostics, Karaoke, and Android Auto.
+This convention must stay identical across Phone Sync controls, diagnostics, Karaoke, and Android Auto.
 
 ### Effective lyrics position
 
@@ -110,9 +110,9 @@ Benefits:
 - provider/source timestamps remain inspectable and comparable;
 - reset-to-source means offset = 0 rather than reconstructing timestamps;
 - Translation stays attached to canonical line identity without inheriting another clock;
-- later Karaoke consumes one effective position rather than reapplying calibration;
+- Karaoke consumes one effective position rather than reapplying calibration;
 - Phone and Android Auto cannot accidentally implement opposite sign conventions;
-- future persistence can store calibration parameters rather than modified lyrics.
+- persistence stores the global calibration offset rather than modified lyrics.
 
 ## First foundation boundary
 

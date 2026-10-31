@@ -183,8 +183,8 @@ Do not bulk-port the old application. Each provider or subsystem remains a separ
 - Lyrics capability architecture foundation: merged in PR #32.
 - Translation background scaffold: merged in PR #41 as Phase 11.2a.
 - Translation execution/orchestration: merged in PR #43 as Phase 11.2b.
-- Phone Translation presentation/diagnostics: merged in PR #79 as Phase 11.2c; Android Auto Translation and persistent Translation Cache remain deferred.
-- Timing capability: Phase 11.3a effective-position foundation, Phase 11.3b Phone line integration, and Phase 11.4a shared LINE/WORD semantic engine are merged; Phone Karaoke 11.4b/11.4c is active on `feature/phone-karaoke-rendering`, while Sync UX/persistence and Android Auto Karaoke remain deferred.
+- Phone Translation presentation/diagnostics: merged in PR #79 as Phase 11.2c; line-oriented Android Auto Translation is implemented by PR #84. Persistent Translation Cache remains deferred.
+- Timing capability: Phase 11.3a effective-position foundation, Phase 11.3b Phone line integration, and Phase 11.4a shared LINE/WORD semantic engine are merged; Phone Karaoke 11.4b/11.4c is implemented by PR #82 and Android Auto consumes shared line timing through PR #84. This fork adds manual global Sync controls/persistence and three-tap calibration. Per-track/provider offsets, separate Phone/Auto compensation, automatic calibration, drift correction, and Android Auto Karaoke remain deferred.
 
 
 ### Translation scaffold implementation re-check
