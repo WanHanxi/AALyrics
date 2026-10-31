@@ -1,43 +1,37 @@
-# Personal fork development workflow
+# Integrate persistent lyrics cache into personal main
 
-## Scope
+## Scope and authorization
 
-- Establish `WanHanxi/AALyrics:main` as the personal integration baseline, with `whoxamxl/AALyrics` available as the `upstream` fetch source.
-- Perform the user-authorized one-time fast-forward of personal `main` from `e85c21c` to the completed Sync revision `3d13584`; preserve commit history.
-- Keep `feature/lyrics-sync-offset` at `3d13584` and upstream Draft PR #91 unchanged.
-- Record durable fork-specific development and PR routing rules on `chore/personal-fork-workflow`, based on the new personal `main`.
-- Integrate that documentation branch into personal `main` by an explicitly owner-authorized fast-forward and push, skipping the internal PR for this setup only.
-- Preserve application behavior, provider configuration, signing, update endpoints, user-owned Gradle/SDK files, and local verification limits.
+- The owner authorized merging the completed cache feature into `WanHanxi/AALyrics:main` on 2026-10-31, independently of upstream review.
+- Personal baseline: `origin/main` at `fd99084`, including manual global Sync controls, persisted timing offset and three-tap calibration.
+- Cache source: `feature/persistent-lyrics-cache` at `6a99a87`, submitted as upstream PR #92 against `whoxamxl/AALyrics:main`.
+- Prepare and validate the squash integration on `chore/integrate-lyrics-cache`, then fast-forward personal `main` and push to `origin/main` without another PR. No commit is authored directly on `main`.
+- Preserve the fork's existing Sync behavior and workflow guidance. Keep the upstream cache/Sync contribution branches and diagnostics branch unchanged.
 
 ## Checkpoints
 
-- [x] Verify local/remote baseline and upstream PR head; retain a local checksum of the user-owned Gradle file.
-- [x] Add/fetch `upstream`; set default pushes to `origin` with simple branch matching and explicit `main` push routing.
-- [x] Fast-forward and push personal `main`; create the independent workflow documentation branch.
-- [x] Document personal feature branches, own-repository PRs, periodic upstream synchronization, and isolated upstream contributions.
-- [x] Verify configuration, branch isolation, documentation, and architecture.
-- [x] Prepare the completed documentation checkpoint and receive explicit owner authorization to fast-forward it into `WanHanxi/AALyrics:main` without an internal PR.
+- [x] Fetch personal main and confirm the intended source revisions and clean starting worktree.
+- [x] Combine the cache with existing Sync application wiring, reset copy and architecture/migration records.
+- [ ] Complete architecture, scope, regression tests and Debug assembly for the combined tree within the workstation memory budget.
+- [ ] Commit the validated integration on its topic branch, fast-forward personal main and push it without force.
 
-## Acceptance
+## Integrated behavior
 
-- Local `main` tracks `origin/main`, and both include the completed Sync implementation without waiting for upstream acceptance.
-- `origin` remains the personal fork; `upstream/main` remains a separate remote-tracking reference. Default pushes and PR targets resolve to the personal fork.
-- Personal features start from personal `main`. New work does not enter upstream PR #91 through its existing head branch.
-- Periodic upstream synchronization uses a dedicated topic branch and preserves upstream merge ancestry. New upstream contributions require explicit authorization and start from `upstream/main`.
-- The workflow documentation branch contains only instructions/documentation. No new application state or reset semantics are introduced.
+- Cache selected canonical original lyrics through `LyricsCache` and the separate JVM `:cache:files` adapter. Restore valid saved lyrics without provider requests across track changes and process recreation.
+- Store versioned JSON in private no-backup storage with atomic writes, off-main-thread I/O and LRU bounds of 256 entries / 32 MiB total / 1 MiB per entry. No TTL, negative-result caching, prefetch or Translation caching.
+- Retain stable catalog identity with conservative metadata fallback, selection/provider separation, fresh lookup IDs and cancellation protection.
+- Keep Sync timing/calibration downstream of canonical lyrics; cached timestamps remain uncalibrated. `Reset AALyrics` restores the offset to zero and cancels calibration while preserving cached lyrics and downloaded Translation models.
 
 ## Validation
 
-- Before setup, local/remote personal `main` and upstream `main` were `e85c21c`; both Sync branch references and upstream PR #91 were `3d13584`.
-- Personal `main` was advanced with `git merge --ff-only` and pushed without force. No new commit was authored directly on `main`.
-- Reuse the successful Sync build/test evidence recorded in `3d13584:TASK.md`; configuration and documentation changes do not require another Gradle or emulator run.
-- Final checks passed: architecture guardrails, `git diff --check`, default push/tracking configuration, expected local/remote branch heads, documentation-only scope, ignored local guidance, and the unchanged user-owned Gradle file checksum.
-- Before the documentation integration, remote personal `main` was confirmed at `3d13584`. The earlier upstream PR check found #91 open and Draft with the same `3d13584` head and `e85c21c` base; this integration does not modify its contribution branch.
-- The fork's existing Build and Release workflow definitions reported `active` during setup. Its Actions API had no run records at that time; no successful CI run is claimed for the main bootstrap. The authorized documentation integration uses the existing push-to-`main` trigger instead of a PR trigger.
+- Prior cache validation: `test :app:assembleDebug` passed at `12b9d23`, with 762 tests across 93 suites and no failures/errors/skips. The owner reported successful phone testing with no issues on 2026-10-31. Android Auto physical testing was not separately reported.
+- Historical cache implementation/validation details remain in `6a99a87:TASK.md`; prior Sync validation remains in `3d13584:TASK.md`.
+- Integration conflicts were limited to application imports/initialization, reset text, architecture/migration documentation and the task status. Resolution retains both the production file-cache injection and the existing tap-calibration lifecycle.
+- Run combined-tree checks sequentially in a verified 3 GiB systemd scope with zero swap, one worker, no parallel execution/daemon reuse, 1 GiB Gradle heap and in-process Kotlin. No emulator is needed.
+- Preserve the user-owned Gradle JVM file: SHA-256 `6c13aa5ba36690ccfbbb25a8807d01d98c15833e446d7ae82ddc726472cb8ef7`.
 
-## Delivery and deferred work
+## Deferred and isolation
 
-- The owner explicitly authorized both the initial personal-main bootstrap and a one-time exception for this documentation integration: skip the internal PR, fast-forward `chore/personal-fork-workflow` into personal `main`, and push to `origin/main`. Ordinary Draft PR and merge-approval rules remain the default for future work.
-- The earlier internal Draft PR publication plan is superseded by this authorization; no internal PR is pending for this task. Integration uses `git merge --ff-only chore/personal-fork-workflow` on personal `main`, followed by `git push origin main:main`, preserving the existing commits without a force push.
-- Application update source, release assets/versioning, installation identity/signing, and help links remain separate follow-up decisions. Adding Git remotes does not change the current upstream-facing application URLs.
-- Do not change, close, mark ready, or merge upstream PR #91. Do not begin an unrelated personal feature as part of this setup.
+- Upstream review/merge, Translation caching, prefetch/refresh policy and cache-management UI remain separate follow-ups.
+- Do not modify upstream PR #92 or #91, their source branches, or the unrelated diagnostics branch.
+- This owner-authorized integration does not change the default topic-branch/PR workflow for future work.
