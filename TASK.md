@@ -12,8 +12,9 @@
 
 - [x] Add platform diagnostic events, bounded persistent storage and focused regression tests.
 - [x] Wire Debug-only process monitoring, automatic stall captures, phone export and Compose previews.
-- [ ] Align documentation and reset retention, run focused tests / architecture / build checks within the workstation budget, inspect the complete diff.
-- [ ] Commit and push checkpoints; deliver a locally signed Debug APK and open a Draft PR targeting `WanHanxi/AALyrics:main`, then stop.
+- [x] Align documentation and reset retention, run focused tests / architecture / build checks within the workstation budget, inspect the complete diff.
+- [x] Commit and push implementation checkpoints; prepare the locally signed Debug APK.
+- Publication gate: implementation, validation and APK handoff are complete. After committing this delivery record, the final action is to open a Draft PR targeting `WanHanxi/AALyrics:main` and stop.
 
 ## Acceptance and retention
 
@@ -30,7 +31,20 @@
 - Checkpoint 1: platform Debug tests and focused app `*Connection*Test` passed (31 seconds) in a verified 3 GiB / zero-swap scope.
 - Checkpoint 2: all app, media and Phone Debug unit tests passed (35 seconds); Debug Compose previews compiled. Architecture and whitespace checks passed.
 - Run Gradle sequentially in a verified 3 GiB systemd scope with no swap, one worker, no parallel tasks, no daemon reuse, 1 GiB JVM and in-process Kotlin.
-- No task emulator is running. Prefer compiled Compose previews and a phone handoff over optional resource-intensive emulator checks.
+- Final `test :app:assembleDebug` passed in 40 seconds at implementation commit `a269af3`; 780 unit tests across 98 suites, no failures/errors/skips. Existing successful tasks were reused.
+- Branch-wide architecture checks and `git diff --check` passed. Personal main remains `fd99084`, and the reserved upstream-contribution branch remains `3d13584`.
+- APK package/version/signature validated with aapt2 and apksigner. Package `io.github.whoxamxl.aalyrics.debug`, version `1.0.0-beta.1-dev+a269af3`, local Android Debug signer SHA-256 `bbcffafa7296076c0a8c9565798a83c49f4860856e6743d758fa4d5aad1f5703`.
+- APK: `app/build/outputs/apk/debug/aalyrics-connection-diagnostics-a269af3.apk` (92,051,127 bytes). SHA-256 `67f49678c2cfc56e756ef282d8dca8213e1ebef71c1ba1c60113ac49cce5fe14`.
+- All builds used verified `MemoryMax=3221225472`, `MemorySwapMax=0`, one worker, no parallel tasks, no daemon reuse and in-process Kotlin. The final scope is inactive/dead; no Gradle/Kotlin daemon or emulator remains. User-owned Gradle JVM file checksum remains `6c13aa5ba36690ccfbbb25a8807d01d98c15833e446d7ae82ddc726472cb8ef7`.
+- No emulator was launched. New Compose previews compiled, but on-device export UI and the Xiaomi/Spotify/Android Auto reproduction still require the phone handoff below. No claim of reproducing or fixing the connection fault is made.
+- Only delivery documentation changes follow the validated implementation; reuse the successful APK rather than rebuilding for those changes.
+
+## Phone handoff
+
+1. Install the new APK over the existing local AALyrics Debug installation and open it once. Recording starts automatically; Verbose details is independent.
+2. Use Spotify and AALyrics normally, including Android Auto. No action is required during a Connecting stall.
+3. Later open Settings > Advanced > Debug > Export connection diagnostics, choose Downloads (or another destination), and wait for the saved confirmation.
+4. Share the saved text file and the approximate incident time. The report retains earlier process records and the last three automatic stall captures within the bounded storage budget. It contains app diagnostics, not a full system bug report.
 
 ## Deferred
 
