@@ -19,8 +19,8 @@
 
 - [x] Core cache contract and lookup integration, with lifecycle/failure/preference tests.
 - [x] Versioned bounded file adapter and application wiring, with restart/offline/corruption/eviction tests.
-- [ ] Documentation/privacy/reset alignment, architecture checks, full tests and Debug build; branch-wide regression review.
-- [ ] Commit and push completed checkpoints; prepare upstream-ready handoff.
+- [x] Documentation/privacy/reset alignment, architecture checks, full tests and Debug build; branch-wide regression review.
+- [x] Commit and push completed checkpoints; prepare upstream-ready handoff.
 
 ## Validation constraints
 
@@ -36,3 +36,19 @@
 
 - Checkpoint 1: `:core:lyrics:test` passed in 24 seconds in verified 3 GiB / zero-swap scope; architecture and whitespace checks passed.
 - Checkpoint 2: file-cache and app tests passed; after stable-reference identity alignment and cancelled-write coverage, `:core:lyrics:test :cache:files:test :app:testDebugUnitTest` passed in 43 seconds (50 core, 13 file-cache, 345 app tests). All runs used the verified memory budget.
+- Final `test :app:assembleDebug` passed in 62 seconds at `12b9d23`; 762 tests across 93 suites, zero failures/errors/skips. Existing successful tasks were reused.
+- Architecture guardrails and branch-wide whitespace/scope review passed. A final fetch confirmed `upstream/main` remains `e85c21c`; the branch contains only the cache feature and supporting tests/docs. Personal main and the existing Sync/diagnostics branches are unchanged.
+- Final build startup verified `MemoryMax=3221225472`, `MemorySwapMax=0`; the scope is now inactive/dead. No Gradle/Kotlin daemon or emulator remains. The generated Gradle JVM file checksum is unchanged (`6c13aa5ba36690ccfbbb25a8807d01d98c15833e446d7ae82ddc726472cb8ef7`).
+- Existing Debug Compose previews compiled; no layout changes or new UI controls were introduced. The reset tooltip/dialog now explicitly mentions retained cached lyrics. No emulator or physical-device test was run.
+- APK package/version/signature checked using aapt2/apksigner: `io.github.whoxamxl.aalyrics.debug`, `1.0.0-beta.1-dev+12b9d23`, local Android Debug signer SHA-256 `bbcffafa7296076c0a8c9565798a83c49f4860856e6743d758fa4d5aad1f5703`.
+- APK: `app/build/outputs/apk/debug/aalyrics-offline-cache-12b9d23.apk`, 91,948,775 bytes. SHA-256: `e3bcc3035fd7f9116968512121598b885efa4521e163f23e3bf15fd513b997c0`.
+- Only documentation status/alignment changes follow the validated build; reuse that APK without another build.
+
+## Phone handoff and upstream preparation
+
+1. Install the Debug APK and fetch song A online once using this version; the pre-cache version did not persist its earlier results.
+2. Disconnect the network, switch to B, then return to A. A should restore the original lyrics and timing without a lyrics-provider request.
+3. Stop/reopen AALyrics while offline and return to A again. Previously saved, valid entries should still be available.
+4. Check the shared behavior on Phone and Android Auto. Translation still depends on separately available local models; Translation output is not cached here.
+
+All implementation checkpoints are on the fork's `feature/persistent-lyrics-cache` branch, based on the original repository's main for the requested later upstream PR. No upstream PR, review request or merge was performed in this implementation handoff. The future PR target is explicitly `whoxamxl/AALyrics:main`, with head `WanHanxi:feature/persistent-lyrics-cache`.
