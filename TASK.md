@@ -6,6 +6,7 @@
 - Perform the user-authorized one-time fast-forward of personal `main` from `e85c21c` to the completed Sync revision `3d13584`; preserve commit history.
 - Keep `feature/lyrics-sync-offset` at `3d13584` and upstream Draft PR #91 unchanged.
 - Record durable fork-specific development and PR routing rules on `chore/personal-fork-workflow`, based on the new personal `main`.
+- Integrate that documentation branch into personal `main` by an explicitly owner-authorized fast-forward and push, skipping the internal PR for this setup only.
 - Preserve application behavior, provider configuration, signing, update endpoints, user-owned Gradle/SDK files, and local verification limits.
 
 ## Checkpoints
@@ -15,7 +16,7 @@
 - [x] Fast-forward and push personal `main`; create the independent workflow documentation branch.
 - [x] Document personal feature branches, own-repository PRs, periodic upstream synchronization, and isolated upstream contributions.
 - [x] Verify configuration, branch isolation, documentation, and architecture.
-- [x] Prepare the completed documentation checkpoint for a Draft PR against `WanHanxi/AALyrics:main`; stop once published.
+- [x] Prepare the completed documentation checkpoint and receive explicit owner authorization to fast-forward it into `WanHanxi/AALyrics:main` without an internal PR.
 
 ## Acceptance
 
@@ -31,12 +32,12 @@
 - Personal `main` was advanced with `git merge --ff-only` and pushed without force. No new commit was authored directly on `main`.
 - Reuse the successful Sync build/test evidence recorded in `3d13584:TASK.md`; configuration and documentation changes do not require another Gradle or emulator run.
 - Final checks passed: architecture guardrails, `git diff --check`, default push/tracking configuration, expected local/remote branch heads, documentation-only scope, ignored local guidance, and the unchanged user-owned Gradle file checksum.
-- The remote personal `main` was confirmed at `3d13584`. Upstream PR #91 remains open and Draft with the same `3d13584` head and `e85c21c` base.
-- The fork's existing Build and Release workflow definitions report `active`. Its Actions API had no run records during setup; no successful CI run is claimed for the main bootstrap. The documentation PR follows the existing `pull_request` trigger.
+- Before the documentation integration, remote personal `main` was confirmed at `3d13584`. The earlier upstream PR check found #91 open and Draft with the same `3d13584` head and `e85c21c` base; this integration does not modify its contribution branch.
+- The fork's existing Build and Release workflow definitions reported `active` during setup. Its Actions API had no run records at that time; no successful CI run is claimed for the main bootstrap. The authorized documentation integration uses the existing push-to-`main` trigger instead of a PR trigger.
 
 ## Delivery and deferred work
 
-- The one-time personal-main bootstrap is explicitly authorized. Subsequent workflow-documentation integration follows the ordinary Draft PR and merge-approval process in the personal repository.
-- Workflow documentation is committed and pushed on `chore/personal-fork-workflow`. Internal PR publication is pending: the GitHub connector returned HTTP 403 (`Resource not accessible by integration`), and the browser access host was unavailable. No internal PR was created. Use [the personal-repository compare page](https://github.com/WanHanxi/AALyrics/compare/main...chore/personal-fork-workflow?expand=1) to create it as Draft when access is available.
+- The owner explicitly authorized both the initial personal-main bootstrap and a one-time exception for this documentation integration: skip the internal PR, fast-forward `chore/personal-fork-workflow` into personal `main`, and push to `origin/main`. Ordinary Draft PR and merge-approval rules remain the default for future work.
+- The earlier internal Draft PR publication plan is superseded by this authorization; no internal PR is pending for this task. Integration uses `git merge --ff-only chore/personal-fork-workflow` on personal `main`, followed by `git push origin main:main`, preserving the existing commits without a force push.
 - Application update source, release assets/versioning, installation identity/signing, and help links remain separate follow-up decisions. Adding Git remotes does not change the current upstream-facing application URLs.
 - Do not change, close, mark ready, or merge upstream PR #91. Do not begin an unrelated personal feature as part of this setup.
