@@ -16,6 +16,7 @@ class MediaSessionListenerService : NotificationListenerService() {
 
     override fun onCreate() {
         super.onCreate()
+        MediaConnectionDiagnostics.lifecycle("listener_created")
         val handler = Handler(Looper.getMainLooper())
         val manager = getSystemService(MEDIA_SESSION_SERVICE) as MediaSessionManager
         val source = AndroidMediaSessionSource(
@@ -48,20 +49,24 @@ class MediaSessionListenerService : NotificationListenerService() {
 
     override fun onListenerConnected() {
         super.onListenerConnected()
+        MediaConnectionDiagnostics.lifecycle("listener_connected")
         observation.connect()
     }
 
     override fun onListenerDisconnected() {
+        MediaConnectionDiagnostics.lifecycle("listener_disconnected")
         observation.listenerDisconnected()
         requestSystemRebind(this)
         super.onListenerDisconnected()
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
+        MediaConnectionDiagnostics.notificationPosted()
         observation.refresh()
     }
 
     override fun onDestroy() {
+        MediaConnectionDiagnostics.lifecycle("listener_destroyed")
         observation.stop()
         MediaSessionRuntimeHost.detachSessionLauncher(runtime)
         MediaSessionRuntimeHost.detachTransport(runtime)
@@ -77,10 +82,18 @@ class MediaSessionListenerService : NotificationListenerService() {
          * recover independently of the Activity lifecycle.
          */
         fun requestSystemRebind(context: Context) {
+            MediaConnectionDiagnostics.record("rebind_requested")
             runCatching {
                 NotificationListenerService.requestRebind(
                     ComponentName(context, MediaSessionListenerService::class.java),
                 )
+            }.onSuccess {
+                // The request returning does not prove that Android has connected the service.
+                MediaConnectionDiagnostics.record("rebind_request_returned")
+            }.onFailure { failure ->
+                MediaConnectionDiagnostics.record("rebind_request_failed") {
+                    mapOf("exception" to failure.javaClass.simpleName)
+                }
             }
         }
     }

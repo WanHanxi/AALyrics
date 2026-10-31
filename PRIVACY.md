@@ -75,6 +75,8 @@ AALyrics keeps a bounded offline lyrics cache in app-private storage. Entries co
 
 Cached lyrics survive app restarts and ordinary updates. The cache is stored in Android no-backup storage and is not included in device backup. Translated output, playback position, artwork and presentation state are not persisted in this cache.
 
+Debug builds additionally save a bounded local connection-diagnostics record to investigate playback detection problems. It contains timestamps, app/build and device/OS details, media app package names, connection/playback states, relevant system-access facts and exception types. It does not contain song titles, lyrics, media identifiers, notification contents or exception messages. The records are excluded from Android backup and are not uploaded automatically. You can save a report to a destination you choose through **Settings > Advanced > Debug > Export connection diagnostics** and share that file yourself. Release builds do not record these diagnostics or display that action.
+
 Android may include eligible app-local data in its standard device backup/restore mechanisms according to your Android and Google backup settings.
 
 ## Permissions
@@ -104,6 +106,8 @@ App settings remain on the device until they are changed, reset, cleared by Andr
 Reset AALyrics preserves cached lyrics so they remain available offline. Cache entries remain until capacity eviction, Android Clear storage or uninstall; they do not expire solely because of age.
 
 Downloaded Translation models remain managed by ML Kit until they are removed through AALyrics, removed by the system/provider, or the app/device data is cleared.
+
+Debug connection diagnostics rotate automatically within a total local storage limit of 1.375 MiB. They survive app restarts and Reset AALyrics to preserve troubleshooting evidence, and are removed when you clear app storage or uninstall. Any report copies you export remain in your chosen destination until you remove them there.
 
 AALyrics does not operate its own server-side user account or analytics database from which user data must be separately deleted.
 

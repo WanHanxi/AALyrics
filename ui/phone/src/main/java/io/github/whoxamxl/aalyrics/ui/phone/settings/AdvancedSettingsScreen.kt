@@ -37,6 +37,7 @@ fun AdvancedSettingsScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     bottomOverlayInset: Dp = 0.dp,
+    onExportConnectionDiagnostics: (() -> Unit)? = null,
 ) {
     var clearModelsDialogVisible by rememberSaveable { mutableStateOf(false) }
     var resetDialogVisible by rememberSaveable { mutableStateOf(false) }
@@ -84,6 +85,15 @@ fun AdvancedSettingsScreen(
                 checked = verboseDetailsEnabled,
                 onCheckedChange = onVerboseDetailsChanged,
             )
+            if (onExportConnectionDiagnostics != null) {
+                SettingsActionRow(
+                    title = stringResource(R.string.settings_export_connection_diagnostics),
+                    actionLabel = stringResource(R.string.settings_export),
+                    infoText = stringResource(R.string.settings_connection_diagnostics_info),
+                    infoContentDescription = stringResource(R.string.settings_connection_diagnostics_info_description),
+                    onClick = onExportConnectionDiagnostics,
+                )
+            }
         }
 
         Spacer(Modifier.height(AALyricsSpacing.Space20))
@@ -167,7 +177,10 @@ fun AdvancedSettingsScreen(
     if (resetDialogVisible) {
         SettingsConfirmationDialog(
             title = stringResource(R.string.settings_reset_aalyrics_dialog_title),
-            text = stringResource(R.string.settings_reset_aalyrics_dialog_body),
+            text = stringResource(R.string.settings_reset_aalyrics_dialog_body) +
+                if (onExportConnectionDiagnostics != null) {
+                    "\n\n" + stringResource(R.string.settings_connection_diagnostics_reset_retained)
+                } else "",
             confirmLabel = stringResource(R.string.settings_reset),
             dismissLabel = stringResource(R.string.settings_cancel),
             confirmColor = AALyricsColors.Error,

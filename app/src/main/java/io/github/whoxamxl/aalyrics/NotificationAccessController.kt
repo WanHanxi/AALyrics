@@ -3,6 +3,7 @@ package io.github.whoxamxl.aalyrics
 import android.app.Activity
 import android.app.NotificationManager
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
@@ -20,14 +21,7 @@ internal class NotificationAccessController(
     private val listenerComponent =
         ComponentName(activity, MediaSessionListenerService::class.java)
 
-    fun isGranted(): Boolean =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-            activity
-                .getSystemService(NotificationManager::class.java)
-                .isNotificationListenerAccessGranted(listenerComponent)
-        } else {
-            isGrantedOnApi26()
-        }
+    fun isGranted(): Boolean = isNotificationAccessGranted(activity)
 
     fun openSettings() {
         activity.startActivity(createSettingsIntent())
@@ -52,21 +46,15 @@ internal class NotificationAccessController(
 
         return Intent(Settings.ACTION_SETTINGS)
     }
+}
 
-    private fun isGrantedOnApi26(): Boolean {
-        val enabledListeners = Settings.Secure.getString(
-            activity.contentResolver,
-            ENABLED_NOTIFICATION_LISTENERS,
-        ).orEmpty()
-
-        return enabledListeners
-            .split(':')
-            .any { flattened ->
-                ComponentName.unflattenFromString(flattened) == listenerComponent
-            }
+/** Shared read-only grant check for entry gating and process-level diagnostic snapshots. */
+internal fun isNotificationAccessGranted(context: Context): Boolean {
+    val component = ComponentName(context, MediaSessionListenerService::class.java)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+        return context.getSystemService(NotificationManager::class.java)
+            .isNotificationListenerAccessGranted(component)
     }
-
-    private companion object {
-        const val ENABLED_NOTIFICATION_LISTENERS = "enabled_notification_listeners"
-    }
+    return Settings.Secure.getString(context.contentResolver, "enabled_notification_listeners")
+        .orEmpty().split(':').any { ComponentName.unflattenFromString(it) == component }
 }

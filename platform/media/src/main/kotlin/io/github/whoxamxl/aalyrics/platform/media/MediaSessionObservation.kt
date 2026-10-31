@@ -17,19 +17,23 @@ internal class MediaSessionObservation<Token>(
     fun connect() {
         if (connected) return
         connected = true
+        MediaConnectionDiagnostics.record("observation_connect")
         stateSink.onPlaybackSourceRuntimeState(PlaybackSourceRuntimeState.Connecting)
         try {
             source.register(::onSessionsChanged)
-        } catch (_: SecurityException) {
+            MediaConnectionDiagnostics.record("session_listener_registered")
+        } catch (failure: SecurityException) {
             fail(
                 PlaybackSourceErrorReason.NOTIFICATION_ACCESS_LOST,
                 unregister = false,
+                failure = failure,
             )
             return
-        } catch (_: RuntimeException) {
+        } catch (failure: RuntimeException) {
             fail(
                 PlaybackSourceErrorReason.UNKNOWN,
                 unregister = false,
+                failure = failure,
             )
             return
         }
@@ -41,11 +45,11 @@ internal class MediaSessionObservation<Token>(
 
         val controllers = try {
             source.currentSessions()
-        } catch (_: SecurityException) {
-            fail(PlaybackSourceErrorReason.NOTIFICATION_ACCESS_LOST)
+        } catch (failure: SecurityException) {
+            fail(PlaybackSourceErrorReason.NOTIFICATION_ACCESS_LOST, failure = failure)
             return
-        } catch (_: RuntimeException) {
-            fail(PlaybackSourceErrorReason.SESSION_QUERY_FAILED)
+        } catch (failure: RuntimeException) {
+            fail(PlaybackSourceErrorReason.SESSION_QUERY_FAILED, failure = failure)
             return
         }
 
@@ -67,6 +71,7 @@ internal class MediaSessionObservation<Token>(
     }
 
     fun stop() {
+        MediaConnectionDiagnostics.record("observation_stop")
         val wasConnected = connected
         connected = false
         if (wasConnected) {
@@ -81,16 +86,20 @@ internal class MediaSessionObservation<Token>(
     }
 
     private fun applySessions(controllers: List<RuntimeMediaController<Token>>) {
+        MediaConnectionDiagnostics.sessions(controllers)
         val result = try {
             runtime.updateSessions(controllers)
-        } catch (_: SecurityException) {
-            fail(PlaybackSourceErrorReason.NOTIFICATION_ACCESS_LOST)
+        } catch (failure: SecurityException) {
+            fail(PlaybackSourceErrorReason.NOTIFICATION_ACCESS_LOST, failure = failure)
             return
-        } catch (_: RuntimeException) {
-            fail(PlaybackSourceErrorReason.SESSION_ATTACH_FAILED)
+        } catch (failure: RuntimeException) {
+            fail(PlaybackSourceErrorReason.SESSION_ATTACH_FAILED, failure = failure)
             return
         }
 
+        MediaConnectionDiagnostics.changed("session_selection") {
+            mapOf("result" to result.toString())
+        }
         stateSink.onPlaybackSourceRuntimeState(
             when (result) {
                 is MediaSessionSelectionResult.Connected ->
@@ -109,7 +118,11 @@ internal class MediaSessionObservation<Token>(
     private fun fail(
         reason: PlaybackSourceErrorReason,
         unregister: Boolean = true,
+        failure: RuntimeException? = null,
     ) {
+        MediaConnectionDiagnostics.record("observation_failed") {
+            mapOf("reason" to reason.name, "exception" to (failure?.javaClass?.simpleName ?: "none"))
+        }
         val wasConnected = connected
         connected = false
         if (wasConnected && unregister) {

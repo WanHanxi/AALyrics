@@ -60,6 +60,14 @@ private fun AdvancedVerboseOnPreview() {
     AdvancedSettingsPreview(initialVerboseDetailsEnabled = true)
 }
 
+@Preview(name = "Connection diagnostics · Debug", group = "AdvancedSettings", widthDp = 412, heightDp = 760)
+@Preview(name = "Connection diagnostics · narrow", group = "AdvancedSettings", widthDp = 320, heightDp = 700)
+@Preview(name = "Connection diagnostics · landscape", group = "AdvancedSettings", widthDp = 760, heightDp = 360)
+@Composable
+private fun AdvancedConnectionDiagnosticsPreview() {
+    AdvancedSettingsPreview(initialVerboseDetailsEnabled = false, connectionDiagnosticsEnabled = true)
+}
+
 @Preview(name = "Karaoke feature enabled", group = "AdvancedSettings", widthDp = 412, heightDp = 760)
 @Composable
 private fun AdvancedKaraokeEnabledPreview() {
@@ -133,6 +141,23 @@ private fun AdvancedResetDialogPreview() {
     }
 }
 
+@Preview(name = "Reset · diagnostics retained", group = "AdvancedSettings", widthDp = 412, heightDp = 760)
+@Composable
+private fun AdvancedDiagnosticsResetDialogPreview() {
+    AALyricsTheme {
+        SettingsConfirmationDialog(
+            title = "Reset AALyrics?",
+            text = stringResource(R.string.settings_reset_aalyrics_dialog_body) + "\n\n" +
+                stringResource(R.string.settings_connection_diagnostics_reset_retained),
+            confirmLabel = "Reset",
+            dismissLabel = "Cancel",
+            confirmColor = AALyricsColors.Error,
+            onConfirm = {},
+            onDismissRequest = {},
+        )
+    }
+}
+
 @Composable
 private fun AdvancedSettingsPreview(
     initialVerboseDetailsEnabled: Boolean,
@@ -140,6 +165,7 @@ private fun AdvancedSettingsPreview(
     initialAllowUnclassifiedApps: Boolean = false,
     initialKaraokeFeatureEnabled: Boolean = false,
     cleanupState: TranslationModelCleanupUiState = TranslationModelCleanupUiState.IDLE,
+    connectionDiagnosticsEnabled: Boolean = false,
 ) {
     AALyricsTheme {
         var verboseDetailsEnabled by remember(initialVerboseDetailsEnabled) {
@@ -158,6 +184,7 @@ private fun AdvancedSettingsPreview(
                 .background(AALyricsColors.BackgroundBase),
         ) {
             AdvancedSettingsScreen(
+                onExportConnectionDiagnostics = if (connectionDiagnosticsEnabled) { {} } else null,
                 ignoreNonAudioApps = initialIgnoreNonAudioApps,
                 allowUnclassifiedApps = allowUnclassifiedApps,
                 verboseDetailsEnabled = verboseDetailsEnabled,
