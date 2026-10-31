@@ -12,8 +12,8 @@
 
 - [x] Fetch personal main and confirm the intended source revisions and clean starting worktree.
 - [x] Combine the cache with existing Sync application wiring, reset copy and architecture/migration records.
-- [ ] Complete architecture, scope, regression tests and Debug assembly for the combined tree within the workstation memory budget.
-- [ ] Commit the validated integration on its topic branch, fast-forward personal main and push it without force.
+- [x] Complete architecture, scope, regression tests and Debug assembly for the combined tree within the workstation memory budget.
+- [x] Commit and publish the validated integration topic branch for the authorized personal-main fast-forward and push.
 
 ## Integrated behavior
 
@@ -27,8 +27,15 @@
 - Prior cache validation: `test :app:assembleDebug` passed at `12b9d23`, with 762 tests across 93 suites and no failures/errors/skips. The owner reported successful phone testing with no issues on 2026-10-31. Android Auto physical testing was not separately reported.
 - Historical cache implementation/validation details remain in `6a99a87:TASK.md`; prior Sync validation remains in `3d13584:TASK.md`.
 - Integration conflicts were limited to application imports/initialization, reset text, architecture/migration documentation and the task status. Resolution retains both the production file-cache injection and the existing tap-calibration lifecycle.
-- Run combined-tree checks sequentially in a verified 3 GiB systemd scope with zero swap, one worker, no parallel execution/daemon reuse, 1 GiB Gradle heap and in-process Kotlin. No emulator is needed.
-- Preserve the user-owned Gradle JVM file: SHA-256 `6c13aa5ba36690ccfbbb25a8807d01d98c15833e446d7ae82ddc726472cb8ef7`.
+- Combined `test :app:assembleDebug` passed at `e763163` in 1 minute 9 seconds: 795 tests across 97 suites, zero failures/errors/skips. This includes 372 app, 50 lyrics-core and 13 file-cache tests, plus the existing Phone/Automotive timing and Sync coverage. Architecture guardrails and branch-wide whitespace/scope checks passed.
+- The build ran sequentially inside `aalyrics-cache-integration-20261031.scope`, with its actual process cgroup checked and `MemoryMax=3221225472` / `MemorySwapMax=0` verified before Gradle started. It used one worker, no parallel execution/daemon reuse, 1 GiB Gradle heap and in-process Kotlin. No emulator was started; the scope is inactive/dead and no Gradle/Kotlin/emulator process remains.
+- Cache/core implementation and tests match the upstream contribution source exactly; integration changes preserve personal Sync initialization and reset semantics. Subsequent changes only record validation, so no repeat build is needed.
+- The user-owned Gradle JVM file is unchanged: SHA-256 `6c13aa5ba36690ccfbbb25a8807d01d98c15833e446d7ae82ddc726472cb8ef7`.
+
+## Personal-main delivery
+
+- The owner-authorized delivery uses `git merge --ff-only chore/integrate-lyrics-cache` on personal `main`, then `git push origin main:main`; it preserves existing personal history and never force-pushes.
+- The source contribution branches remain `feature/persistent-lyrics-cache` at `6a99a87` and `feature/lyrics-sync-offset` at `3d13584`. The diagnostics branch remains at `17ab7d8`.
 
 ## Deferred and isolation
 
