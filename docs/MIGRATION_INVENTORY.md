@@ -181,6 +181,7 @@ Do not bulk-port the old application. Each provider or subsystem remains a separ
 - Live media-session runtime: merged in PR #29.
 - Lyrics demand gating: migrated and merged in PR #30.
 - Lyrics capability architecture foundation: merged in PR #32.
+- Persistent original-lyrics cache: implemented behind `LyricsCache` / `:cache:files`, based on the re-check of `GitUpGitUp/auto-lyrics` `854c5fa`; see `docs/CACHE_ARCHITECTURE.md` and current `TASK.md` for validation.
 - Translation background scaffold: merged in PR #41 as Phase 11.2a.
 - Translation execution/orchestration: merged in PR #43 as Phase 11.2b.
 - Phone Translation presentation/diagnostics: merged in PR #79 as Phase 11.2c; Android Auto Translation and persistent Translation Cache remain deferred.
@@ -231,4 +232,4 @@ Preserved: request execution only when karaoke/WORD timing is preferred; require
 
 Structural adaptation: a `WORD`-only `LyricsProvider` gates transport with normalized `LyricsRequest.preferredSyncType`, reuses shared `:provider:lrc` parsing, normalizes duration seconds to domain milliseconds, uses cancellable HTTP, and surfaces operational failures according to the provider contract. Final metadata scoring, source confidence, karaoke preference, and winner selection remain unchanged in `:provider:selection`.
 
-Each later implementation slice still requires explicit authorization. Translation is implemented through Phone presentation and, on PR #84, through the line-oriented legacy Android Auto Now Playing consumer. The timing foundation plus shared Timing Semantic Engine are implemented and consumed by both normal Phone and Android Auto line presentation, with gated Phone WORD_SYNC Karaoke using the additional word/progress facts. Persistent cache, Sync calibration UX/persistence, Android Auto Karaoke, and broader Car App Library/Browse presentation remain separate future slices until explicitly authorized.
+Each later implementation slice still requires explicit authorization. Translation is implemented through Phone presentation and, on PR #84, through the line-oriented legacy Android Auto Now Playing consumer. The timing foundation plus shared Timing Semantic Engine are implemented and consumed by both normal Phone and Android Auto line presentation, with gated Phone WORD_SYNC Karaoke using the additional word/progress facts. Persistent Translation cache, Sync calibration UX/persistence, Android Auto Karaoke, and broader Car App Library/Browse presentation remain separate future slices until explicitly authorized.
