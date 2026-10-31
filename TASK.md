@@ -13,8 +13,8 @@
 - [x] Fetch main/source/cleanup branches and confirm source revisions and a clean starting worktree.
 - [x] Verify the workflow branch is fully reachable from main; delete its local and remote references.
 - [x] Combine diagnostics with the existing cache and Sync behavior; retain both storage policies and reset disclosures.
-- [ ] Validate the combined tree with architecture/scope checks, all tests and a Debug build within the workstation memory budget.
-- [ ] Verify the merge parents and prepare the validated result for personal-main delivery and temporary-branch cleanup.
+- [x] Validate the combined tree with architecture/scope checks, all tests and a Debug build within the workstation memory budget.
+- [x] Verify the merge parents and prepare the validated result for personal-main delivery and temporary-branch cleanup.
 
 ## Integrated behavior
 
@@ -28,8 +28,11 @@
 - Source diagnostics validation at `a269af3`: 780 tests across 98 suites and Debug assembly passed. Source implementation, privacy/reset decisions and phone handoff are recorded in `17ab7d8:TASK.md`.
 - Cache plus Sync integration at `e763163`: 795 tests across 97 suites and Debug assembly passed. The owner previously reported successful phone testing of the cache feature; that is not a claim of testing diagnostics export or reproducing the connection fault.
 - Only task status and adjacent reset comments/event recording conflicted. Keep both feature behaviors; no functional changes beyond the source diagnostics branch are planned.
-- Run Gradle sequentially in a verified 3 GiB / zero-swap systemd scope with one worker, no parallel execution/daemon reuse, 1 GiB Gradle heap and in-process Kotlin. No emulator is needed for this integration.
-- Preserve the user-owned Gradle JVM file checksum: `6c13aa5ba36690ccfbbb25a8807d01d98c15833e446d7ae82ddc726472cb8ef7`.
+- Combined `test :app:assembleDebug` passed at merge commit `c84496e` in 50 seconds: 804 tests across 101 suites, zero failures/errors/skips. This includes 378 app, 55 media, 50 lyrics-core and 13 file-cache tests. Architecture, whitespace and changed-file scope checks passed; existing Compose previews compiled.
+- The merge parents are personal main `d78894f` first and diagnostics source `17ab7d8` second. Diagnostics source files match the feature branch outside the combined task/privacy/reset documentation and application wiring; cache and Sync implementations remain unchanged.
+- Gradle ran sequentially in `aalyrics-diagnostics-merge-20261031.scope`; the actual process cgroup and `MemoryMax=3221225472` / `MemorySwapMax=0` were verified before startup. One worker, no parallel execution/daemon reuse, 1 GiB Gradle heap and in-process Kotlin were used. No emulator was started. The scope is now inactive/dead and no Gradle/Kotlin/emulator process remains.
+- The user-owned Gradle JVM file checksum is unchanged: `6c13aa5ba36690ccfbbb25a8807d01d98c15833e446d7ae82ddc726472cb8ef7`.
+- Only validation documentation follows the verified merge, so the successful Debug build is reused without another build.
 
 ## Delivery and deferred work
 
