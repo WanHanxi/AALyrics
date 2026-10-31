@@ -1,6 +1,8 @@
-# Contributing to AALyrics
+# Developing the AALyrics personal fork
 
-AALyrics is currently in its foundation phase.
+This repository is [`WanHanxi/AALyrics`](https://github.com/WanHanxi/AALyrics), maintained as a personal fork of [`whoxamxl/AALyrics`](https://github.com/whoxamxl/AALyrics). Its `main` is the personal integration branch and may include features that are not proposed upstream.
+
+`origin` refers to the personal repository and `upstream` to the original repository. Personal feature branches and pull requests target **`WanHanxi/AALyrics:main`** by default. See [Personal fork workflow](docs/FORK_WORKFLOW.md) for setup and synchronization instructions.
 
 ## Development workflow
 
@@ -42,8 +44,8 @@ For AI-assisted review, use at most two normal Codex review rounds. After that, 
 
 AI agents working in this repository must follow the detailed policy in [`AGENTS.md`](AGENTS.md), including the requirement to stop before merge and wait for explicit approval.
 
-## External contributions
+## Contributions to the original repository
 
-External code contributions are not being accepted yet while the architecture, ownership model, and contribution terms are being established. Bug reports, design feedback, and technical discussion are welcome through GitHub Issues.
+Personal development does not imply an upstream submission. Only prepare a new upstream PR when explicitly requested, using a separate branch based on `upstream/main` and selecting the original repository as the target deliberately.
 
-This policy is temporary. Contribution terms will be documented before external code contributions are opened.
+The original repository's [contribution policy](https://github.com/whoxamxl/AALyrics/blob/main/CONTRIBUTING.md) currently pauses external code contributions while welcoming bug reports and technical discussion. Check that policy before proposing new upstream work. It does not block independent development or internal PRs in this personal fork.

@@ -165,6 +165,7 @@ ui:automotive          Android Auto presentation
 
 Start with:
 
+- [Personal fork workflow](docs/FORK_WORKFLOW.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Lyrics pipeline](docs/LYRICS_PIPELINE_ARCHITECTURE.md)
 - [Timing architecture](docs/TIMING_ARCHITECTURE.md)

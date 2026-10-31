@@ -1,39 +1,41 @@
-# Manual global lyrics sync
+# Personal fork development workflow
 
 ## Scope
 
-- Branch: `feature/lyrics-sync-offset`; implementation baseline: `e85c21c`.
-- Implement Phone Sync with ±50/500 ms, exact signed millisecond entry, three-tap calibration, live preview, and one persisted global offset shared by Phone and Android Auto; align architecture and Phone UI documentation with that behavior.
-- Record the user's physical-phone testing separately from automated and emulator evidence.
-- Restore tracked `AGENTS.md` to the upstream version; retain workstation resource limits and previous personal handoff details in ignored local files.
-- Preserve canonical timestamps, actual playback progress, provider/Translation ownership, user-owned Gradle/SDK files, and upstream contribution policy. The final preparation checkpoint changes documentation only.
+- Establish `WanHanxi/AALyrics:main` as the personal integration baseline, with `whoxamxl/AALyrics` available as the `upstream` fetch source.
+- Perform the user-authorized one-time fast-forward of personal `main` from `e85c21c` to the completed Sync revision `3d13584`; preserve commit history.
+- Keep `feature/lyrics-sync-offset` at `3d13584` and upstream Draft PR #91 unchanged.
+- Record durable fork-specific development and PR routing rules on `chore/personal-fork-workflow`, based on the new personal `main`.
+- Preserve application behavior, provider configuration, signing, update endpoints, user-owned Gradle/SDK files, and local verification limits.
 
 ## Checkpoints
 
-- [x] Persist the global offset, connect existing timing consumers, and extend the explicit Reset path with focused regression coverage.
-- [x] Implement fixed-step and exact entry, three-tap calibration, live preview, responsive controls, and Compose fixtures.
-- [x] Preserve local workstation guidance and prior handoff details without adding them to the contribution diff.
-- [x] Align Sync status, ownership, UI structure, and deferred scope across the remaining documents.
-- [x] Validate the documentation diff, architecture guardrails, branch/commit naming, upstream baseline, and branch scope.
+- [x] Verify local/remote baseline and upstream PR head; retain a local checksum of the user-owned Gradle file.
+- [x] Add/fetch `upstream`; set default pushes to `origin` with simple branch matching and explicit `main` push routing.
+- [x] Fast-forward and push personal `main`; create the independent workflow documentation branch.
+- [x] Document personal feature branches, own-repository PRs, periodic upstream synchronization, and isolated upstream contributions.
+- [x] Verify configuration, branch isolation, documentation, and architecture.
+- [x] Prepare the completed documentation checkpoint for a Draft PR against `WanHanxi/AALyrics:main`; stop once published.
 
-## Implemented behavior and acceptance
+## Acceptance
 
-- One app-owned offset in −30,000…+30,000 ms survives navigation, track changes, and process restart. Positive advances lyrics; negative delays them.
-- Phone lyrics/Karaoke, Sync preview, verbose Details line selection, and Android Auto use the same effective clock once. Actual playback progress and canonical timestamps remain unchanged.
-- Manual adjustment and exact entry preserve the established availability and validation rules. Three-tap calibration saves only a complete valid sample set and cancels when its playback/lyrics context becomes invalid.
-- Sync Reset and `Reset AALyrics` cancel unfinished calibration and restore zero through the explicit settings path.
-- Per-track/provider offsets, separate Phone/Auto compensation, automatic audio calibration, and drift correction remain deferred.
+- Local `main` tracks `origin/main`, and both include the completed Sync implementation without waiting for upstream acceptance.
+- `origin` remains the personal fork; `upstream/main` remains a separate remote-tracking reference. Default pushes and PR targets resolve to the personal fork.
+- Personal features start from personal `main`. New work does not enter upstream PR #91 through its existing head branch.
+- Periodic upstream synchronization uses a dedicated topic branch and preserves upstream merge ancestry. New upstream contributions require explicit authorization and start from `upstream/main`.
+- The workflow documentation branch contains only instructions/documentation. No new application state or reset semantics are introduced.
 
-## Validation evidence
+## Validation
 
-- Earlier full-suite validation is recorded in `35775b9:TASK.md`: debug APK assembly and 771 tests across 94 suites passed with no failures, errors, or skips. The same record documents successful exact-entry emulator checks and the user's earlier Phone/Android Auto testing.
-- The subsequent compact-panel checkpoint recorded a successful build and 31 focused regressions, with six normal/narrow/large-font/limit/zero/unavailable Compose fixtures. Its API 37 emulator failed before rendering; that attempt is not a passing visual check.
-- On 2026-10-30, the user reported testing the current interface on a physical phone without noticing problems. This is user-reported phone validation, not a claim that every font size, orientation, or current Android Auto scenario was exercised. Device/version and individual scenarios were not supplied.
-- No production source changed in this documentation follow-up. Successful build evidence was reused; no new Gradle or emulator run was needed for these prose changes.
-- Final preparation checks passed: architecture guardrails, `git diff --check`, branch/commit naming, tracked `AGENTS.md` equality with upstream, and exclusion of local guidance/notes. Upstream `main` was rechecked at `e85c21c`; the branch retains that baseline and contains no unrelated production changes.
+- Before setup, local/remote personal `main` and upstream `main` were `e85c21c`; both Sync branch references and upstream PR #91 were `3d13584`.
+- Personal `main` was advanced with `git merge --ff-only` and pushed without force. No new commit was authored directly on `main`.
+- Reuse the successful Sync build/test evidence recorded in `3d13584:TASK.md`; configuration and documentation changes do not require another Gradle or emulator run.
+- Final checks passed: architecture guardrails, `git diff --check`, default push/tracking configuration, expected local/remote branch heads, documentation-only scope, ignored local guidance, and the unchanged user-owned Gradle file checksum.
+- The remote personal `main` was confirmed at `3d13584`. Upstream PR #91 remains open and Draft with the same `3d13584` head and `e85c21c` base.
+- The fork's existing Build and Release workflow definitions report `active`. Its Actions API had no run records during setup; no successful CI run is claimed for the main bootstrap. The documentation PR follows the existing `pull_request` trigger.
 
-## Contribution context
+## Delivery and deferred work
 
-- Upstream `CONTRIBUTING.md` currently says external code contributions are not yet accepted, while welcoming technical discussion. The Draft PR presents the completed implementation and its proposed calibration policy for maintainer discussion; it does not imply acceptance of external contributions.
-- `.github/workflows/build.yml` listens to `pull_request` and manual dispatch; ordinary feature-branch pushes do not trigger Build. A fork PR can require maintainer approval before Actions runs.
-- Delivery: push the completed branch, open a Draft PR for the whole Sync feature, then stop. Do not request automated review, mark ready, or merge without explicit authorization.
+- The one-time personal-main bootstrap is explicitly authorized. Subsequent workflow-documentation integration follows the ordinary Draft PR and merge-approval process in the personal repository.
+- Application update source, release assets/versioning, installation identity/signing, and help links remain separate follow-up decisions. Adding Git remotes does not change the current upstream-facing application URLs.
+- Do not change, close, mark ready, or merge upstream PR #91. Do not begin an unrelated personal feature as part of this setup.
