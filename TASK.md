@@ -48,7 +48,7 @@
 - APK SHA256: `7d2b127e24587e9c13e8603b3964a61e92f4ce7a1c15902cfe5b223d499edbc4`.
 - Signature verified; local Debug certificate SHA256: `bbcffafa7296076c0a8c9565798a83c49f4860856e6743d758fa4d5aad1f5703`, matching the earlier diagnostic package.
 - Based on personal main. The separately unmerged Phone Performance mode is not in this APK; this limitation was disclosed to the owner.
-- Final Draft PR targets the personal repository only. No merge or external review request is authorized.
+- Final PR targets the personal repository only. After the initial publication attempt, the owner explicitly authorized merging this connection-recovery change into the personal repository; no external review request was made.
 
 ## Publication limitation
 
@@ -56,3 +56,9 @@
 - The implementation and validation are complete and pushed. No PR, external review request or merge was performed. Existing session evidence already established that no authenticated GitHub CLI or usable browser fallback is available.
 - Personal comparison/handoff: https://github.com/WanHanxi/AALyrics/compare/main...fix/media-connection-recovery
 - Only documentation followed the successful production build; the verified APK was reused without another Gradle run.
+
+## Authorized personal integration
+
+- On 2026-10-31 the owner requested another merge attempt and reaffirmed that unspecified repository/PR/merge work targets `WanHanxi/AALyrics`, never upstream. The default is now explicit in tracked `AGENTS.md` and `docs/FORK_WORKFLOW.md`.
+- Refetched only `origin`: personal main remains `ee865bc`, and no PR exists for `fix/media-connection-recovery`. Feature-branch pushes have no Build trigger, so no remote PR checks exist yet. Reuse the successful 821-test/Debug build; subsequent changes are documentation only.
+- Attempt the personal GitHub PR path again, then use the already authorized Git/SSH integration path if the connector remains unavailable. Ordinary squash integration is preferred. Do not force-push, alter branch protections, or modify upstream-facing branches.

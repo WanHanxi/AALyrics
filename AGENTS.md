@@ -6,6 +6,7 @@ These instructions apply to AI-assisted repository work, including implementatio
 
 - This repository is the personal fork `WanHanxi/AALyrics`. `origin` points here; `upstream` points to `whoxamxl/AALyrics`.
 - Unless the user explicitly requests an upstream contribution, start topic branches from the personal `main` and target **`WanHanxi/AALyrics:main`** when opening a PR. Select the repository explicitly in GitHub tools; do not infer the PR target from GitHub's fork relationship.
+- An unspecified request to work on the repo, create/review a PR, or merge means the personal repository only. The owner reaffirmed this default on 2026-10-31: do not modify upstream or upstream-facing branches without an explicit request for that work.
 - Personal `main` may intentionally diverge from `upstream/main`. Do not reset it to upstream or rebase published personal history merely to make the fork appear synchronized.
 - Keep `feature/lyrics-sync-offset` reserved for upstream PR #91 and explicitly requested follow-up on that PR. Unrelated personal development and fork-specific workflow changes belong on separate branches.
 - Synchronize upstream through a `chore/sync-upstream` topic branch based on personal `main`. Preserve upstream merge ancestry when integrating that synchronization; ordinary personal feature PRs retain the squash preference below.
