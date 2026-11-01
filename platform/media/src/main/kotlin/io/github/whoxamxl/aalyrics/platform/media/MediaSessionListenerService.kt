@@ -51,12 +51,13 @@ class MediaSessionListenerService : NotificationListenerService() {
         super.onListenerConnected()
         MediaConnectionDiagnostics.lifecycle("listener_connected")
         observation.connect()
+        MediaSessionRuntimeHost.forwardListenerConnection(true)
     }
 
     override fun onListenerDisconnected() {
         MediaConnectionDiagnostics.lifecycle("listener_disconnected")
         observation.listenerDisconnected()
-        requestSystemRebind(this)
+        MediaSessionRuntimeHost.forwardListenerConnection(false)
         super.onListenerDisconnected()
     }
 
@@ -70,6 +71,7 @@ class MediaSessionListenerService : NotificationListenerService() {
         observation.stop()
         MediaSessionRuntimeHost.detachSessionLauncher(runtime)
         MediaSessionRuntimeHost.detachTransport(runtime)
+        MediaSessionRuntimeHost.forwardListenerConnection(false)
         super.onDestroy()
     }
 

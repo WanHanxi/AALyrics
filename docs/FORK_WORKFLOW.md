@@ -2,6 +2,8 @@
 
 `WanHanxi/AALyrics` is developed independently as a personal fork. Its stable integration branch is `main`; personal features do not need to be accepted by the original repository before they can be used here.
 
+Unless the owner explicitly requests upstream work, repository changes, PRs, reviews and merges target this personal fork only. An unspecified request to merge does not authorize changes to upstream or to an upstream-facing contribution branch.
+
 ## Repositories and branches
 
 | Name | Role |
@@ -51,6 +53,10 @@ Implement and validate coherent checkpoints on the topic branch, keep `TASK.md` 
 - head: the personal topic branch.
 
 Stop after opening the Draft PR. Merge only after explicit owner authorization; ordinary feature PRs prefer squash merge. Updating personal `main` does not change upstream PR #91, which tracks its separate head branch.
+
+Use an actual GitHub PR for integration. If the connector cannot create or merge a PR, leave the completed work on its topic branch and report the permission blocker. Authorization to merge does not imply authorization to bypass the PR with a direct push to `main`; that alternative requires an explicit request.
+
+After a confirmed PR merge, fetch `origin`, fast-forward local `main`, and delete the task's completed remote and local topic branches plus temporary integration branches. For a squash merge, confirm the PR is merged and that its merged head contains all work on the branch before deleting it; `git branch --merged` alone is insufficient. Keep branches with unmerged changes, unrelated active work, and reserved upstream contributions. If PR integration is blocked, retain the pending source branch and clean only temporary branches whose work is already safely recorded.
 
 The existing Build workflow listens to pushes to `main`, pull requests, and manual dispatch. Ordinary feature-branch pushes alone do not start Build. GitHub Actions must be enabled in the fork for its workflows to run.
 
