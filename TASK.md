@@ -21,7 +21,8 @@
 - [x] Add callback-based listener state and testable bounded recovery; wire Phone/Automotive demand and permission checks.
 - [x] Add actionable Phone connection status, timeout copy and production-component Previews; preserve diagnostics/export and record process exit facts.
 - [x] Run focused tests, architecture checks, full regression/build, bounded branch review; align docs and phone handoff.
-- [ ] Push final coherent checkpoints and create personal Draft PR if the GitHub integration permits it.
+- [x] Push final coherent checkpoints; attempt the personal Draft PR after validation.
+- Draft PR creation is blocked by GitHub integration permissions, as recorded below; no PR or merge was created.
 
 ## Verification constraints
 
@@ -48,3 +49,10 @@
 - Signature verified; local Debug certificate SHA256: `bbcffafa7296076c0a8c9565798a83c49f4860856e6743d758fa4d5aad1f5703`, matching the earlier diagnostic package.
 - Based on personal main. The separately unmerged Phone Performance mode is not in this APK; this limitation was disclosed to the owner.
 - Final Draft PR targets the personal repository only. No merge or external review request is authorized.
+
+## Publication limitation
+
+- After final validation and push, Draft PR creation explicitly targeted `WanHanxi/AALyrics:main` from `fix/media-connection-recovery`. The GitHub connector returned HTTP 403 `Resource not accessible by integration` from the create-pull-request endpoint. This is an external connector permission failure, not a test failure or an automatic approval rejection.
+- The implementation and validation are complete and pushed. No PR, external review request or merge was performed. Existing session evidence already established that no authenticated GitHub CLI or usable browser fallback is available.
+- Personal comparison/handoff: https://github.com/WanHanxi/AALyrics/compare/main...fix/media-connection-recovery
+- Only documentation followed the successful production build; the verified APK was reused without another Gradle run.
