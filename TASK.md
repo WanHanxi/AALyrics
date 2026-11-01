@@ -22,8 +22,9 @@
 - [x] Fetch personal origin and create an isolated topic from current personal main.
 - [x] Implement manual-only reset policy and the API-guarded unbind/rebind pair, with focused lifecycle/fallback tests.
 - [x] Align recovery/runtime/settings documentation and phone testing instructions.
-- [ ] Run constrained tests/build, architecture and whitespace checks; review the complete branch against personal main.
-- [ ] Produce a signature-compatible Debug APK, record validation/limitations, push final checkpoints, and open the personal Draft PR.
+- [x] Run constrained tests/build, architecture and whitespace checks; review the complete branch against personal main.
+- [x] Produce a signature-compatible Debug APK and record validation/limitations for the personal Draft PR.
+- Publication handoff: push the final documentation checkpoint, open a Draft PR against `WanHanxi/AALyrics:main`, then stop. No merge or external review request is authorized for this follow-up.
 
 ## Verification constraints and handoff
 
@@ -37,3 +38,19 @@
 - `:platform:media:testDebugUnitTest :app:testDebugUnitTest` completed successfully: 459 tests across 61 suites, zero failures/errors/skips. This includes 16 recovery timing/lifecycle cases and five platform-request ordering/fallback/privacy cases.
 - Architecture and whitespace checks passed. The build helper verified the actual cgroup had `memory.max=3221225472` and `memory.swap.max=0`; no emulator was started.
 - An additional `:platform:media:lintDebug` check failed on unchanged `AndroidMediaSessionSource.kt:198` (`NewApi` for the existing pending-intent launch helper). That helper already returns null below API 34; lint does not infer the SDK guard through its result. The report also contains two existing `InlinedApi` warnings in that helper and a newer compileSdk advisory. No lint finding targets the new rebind code. This unrelated static-analysis issue is recorded for follow-up; no baseline/suppression or session-launch change was added here.
+
+## Final validation and review
+
+- Production revision `7439e52` passed `test :app:assembleDebug` in 42 seconds: 830 tests across 104 suites, zero failures/errors/skips. Existing Phone Compose Previews remain compiled and unchanged. Architecture and branch-wide whitespace checks passed.
+- Reviewed all changed application/platform code, tests and docs against personal main `23e928b`. Confirmed manual-timeout-only reset, access/demand/healthy-listener guards, lazy-job assignment and reentrant/late callbacks, one reset per episode, immediate request pairing, API 34 guard and failure fallback, diagnostic privacy, and unchanged reset/retention contracts. No unresolved current-scope blocking finding remains.
+- The optional lint limitation above is retained; no all-checks-green claim is made. Remote GitHub Actions results are not part of this local validation.
+- Both Gradle runs verified a 3 GiB memory ceiling with no swap. Their systemd scopes are now inactive/not loaded; no emulator was started. The user's Gradle JVM file still has SHA256 `6c13aa5ba36690ccfbbb25a8807d01d98c15833e446d7ae82ddc726472cb8ef7`.
+- Remote personal main was rechecked at `23e928b`; reserved Sync and unrelated Performance branch heads remain unchanged. Only documentation follows the successful production build, so reuse the verified APK without rebuilding.
+
+## APK and device handoff
+
+- APK: `app/build/outputs/apk/debug/aalyrics-manual-rebind-7439e52.apk`.
+- Package `io.github.whoxamxl.aalyrics.debug`; version `1.0.0-beta.1-dev+7439e52`; versionCode 1.
+- APK SHA256: `0ca9d839124f6a4c34ac63dbd94d8444a36bcae64b7d714652952f9325557acb`.
+- Verified Debug certificate SHA256: `bbcffafa7296076c0a8c9565798a83c49f4860856e6743d758fa4d5aad1f5703`, matching the previous Debug APK for an in-place install.
+- On the next incident, keep Spotify playing, wait for timeout, and tap Reconnect once. Check whether the song returns; export diagnostics even if a subsequent notification-access off/on is still needed. The new log distinguishes the unbind/rebind request pair from real service creation/connection. No physical Xiaomi recovery result is claimed yet.
