@@ -24,6 +24,8 @@ These instructions apply to AI-assisted repository work, including implementatio
 - After opening that Draft PR, stop. Do not automatically request Codex review, mark the PR ready, merge it, or begin the next implementation slice without explicit user authorization.
 - Always stop before merge. Merge only after explicit user authorization.
 - Prefer squash merge after approval unless a different strategy is explicitly requested.
+- Integrate completed work through a GitHub PR. If PR creation or merge is blocked by API permissions, report the blocker; do not substitute a direct push or local merge into `main` unless the owner explicitly requests that alternative.
+- After a confirmed PR merge, synchronize personal `main` and clean up this task's completed remote/local topic and temporary integration branches. Verify the merged PR and head before deleting a squash-merged branch; commit ancestry alone does not identify squash integration. Preserve unmerged work, reserved upstream-facing branches, and unrelated branches.
 
 ## Incremental implementation and PR timing
 

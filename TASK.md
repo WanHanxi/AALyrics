@@ -3,7 +3,7 @@
 ## Scope and authorization
 
 - On 2026-10-31 the owner approved improving automatic and in-app recovery after the exported Xiaomi 15 Pro / Android 16 logs showed notification access granted but no listener created in two consecutive Phone processes. Spotify restart coincided with eventual binding; the system's reason remains unknown.
-- Personal topic `fix/media-connection-recovery`, based on `origin/main` at `ee865bc`. Target `WanHanxi/AALyrics:main`; complete validation before Draft PR creation, then stop before merge.
+- Personal topic `fix/media-connection-recovery`, originally based on `origin/main` at `ee865bc`. Target `WanHanxi/AALyrics:main`; implementation and validation are complete. The owner authorized integration, then explicitly requested undoing the direct integration and merging through an actual PR with branch cleanup.
 - Preserve the separate `feature/phone-performance-mode` and reserved upstream `feature/lyrics-sync-offset` branches. No player-specific APIs, session-selection changes, force-unbind/component toggles, or new permissions.
 
 ## Acceptance criteria
@@ -22,7 +22,9 @@
 - [x] Add actionable Phone connection status, timeout copy and production-component Previews; preserve diagnostics/export and record process exit facts.
 - [x] Run focused tests, architecture checks, full regression/build, bounded branch review; align docs and phone handoff.
 - [x] Push final coherent checkpoints; attempt the personal Draft PR after validation.
-- Draft PR creation is blocked by GitHub integration permissions, as recorded below; no PR or merge was created.
+- [x] Revert the direct personal-main integration without rewriting history; synchronize the source branch with the reverted main and remove completed temporary branches.
+- [x] Record PR-only integration and cleanup rules in the repository workflow.
+- [ ] Create the personal PR, complete its checks, merge with the owner's existing authorization, and clean up the source branch after confirmed integration.
 
 ## Verification constraints
 
@@ -50,15 +52,17 @@
 - Based on personal main. The separately unmerged Phone Performance mode is not in this APK; this limitation was disclosed to the owner.
 - Final PR targets the personal repository only. After the initial publication attempt, the owner explicitly authorized merging this connection-recovery change into the personal repository; no external review request was made.
 
-## Publication limitation
+## Initial publication limitation
 
 - After final validation and push, Draft PR creation explicitly targeted `WanHanxi/AALyrics:main` from `fix/media-connection-recovery`. The GitHub connector returned HTTP 403 `Resource not accessible by integration` from the create-pull-request endpoint. This is an external connector permission failure, not a test failure or an automatic approval rejection.
-- The implementation and validation are complete and pushed. No PR, external review request or merge was performed. Existing session evidence already established that no authenticated GitHub CLI or usable browser fallback is available.
+- At the initial handoff, implementation and validation were complete and pushed, with no PR, external review request or merge performed. Existing session evidence established that no authenticated GitHub CLI or usable browser fallback was available.
 - Personal comparison/handoff: https://github.com/WanHanxi/AALyrics/compare/main...fix/media-connection-recovery
 - Only documentation followed the successful production build; the verified APK was reused without another Gradle run.
 
-## Authorized personal integration
+## PR integration after rollback
 
 - On 2026-10-31 the owner requested another merge attempt and reaffirmed that unspecified repository/PR/merge work targets `WanHanxi/AALyrics`, never upstream. The default is now explicit in tracked `AGENTS.md` and `docs/FORK_WORKFLOW.md`.
-- Refetched only `origin`: personal main remains `ee865bc`, and no PR exists for `fix/media-connection-recovery`. Feature-branch pushes have no Build trigger, so no remote PR checks exist yet. Reuse the successful 821-test/Debug build; subsequent changes are documentation only.
-- Attempt the personal GitHub PR path again, then use the already authorized Git/SSH integration path if the connector remains unavailable. Ordinary squash integration is preferred. Do not force-push, alter branch protections, or modify upstream-facing branches.
+- After another connector HTTP 403, direct squash commit `166bbbb` was pushed to personal main. The owner then explicitly requested undoing it and using a PR. Revert `ebc51d6` is now on `origin/main`; its tree exactly matches pre-integration `ee865bc`. Published history was not rewritten.
+- Merged the reverted personal main into `fix/media-connection-recovery` without rewriting the published source branch. No runtime/build/test files changed from validated production revision `7667815`; reuse the successful 821-test/Debug build and existing APK.
+- Deleted local `chore/merge-connection-recovery` and `chore/revert-direct-connection-merge`; neither was published as a remote branch. Retain the pending repair branch until the PR is actually merged. All unrelated branches, including Performance mode and upstream PR #91, remain unchanged.
+- The current request authorizes creating and merging this personal PR and cleaning up its completed branches. If PR publication remains blocked, report the blocker and retain the source branch; do not fall back to another direct feature integration. No external review request or upstream change is authorized.
