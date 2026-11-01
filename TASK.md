@@ -18,7 +18,7 @@
 ## Checkpoints
 
 - [x] Inspect current lifecycle, media ownership, Phone presentation, and incident evidence; select personal-main baseline.
-- [ ] Add callback-based listener state and testable bounded recovery; wire Phone/Automotive demand and permission checks.
+- [x] Add callback-based listener state and testable bounded recovery; wire Phone/Automotive demand and permission checks.
 - [ ] Add actionable Phone connection status, timeout copy and production-component Previews; preserve diagnostics/export and record process exit facts.
 - [ ] Run focused tests, architecture checks, full regression/build, bounded branch review; align docs and phone handoff.
 - [ ] Push final coherent checkpoints and create personal Draft PR if the GitHub integration permits it.
@@ -28,3 +28,7 @@
 - Before Gradle, inspect memory and stop only task-owned emulator work. Run Gradle/tests/emulator sequentially, one worker, no parallel/daemon reuse, 1 GiB JVM, in-process Kotlin, under a verified 3 GiB systemd scope with zero swap.
 - Reuse passing builds after documentation-only changes. Do not modify IDE settings or the user's Gradle daemon JVM file.
 - Existing API 37 emulator exceeds this workstation's budget; use compiled Compose Previews and a physical Xiaomi/Android Auto handoff unless a suitable bounded device is already available.
+
+## Checkpoint validation
+
+- Core recovery checkpoint: `:platform:media:testDebugUnitTest :app:testDebugUnitTest` passed in 42 seconds; includes 12 deterministic recovery timing/lifecycle cases and the production binding-signal boundary test. Architecture and whitespace checks passed. Actual build cgroup verified MemoryMax=3221225472 and MemorySwapMax=0.

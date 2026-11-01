@@ -66,7 +66,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        (application as? AALyricsApplication)?.onPhoneResumedForDiagnostics()
+        (application as? AALyricsApplication)?.onPhoneResumed()
         renderEntryState()
     }
 
