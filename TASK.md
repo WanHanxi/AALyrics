@@ -20,7 +20,7 @@
 - [x] Inspect current lifecycle, media ownership, Phone presentation, and incident evidence; select personal-main baseline.
 - [x] Add callback-based listener state and testable bounded recovery; wire Phone/Automotive demand and permission checks.
 - [x] Add actionable Phone connection status, timeout copy and production-component Previews; preserve diagnostics/export and record process exit facts.
-- [ ] Run focused tests, architecture checks, full regression/build, bounded branch review; align docs and phone handoff.
+- [x] Run focused tests, architecture checks, full regression/build, bounded branch review; align docs and phone handoff.
 - [ ] Push final coherent checkpoints and create personal Draft PR if the GitHub integration permits it.
 
 ## Verification constraints
@@ -32,3 +32,19 @@
 ## Checkpoint validation
 
 - Core recovery checkpoint: `:platform:media:testDebugUnitTest :app:testDebugUnitTest` passed in 42 seconds; includes 12 deterministic recovery timing/lifecycle cases and the production binding-signal boundary test. Architecture and whitespace checks passed. Actual build cgroup verified MemoryMax=3221225472 and MemorySwapMax=0.
+
+## Final validation and review
+
+- Final production revision `7667815` passed `test :app:assembleDebug` in 1 minute: 821 tests across 103 suites, zero failures/errors/skips. New normal/narrow/large-text/landscape production-component Previews compiled. Architecture and whitespace checks passed.
+- Reviewed the full branch against personal main: lifecycle aggregation, real-callback versus request-return semantics, cancellation/late callbacks, permission checks, healthy/no-player behavior, Phone state/action wiring, diagnostic privacy/bounds and reset handling. No unresolved current-scope blocking finding remains. No provider, session-selection, performance-mode or upstream changes are included.
+- Both Gradle scopes verified MemoryMax=3221225472 and MemorySwapMax=0; neither remains loaded after completion. No emulator was started. User Gradle JVM file remains SHA256 `6c13aa5ba36690ccfbbb25a8807d01d98c15833e446d7ae82ddc726472cb8ef7`.
+- Reuse this successful build after documentation-only changes. Device rendering and Xiaomi/Android Auto binding behavior still need the physical checks in `docs/MEDIA_CONNECTION_RECOVERY.md`; no runtime-device success is claimed.
+
+## APK handoff
+
+- `app/build/outputs/apk/debug/aalyrics-connection-recovery-7667815.apk`
+- Package `io.github.whoxamxl.aalyrics.debug`; version `1.0.0-beta.1-dev+7667815`.
+- APK SHA256: `7d2b127e24587e9c13e8603b3964a61e92f4ce7a1c15902cfe5b223d499edbc4`.
+- Signature verified; local Debug certificate SHA256: `bbcffafa7296076c0a8c9565798a83c49f4860856e6743d758fa4d5aad1f5703`, matching the earlier diagnostic package.
+- Based on personal main. The separately unmerged Phone Performance mode is not in this APK; this limitation was disclosed to the owner.
+- Final Draft PR targets the personal repository only. No merge or external review request is authorized.

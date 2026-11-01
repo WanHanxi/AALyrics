@@ -117,7 +117,7 @@ Demand gating must not stop or detach MediaSession observation merely to stop pr
 
 - Demand aggregation must be safe when phone and automotive lifecycle events arrive independently.
 - Removing one demand source must not deactivate lyrics work while any other demand source remains active.
-- Notification-listener disconnect/security failure continues to be owned by the MediaSession runtime; disconnect now also requests the system listener binding again so active-session observation can recover after process/service recreation. Any resulting no-track snapshot remains compatible with demand gating.
+- Notification-listener disconnect/security failure continues to be owned by the MediaSession runtime; actual binding callbacks feed application-owned bounded recovery while aggregate demand is active, so observation can recover after process/service recreation (see `MEDIA_CONNECTION_RECOVERY.md`). Any resulting no-track snapshot remains compatible with demand gating.
 - Demand deactivation must suspend current lookup through the existing playback/lookup boundary rather than reaching into provider jobs directly. Resolved usable lyrics may remain in memory; in-flight work must still be cancelled.
 - Demand activation must not synthesize track metadata or bypass `MediaControllerSnapshotAdapter`.
 - Process/activity recreation must not create rapid OFF/ON provider churn.

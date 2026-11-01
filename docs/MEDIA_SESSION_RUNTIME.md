@@ -193,7 +193,7 @@ Demand gating belongs between the platform playback sink and `PlaybackLyricsCont
 
 - Missing/disabled notification access fails safely without crashing the process.
 - `SecurityException` from active-session APIs does not crash the service; runtime ownership is cleared/detached.
-- A disconnected notification listener stops active-session observation and selected-controller callbacks, publishes the disconnected/error transition, and requests the system Notification Listener binding again so observation can recover without requiring the Phone Activity to reopen.
+- A disconnected notification listener stops active-session observation and selected-controller callbacks, publishes the disconnected/error transition, and reports the lost binding to application-owned bounded recovery so observation can recover while Phone or Automotive demand is active.
 - No eligible session clears the current playback lookup instead of leaving stale lyrics ownership.
 - Session-list reordering alone does not switch away from a currently playing selected session.
 - A destroyed selected session does not leave a dead callback/controller attached.
@@ -204,7 +204,11 @@ Demand gating belongs between the platform playback sink and `PlaybackLyricsCont
 
 The optional `MediaConnectionDiagnostics` sink reports service create/connect/disconnect/destroy, observation registration/failures, session summaries/selection, controller callbacks and rebind requests/results to application-owned bounded storage. With no sink installed, diagnostic field lambdas are not evaluated. Diagnostic reads/sink failures cannot propagate into playback. Notification callbacks contribute only a count, never notification content. Repeated identical session/selection summaries are suppressed.
 
-The Debug application also records permission and lifecycle/demand facts, normalized playback availability, raw/effective/runtime presentation state, and a bounded recent-context capture after a demanded Connecting episode lasts 30 seconds. That observer uses the same Phone source-state mapper even when only Android Auto is active. It never queries a new session list or changes discovery/rebind behavior; therefore the logs can distinguish missing listener callbacks from observed-session or presentation mismatches without concealing the original fault. See `docs/PHONE_SETTINGS.md` for export and retention.
+The Debug application also records permission and lifecycle/demand facts, normalized playback availability, raw/effective/runtime presentation state, and a bounded recent-context capture after a demanded Connecting/stalled episode lasts 30 seconds, including the new timeout presentation. That observer uses the same Phone source-state mapper even when only Android Auto is active. It never queries a new session list or changes discovery/rebind behavior; therefore the logs can distinguish missing listener callbacks from observed-session or presentation mismatches without concealing the original fault. See `docs/PHONE_SETTINGS.md` for export and retention.
+
+### Bounded binding recovery
+
+Production recovery now distinguishes actual listener binding from player availability. Phone foreground and both Automotive demand sources share immediate/5s/15s rebind attempts, a 30s timeout, and actual-callback success handling. The Phone status offers manual retry and notification-settings navigation. Debug diagnostics also include recovery transitions and limited Android process-exit facts. The complete policy, reset decision and physical-device handoff are in `docs/MEDIA_CONNECTION_RECOVERY.md`.
 
 ## Phone playback-surface follow-up
 
@@ -273,10 +277,10 @@ The bounded review process in `AGENTS.md` completed with one P2 fixed in `7a5e82
 
 The implemented runtime keeps all Android session access in `:platform:media`:
 
-- `MediaSessionListenerService` waits for `onListenerConnected()`, observes active sessions through its notification-listener component, retains notification-posted refresh as a compatibility fallback, and requests system rebind from `onListenerDisconnected()`;
+- `MediaSessionListenerService` waits for `onListenerConnected()`, observes active sessions through its notification-listener component, retains notification-posted refresh as a compatibility fallback, and reports actual listener binding/disconnection to application-owned recovery;
 - `SelectedMediaSessionRuntime` owns token-based selection, the single selected callback, clear/re-selection behavior, stopped-session handoff, and the retained 600 ms metadata stabilization;
 - `MediaControllerSnapshotAdapter` remains the exclusive Android-to-`PlaybackSnapshot` normalization path;
 - `MediaSessionRuntimeHost` is the narrow platform/application handoff;
-- disconnect and `SecurityException` paths detach ownership and clear stale playback state; Android Auto host activation may also proactively request the same system listener rebind through the platform-owned helper, while the decision that Automotive demand is active remains in `:app`.
+- disconnect and `SecurityException` paths detach ownership and clear stale playback state; Phone and Automotive demand drive one bounded recovery owner in `:app` through the platform-owned rebind helper.
 
 PR #29 intentionally did not add demand gating, provider changes, selection-policy changes, or finished presentation behavior.
