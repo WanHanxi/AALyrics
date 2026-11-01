@@ -20,8 +20,8 @@
 
 - [x] Read the new incident, confirm the user's successful Settings recovery, and inspect official Android API/AOSP binding behavior.
 - [x] Fetch personal origin and create an isolated topic from current personal main.
-- [ ] Implement manual-only reset policy and the API-guarded unbind/rebind pair, with focused lifecycle/fallback tests.
-- [ ] Align recovery/runtime/settings documentation and phone testing instructions.
+- [x] Implement manual-only reset policy and the API-guarded unbind/rebind pair, with focused lifecycle/fallback tests.
+- [x] Align recovery/runtime/settings documentation and phone testing instructions.
 - [ ] Run constrained tests/build, architecture and whitespace checks; review the complete branch against personal main.
 - [ ] Produce a signature-compatible Debug APK, record validation/limitations, push final checkpoints, and open the personal Draft PR.
 
@@ -31,3 +31,9 @@
 - No emulator is required for this binding-policy change. JVM tests validate ordering, lifecycle guards, timing and fallback behavior; they cannot reproduce Xiaomi's system notification-service state. Reuse a successful build after documentation-only changes.
 - Verify the new Debug package/signing identity against the previous APK. Physical Xiaomi/Android Auto recovery remains a follow-up device check, not a claimed test pass. If manual recovery still fails, use the already verified notification-access off/on fallback and export the new events.
 - The original process-exit/system scheduling cause remains unresolved and outside this narrow improvement. The separately unmerged Phone Performance mode is not included in the personal-main-based APK.
+
+## Checkpoint validation
+
+- `:platform:media:testDebugUnitTest :app:testDebugUnitTest` completed successfully: 459 tests across 61 suites, zero failures/errors/skips. This includes 16 recovery timing/lifecycle cases and five platform-request ordering/fallback/privacy cases.
+- Architecture and whitespace checks passed. The build helper verified the actual cgroup had `memory.max=3221225472` and `memory.swap.max=0`; no emulator was started.
+- An additional `:platform:media:lintDebug` check failed on unchanged `AndroidMediaSessionSource.kt:198` (`NewApi` for the existing pending-intent launch helper). That helper already returns null below API 34; lint does not infer the SDK guard through its result. The report also contains two existing `InlinedApi` warnings in that helper and a newer compileSdk advisory. No lint finding targets the new rebind code. This unrelated static-analysis issue is recorded for follow-up; no baseline/suppression or session-launch change was added here.

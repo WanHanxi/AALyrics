@@ -27,6 +27,7 @@ class MediaConnectionRecoveryTest {
         fixture.recovery.refreshAccess()
         runCurrent()
         assertEquals(3, fixture.requests.size)
+        assertEquals(emptyList(), fixture.resets)
     }
 
     @Test
@@ -40,6 +41,7 @@ class MediaConnectionRecoveryTest {
         advanceTimeBy(60_000)
         assertEquals(1, fixture.requests.size)
         assertEquals(MediaConnectionRecoveryState.CONNECTED, fixture.recovery.state.value)
+        assertEquals(emptyList(), fixture.resets)
     }
 
     @Test
@@ -53,7 +55,7 @@ class MediaConnectionRecoveryTest {
     }
 
     @Test
-    fun `manual retry starts a new bounded episode and repeated taps do not reset the deadline`() = runTest {
+    fun `manual retry resets once and repeated taps do not extend the bounded episode`() = runTest {
         val fixture = Fixture(this)
         fixture.recovery.setDemandActive(true)
         runCurrent()
@@ -61,14 +63,20 @@ class MediaConnectionRecoveryTest {
         advanceTimeBy(30_000)
         runCurrent()
         assertEquals(MediaConnectionRecoveryState.TIMED_OUT, fixture.recovery.state.value)
+        assertEquals(emptyList(), fixture.resets)
         fixture.recovery.reconnect()
         fixture.recovery.reconnect()
         runCurrent()
         assertEquals(listOf(0L, 5_000L, 15_000L, 30_000L), fixture.requests)
+        assertEquals(listOf(30_000L), fixture.resets)
+        assertEquals(MediaConnectionRecoveryState.CONNECTING, fixture.recovery.state.value)
         advanceTimeBy(30_000)
         runCurrent()
         assertEquals(MediaConnectionRecoveryState.TIMED_OUT, fixture.recovery.state.value)
         assertEquals(6, fixture.requests.size)
+        assertEquals(listOf(30_000L), fixture.resets)
+        fixture.recovery.onConnectionChanged(true)
+        assertEquals(MediaConnectionRecoveryState.CONNECTED, fixture.recovery.state.value)
     }
 
     @Test
@@ -76,6 +84,7 @@ class MediaConnectionRecoveryTest {
         val fixture = Fixture(this)
         fixture.access = false
         fixture.recovery.setDemandActive(true)
+        fixture.recovery.reconnect()
         runCurrent()
         assertEquals(MediaConnectionRecoveryState.ACCESS_REQUIRED, fixture.recovery.state.value)
         assertEquals(0, fixture.requests.size)
@@ -83,6 +92,7 @@ class MediaConnectionRecoveryTest {
         fixture.recovery.refreshAccess()
         runCurrent()
         assertEquals(listOf(0L), fixture.requests)
+        assertEquals(emptyList(), fixture.resets)
     }
 
     @Test
@@ -126,6 +136,7 @@ class MediaConnectionRecoveryTest {
         fixture.recovery.setDemandActive(true)
         runCurrent()
         assertEquals(listOf(0L, 60_000L), fixture.requests)
+        assertEquals(emptyList(), fixture.resets)
     }
 
     @Test
@@ -153,6 +164,76 @@ class MediaConnectionRecoveryTest {
         fixture.recovery.onConnectionChanged(false)
         advanceTimeBy(60_000)
         assertEquals(1, fixture.requests.size)
+        assertEquals(emptyList(), fixture.resets)
+    }
+
+    @Test
+    fun `late connection before a queued manual reset prevents unbinding the healthy listener`() = runTest {
+        val fixture = Fixture(this)
+        fixture.recovery.setDemandActive(true)
+        advanceTimeBy(30_000)
+        runCurrent()
+        fixture.recovery.reconnect()
+        fixture.recovery.onConnectionChanged(true)
+        advanceTimeBy(60_000)
+        assertEquals(3, fixture.requests.size)
+        assertEquals(emptyList(), fixture.resets)
+        assertEquals(MediaConnectionRecoveryState.CONNECTED, fixture.recovery.state.value)
+    }
+
+    @Test
+    fun `access lost before a queued manual reset prevents requests and restoration uses ordinary recovery`() = runTest {
+        val fixture = Fixture(this)
+        fixture.recovery.setDemandActive(true)
+        advanceTimeBy(30_000)
+        runCurrent()
+        fixture.recovery.reconnect()
+        fixture.access = false
+        runCurrent()
+        assertEquals(3, fixture.requests.size)
+        assertEquals(MediaConnectionRecoveryState.ACCESS_REQUIRED, fixture.recovery.state.value)
+        fixture.access = true
+        fixture.recovery.refreshAccess()
+        runCurrent()
+        assertEquals(4, fixture.requests.size)
+        assertEquals(emptyList(), fixture.resets)
+    }
+
+    @Test
+    fun `demand lost before a queued manual reset cancels it without carrying reset into reentry`() = runTest {
+        val fixture = Fixture(this)
+        fixture.recovery.setDemandActive(true)
+        advanceTimeBy(30_000)
+        runCurrent()
+        fixture.recovery.reconnect()
+        fixture.recovery.setDemandActive(false)
+        runCurrent()
+        assertEquals(3, fixture.requests.size)
+        assertEquals(MediaConnectionRecoveryState.IDLE, fixture.recovery.state.value)
+        fixture.recovery.setDemandActive(true)
+        runCurrent()
+        assertEquals(4, fixture.requests.size)
+        assertEquals(emptyList(), fixture.resets)
+    }
+
+    @Test
+    fun `synchronous disconnect and connect during manual reset cannot start overlapping retries`() = runTest(UnconfinedTestDispatcher()) {
+        val requests = mutableListOf<Boolean>()
+        lateinit var recovery: MediaConnectionRecovery
+        recovery = MediaConnectionRecovery(backgroundScope, { true }, { resetBinding ->
+            requests.add(resetBinding)
+            if (resetBinding) {
+                recovery.onConnectionChanged(false)
+                recovery.onConnectionChanged(true)
+            }
+        })
+        recovery.setDemandActive(true)
+        advanceTimeBy(30_000)
+        runCurrent()
+        recovery.reconnect()
+        advanceTimeBy(60_000)
+        assertEquals(listOf(false, false, false, true), requests)
+        assertEquals(MediaConnectionRecoveryState.CONNECTED, recovery.state.value)
     }
 
     @Test
@@ -198,10 +279,14 @@ class MediaConnectionRecoveryTest {
     private class Fixture(scope: TestScope) {
         var access = true
         val requests = mutableListOf<Long>()
+        val resets = mutableListOf<Long>()
         val recovery = MediaConnectionRecovery(
             scope.backgroundScope,
             hasAccess = { access },
-            requestRebind = { requests.add(scope.testScheduler.currentTime) },
+            requestRebind = { resetBinding ->
+                requests.add(scope.testScheduler.currentTime)
+                if (resetBinding) resets.add(scope.testScheduler.currentTime)
+            },
         )
     }
 }
