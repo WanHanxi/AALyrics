@@ -24,7 +24,8 @@
 - [x] Push final coherent checkpoints; attempt the personal Draft PR after validation.
 - [x] Revert the direct personal-main integration without rewriting history; synchronize the source branch with the reverted main and remove completed temporary branches.
 - [x] Record PR-only integration and cleanup rules in the repository workflow.
-- [ ] Create the personal PR, complete its checks, merge with the owner's existing authorization, and clean up the source branch after confirmed integration.
+- [x] Create the personal PR after restoring its repository authorization: [PR #1](https://github.com/WanHanxi/AALyrics/pull/1).
+- Integration handoff: check the final PR head, squash-merge with the owner's existing authorization, then remove the source branch locally and remotely. The PR records the final CI and merge result.
 
 ## Verification constraints
 
@@ -66,5 +67,6 @@
 - Merged the reverted personal main into `fix/media-connection-recovery` without rewriting the published source branch. No runtime/build/test files changed from validated production revision `7667815`; reuse the successful 821-test/Debug build and existing APK.
 - Deleted local `chore/merge-connection-recovery` and `chore/revert-direct-connection-merge`; neither was published as a remote branch. Retain the pending repair branch until the PR is actually merged. All unrelated branches, including Performance mode and upstream PR #91, remain unchanged.
 - The current request authorizes creating and merging this personal PR and cleaning up its completed branches. If PR publication remains blocked, report the blocker and retain the source branch; do not fall back to another direct feature integration. No external review request or upstream change is authorized.
-- After rollback and branch synchronization, Draft PR creation was retried with explicit target `WanHanxi/AALyrics:main`; GitHub again returned HTTP 403 `Resource not accessible by integration`. No PR was created or merged, so the repair branch remains pending. Plugin discovery confirms the GitHub plugin is installed and enabled; the remaining blocker is GitHub API authorization, not missing installation or an automatic approval rejection.
-- Final architecture, whitespace, and branch-scope checks passed. Remote main was verified at `ebc51d6`, and the reserved Sync/Performance branch heads were unchanged. The remaining publication step needs a working PR-write authorization or creation through the owner's GitHub web session; no further direct integration was performed.
+- After rollback and branch synchronization, Draft PR creation was retried with explicit target `WanHanxi/AALyrics:main`; GitHub again returned HTTP 403 `Resource not accessible by integration`. At that point no PR was created or merged, so the repair branch was retained. The GitHub plugin was installed and enabled; the failure was external GitHub API authorization, not missing installation or an automatic approval rejection.
+- Final architecture, whitespace, and branch-scope checks passed. Remote main was verified at `ebc51d6`, and the reserved Sync/Performance branch heads were unchanged. No further direct integration was performed.
+- The installation used the correct `WanHanxi` account but selected repositories did not include `AALyrics`. The owner added that repository and saved the installation settings. The connector then listed `WanHanxi/AALyrics` and successfully created [personal Draft PR #1](https://github.com/WanHanxi/AALyrics/pull/1), confirming restored PR-write access. Continue its final checks, authorized squash merge, and branch cleanup through the PR workflow.
