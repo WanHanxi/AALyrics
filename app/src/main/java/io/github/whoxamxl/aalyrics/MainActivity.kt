@@ -116,6 +116,7 @@ class MainActivity : ComponentActivity() {
                     AALyricsTheme {
                         PhoneRuntimeHost(
                             application = application as AALyricsApplication,
+                            onOpenNotificationAccess = notificationAccessController::openSettings,
                             onExportConnectionDiagnostics = if (BuildConfig.DEBUG) {
                                 { exportConnectionDiagnostics() }
                             } else null,

@@ -12,10 +12,17 @@ enum class PlaybackSourceConnectionUiState {
 }
 
 enum class PlaybackSourceErrorUiReason {
+    LISTENER_CONNECTION_TIMEOUT,
     NOTIFICATION_ACCESS_LOST,
     SESSION_QUERY_FAILED,
     SESSION_ATTACH_FAILED,
     UNKNOWN,
+}
+
+enum class PlaybackConnectionRecoveryUiState {
+    CONNECTING,
+    TIMED_OUT,
+    ACCESS_REQUIRED,
 }
 
 enum class PlaybackSourceUnavailableUiReason {
@@ -34,6 +41,7 @@ data class PhoneShellUiState(
     val mediaSourceUnavailableReason: PlaybackSourceUnavailableUiReason? = null,
     val mediaSourceErrorReason: PlaybackSourceErrorUiReason? = null,
     val mediaSourceCanOpenApp: Boolean = false,
+    val connectionRecovery: PlaybackConnectionRecoveryUiState? = null,
     val playbackSurface: PlaybackSurfaceUiState? = null,
 )
 

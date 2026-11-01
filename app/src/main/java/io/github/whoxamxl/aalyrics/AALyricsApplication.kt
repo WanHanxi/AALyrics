@@ -766,10 +766,13 @@ class AALyricsApplication : Application() {
         val playback = graph.playbackState.value
         val runtime = effectivePlaybackSourceRuntimeStateFlow.value
         val appInfo = phonePlaybackSourceAppInfoStateFlow.value
-        val presentation = mapPhonePlaybackSourcePresentationState(runtime, playback, appInfo)
+        val presentation = mapPhonePlaybackSourcePresentationState(
+            runtime, playback, appInfo, mediaConnectionRecovery.state.value,
+        )
         val demandActive = graph.lyricsDemandGate.isActive()
         return ConnectionDiagnosticState(
-            connecting = presentation.connectionState == PlaybackSourceConnectionUiState.CONNECTING,
+            connecting = presentation.connectionState == PlaybackSourceConnectionUiState.CONNECTING ||
+                mediaConnectionRecovery.state.value == MediaConnectionRecoveryState.TIMED_OUT,
             demandActive = demandActive,
             fields = mapOf(
                 "runtime" to graph.playbackSourceRuntimeState.value.toString(),

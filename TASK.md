@@ -19,7 +19,7 @@
 
 - [x] Inspect current lifecycle, media ownership, Phone presentation, and incident evidence; select personal-main baseline.
 - [x] Add callback-based listener state and testable bounded recovery; wire Phone/Automotive demand and permission checks.
-- [ ] Add actionable Phone connection status, timeout copy and production-component Previews; preserve diagnostics/export and record process exit facts.
+- [x] Add actionable Phone connection status, timeout copy and production-component Previews; preserve diagnostics/export and record process exit facts.
 - [ ] Run focused tests, architecture checks, full regression/build, bounded branch review; align docs and phone handoff.
 - [ ] Push final coherent checkpoints and create personal Draft PR if the GitHub integration permits it.
 
