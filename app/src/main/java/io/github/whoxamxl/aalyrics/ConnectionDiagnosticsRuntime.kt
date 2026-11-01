@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.PowerManager
 import android.os.Process
 import android.os.SystemClock
+import java.time.Instant
 import io.github.whoxamxl.aalyrics.core.model.PlaybackSnapshot
 import io.github.whoxamxl.aalyrics.platform.media.MediaConnectionDiagnosticSink
 import io.github.whoxamxl.aalyrics.platform.media.MediaConnectionDiagnostics
@@ -50,6 +51,28 @@ internal class ConnectionDiagnosticsRuntime(
     init {
         recorder.record("process_start", processFacts)
         MediaConnectionDiagnostics.attach(MediaConnectionDiagnosticSink(recorder::record))
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            scope.launch(Dispatchers.IO) {
+                try {
+                    context.getSystemService(ActivityManager::class.java)
+                        .getHistoricalProcessExitReasons(context.packageName, 0, 3)
+                        .forEach { exit ->
+                            recorder.record(
+                                "previous_process_exit",
+                                mapOf(
+                                    "pid" to exit.pid.toString(),
+                                    "timestamp" to Instant.ofEpochMilli(exit.timestamp).toString(),
+                                    "reason" to exit.reason.toString(),
+                                    "status" to exit.status.toString(),
+                                    "importance" to exit.importance.toString(),
+                                ),
+                            )
+                        }
+                } catch (failure: RuntimeException) {
+                    recorder.record("process_exit_query_failed", mapOf("exception" to failure.javaClass.simpleName))
+                }
+            }
+        }
     }
 
     @Synchronized

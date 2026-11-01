@@ -2,6 +2,8 @@
 
 `WanHanxi/AALyrics` is developed independently as a personal fork. Its stable integration branch is `main`; personal features do not need to be accepted by the original repository before they can be used here.
 
+Unless the owner explicitly requests upstream work, repository changes, PRs, reviews and merges target this personal fork only. An unspecified request to merge does not authorize changes to upstream or to an upstream-facing contribution branch.
+
 ## Repositories and branches
 
 | Name | Role |

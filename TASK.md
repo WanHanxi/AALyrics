@@ -1,41 +1,66 @@
-# Merge media connection diagnostics into personal main
+# Media listener connection recovery
 
 ## Scope and authorization
 
-- On 2026-10-31, the owner requested merging `feature/media-connection-diagnostics` into personal `main` and deleting the already-integrated `chore/personal-fork-workflow` branch.
-- Personal baseline: `d78894f`, including Sync calibration and persistent offline lyrics caching. Diagnostics source: `17ab7d8`, based on the earlier personal main `fd99084`.
-- Preserve the diagnostics branch ancestry with an ordinary merge, following the owner's stated preference for a visible feature-to-main merge relationship. Do not squash or rewrite published history.
-- Prepare the merge on local temporary branch `chore/merge-media-diagnostics`, validate it, fast-forward personal main to the completed merge and push to `WanHanxi/AALyrics:main`. Remove the temporary branch after delivery. No additional PR is needed for this authorized integration.
-- Keep the upstream cache and Sync contribution branches unchanged.
+- On 2026-10-31 the owner approved improving automatic and in-app recovery after the exported Xiaomi 15 Pro / Android 16 logs showed notification access granted but no listener created in two consecutive Phone processes. Spotify restart coincided with eventual binding; the system's reason remains unknown.
+- Personal topic `fix/media-connection-recovery`, based on `origin/main` at `ee865bc`. Target `WanHanxi/AALyrics:main`; implementation and validation completed before publication, and the owner subsequently authorized personal squash integration.
+- Preserve the separate `feature/phone-performance-mode` and reserved upstream `feature/lyrics-sync-offset` branches. No player-specific APIs, session-selection changes, force-unbind/component toggles, or new permissions.
+
+## Acceptance criteria
+
+- A production listener-binding signal comes from actual service callbacks, independently of Debug diagnostics and whether a player/song exists.
+- Phone foreground, Android Auto projection, and active Automotive host demand share one bounded recovery owner. With notification access and a missing binding, request immediately, retry at 5 and 15 seconds, and time out at 30 seconds. Request return is never treated as connection success.
+- A real connection cancels retries, including a late connection after timeout. Losing all demand cancels pending retries without disconnecting a healthy listener. Revoked access stops retries; returning from permission settings rechecks access. Repeated lifecycle events/manual taps do not create overlapping jobs.
+- Phone Connecting/timeout status offers a connection-details action with Reconnect and Notification access settings. Timeout has explicit user-facing copy; retry is disabled during a running attempt. Normal connected/no-session and source eligibility states retain their meaning.
+- Keep bounded phone-exportable diagnostics and add recovery attempt/outcome events. Record limited Android process-exit facts when available without descriptions, traces, notification content, or song metadata.
+- No new durable preferences. Recovery state is process-local; existing permission and diagnostic retention/reset contracts remain unchanged.
 
 ## Checkpoints
 
-- [x] Fetch main/source/cleanup branches and confirm source revisions and a clean starting worktree.
-- [x] Verify the workflow branch is fully reachable from main; delete its local and remote references.
-- [x] Combine diagnostics with the existing cache and Sync behavior; retain both storage policies and reset disclosures.
-- [x] Validate the combined tree with architecture/scope checks, all tests and a Debug build within the workstation memory budget.
-- [x] Verify the merge parents and prepare the validated result for personal-main delivery and temporary-branch cleanup.
+- [x] Inspect current lifecycle, media ownership, Phone presentation, and incident evidence; select personal-main baseline.
+- [x] Add callback-based listener state and testable bounded recovery; wire Phone/Automotive demand and permission checks.
+- [x] Add actionable Phone connection status, timeout copy and production-component Previews; preserve diagnostics/export and record process exit facts.
+- [x] Run focused tests, architecture checks, full regression/build, bounded branch review; align docs and phone handoff.
+- [x] Push final coherent checkpoints; attempt the personal Draft PR after validation.
+- Draft PR creation remains blocked by GitHub integration permissions. The owner subsequently authorized the personal Git/SSH squash integration recorded below; no PR was created.
 
-## Integrated behavior
+## Verification constraints
 
-- Debug-only process monitoring records bounded media connection events and captures prolonged Connecting episodes while lyrics demand is active. The Phone export action saves a report through Android's document picker.
-- Recording observes existing selection, rebind, discovery and playback state. This feature gathers evidence; it does not claim to fix the Xiaomi/Spotify connection problem.
-- Diagnostic records exclude track titles, lyrics, media identifiers, notification contents, credentials and exception messages. Recording/export is not initialized or exposed in Release builds.
-- Reset restores the existing settings and Sync offset while retaining reusable cached lyrics, Translation models and bounded diagnostics. Each storage feature keeps its own private no-backup directory.
+- Before Gradle, inspect memory and stop only task-owned emulator work. Run Gradle/tests/emulator sequentially, one worker, no parallel/daemon reuse, 1 GiB JVM, in-process Kotlin, under a verified 3 GiB systemd scope with zero swap.
+- Reuse passing builds after documentation-only changes. Do not modify IDE settings or the user's Gradle daemon JVM file.
+- Existing API 37 emulator exceeds this workstation's budget; use compiled Compose Previews and a physical Xiaomi/Android Auto handoff unless a suitable bounded device is already available.
 
-## Validation and provenance
+## Checkpoint validation
 
-- Source diagnostics validation at `a269af3`: 780 tests across 98 suites and Debug assembly passed. Source implementation, privacy/reset decisions and phone handoff are recorded in `17ab7d8:TASK.md`.
-- Cache plus Sync integration at `e763163`: 795 tests across 97 suites and Debug assembly passed. The owner previously reported successful phone testing of the cache feature; that is not a claim of testing diagnostics export or reproducing the connection fault.
-- Only task status and adjacent reset comments/event recording conflicted. Keep both feature behaviors; no functional changes beyond the source diagnostics branch are planned.
-- Combined `test :app:assembleDebug` passed at merge commit `c84496e` in 50 seconds: 804 tests across 101 suites, zero failures/errors/skips. This includes 378 app, 55 media, 50 lyrics-core and 13 file-cache tests. Architecture, whitespace and changed-file scope checks passed; existing Compose previews compiled.
-- The merge parents are personal main `d78894f` first and diagnostics source `17ab7d8` second. Diagnostics source files match the feature branch outside the combined task/privacy/reset documentation and application wiring; cache and Sync implementations remain unchanged.
-- Gradle ran sequentially in `aalyrics-diagnostics-merge-20261031.scope`; the actual process cgroup and `MemoryMax=3221225472` / `MemorySwapMax=0` were verified before startup. One worker, no parallel execution/daemon reuse, 1 GiB Gradle heap and in-process Kotlin were used. No emulator was started. The scope is now inactive/dead and no Gradle/Kotlin/emulator process remains.
-- The user-owned Gradle JVM file checksum is unchanged: `6c13aa5ba36690ccfbbb25a8807d01d98c15833e446d7ae82ddc726472cb8ef7`.
-- Only validation documentation follows the verified merge, so the successful Debug build is reused without another build.
+- Core recovery checkpoint: `:platform:media:testDebugUnitTest :app:testDebugUnitTest` passed in 42 seconds; includes 12 deterministic recovery timing/lifecycle cases and the production binding-signal boundary test. Architecture and whitespace checks passed. Actual build cgroup verified MemoryMax=3221225472 and MemorySwapMax=0.
 
-## Delivery and deferred work
+## Final validation and review
 
-- Use a fast-forward to the validated merge on personal main and an explicit non-force push to `origin main:main`; the merge commit retains personal main as first parent and diagnostics `17ab7d8` as second parent.
-- Keep `feature/media-connection-diagnostics` available; only the owner-named workflow branch and task-owned temporary integration branch are cleaned up.
-- On-device diagnostics export and Xiaomi/Spotify/Android Auto incident capture remain phone handoff checks. Connection recovery changes, production diagnostics and upstream work remain separate tasks.
+- Final production revision `7667815` passed `test :app:assembleDebug` in 1 minute: 821 tests across 103 suites, zero failures/errors/skips. New normal/narrow/large-text/landscape production-component Previews compiled. Architecture and whitespace checks passed.
+- Reviewed the full branch against personal main: lifecycle aggregation, real-callback versus request-return semantics, cancellation/late callbacks, permission checks, healthy/no-player behavior, Phone state/action wiring, diagnostic privacy/bounds and reset handling. No unresolved current-scope blocking finding remains. No provider, session-selection, performance-mode or upstream changes are included.
+- Both Gradle scopes verified MemoryMax=3221225472 and MemorySwapMax=0; neither remains loaded after completion. No emulator was started. User Gradle JVM file remains SHA256 `6c13aa5ba36690ccfbbb25a8807d01d98c15833e446d7ae82ddc726472cb8ef7`.
+- Reuse this successful build after documentation-only changes. Device rendering and Xiaomi/Android Auto binding behavior still need the physical checks in `docs/MEDIA_CONNECTION_RECOVERY.md`; no runtime-device success is claimed.
+
+## APK handoff
+
+- `app/build/outputs/apk/debug/aalyrics-connection-recovery-7667815.apk`
+- Package `io.github.whoxamxl.aalyrics.debug`; version `1.0.0-beta.1-dev+7667815`.
+- APK SHA256: `7d2b127e24587e9c13e8603b3964a61e92f4ce7a1c15902cfe5b223d499edbc4`.
+- Signature verified; local Debug certificate SHA256: `bbcffafa7296076c0a8c9565798a83c49f4860856e6743d758fa4d5aad1f5703`, matching the earlier diagnostic package.
+- Based on personal main. The separately unmerged Phone Performance mode is not in this APK; this limitation was disclosed to the owner.
+- Final PR targets the personal repository only. After the initial publication attempt, the owner explicitly authorized merging this connection-recovery change into the personal repository; no external review request was made.
+
+## Publication limitation
+
+- After final validation and push, Draft PR creation explicitly targeted `WanHanxi/AALyrics:main` from `fix/media-connection-recovery`. The GitHub connector returned HTTP 403 `Resource not accessible by integration` from the create-pull-request endpoint. This is an external connector permission failure, not a test failure or an automatic approval rejection.
+- At the initial delivery, implementation and validation were complete and pushed, with no PR, external review request or merge yet performed. Existing session evidence established that no authenticated GitHub CLI or usable browser fallback was available.
+- Personal comparison/handoff: https://github.com/WanHanxi/AALyrics/compare/main...fix/media-connection-recovery
+- Only documentation followed the successful production build; the verified APK was reused without another Gradle run.
+
+## Authorized personal integration
+
+- On 2026-10-31 the owner requested another merge attempt and reaffirmed that unspecified repository/PR/merge work targets `WanHanxi/AALyrics`, never upstream. The default is now explicit in tracked `AGENTS.md` and `docs/FORK_WORKFLOW.md`.
+- Refetched only `origin`: personal main remains `ee865bc`, and no PR exists for `fix/media-connection-recovery`. Feature-branch pushes have no Build trigger, so no remote PR checks exist yet. Reuse the successful 821-test/Debug build; subsequent changes are documentation only.
+- The retried personal Draft PR call again returned HTTP 403 `Resource not accessible by integration`. Use the approved Git/SSH squash integration: source `fix/media-connection-recovery` at `1d038d8`, prepared on `chore/merge-connection-recovery` from personal main `ee865bc`. The staged tree matched the source exactly before these integration notes.
+- This integration contains the connection-recovery changes and the personal-only routing rule, and updates only `origin/main` through a normal non-forced push. No PR, external review, branch-protection change, upstream operation or Performance-mode integration is included.
+- All source/build files remain identical to validated production revision `7667815`; only tracked workflow/handoff documentation differs. Architecture and whitespace checks are repeated; the successful 821-test/Debug build and existing signed APK are reused without another Gradle run.
