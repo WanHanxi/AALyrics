@@ -48,7 +48,6 @@ import io.github.whoxamxl.aalyrics.ui.designsystem.theme.AALyricsTypography
 import io.github.whoxamxl.aalyrics.ui.phone.R
 import io.github.whoxamxl.aalyrics.ui.phone.component.PhonePopupMenu
 import io.github.whoxamxl.aalyrics.ui.phone.state.PlaybackSourceConnectionUiState
-import io.github.whoxamxl.aalyrics.ui.phone.state.PlaybackConnectionRecoveryUiState
 import io.github.whoxamxl.aalyrics.ui.phone.state.PlaybackSourceErrorUiReason
 import io.github.whoxamxl.aalyrics.ui.phone.state.PlaybackSourceUnavailableUiReason
 
@@ -63,9 +62,6 @@ fun PhoneTopBar(
     mediaSourceCanOpenApp: Boolean = false,
     mediaSourceIconPainter: Painter? = null,
     onOpenPlaybackApp: () -> Unit = {},
-    connectionRecovery: PlaybackConnectionRecoveryUiState? = null,
-    onReconnect: () -> Unit = {},
-    onOpenNotificationAccess: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Surface(
@@ -100,9 +96,6 @@ fun PhoneTopBar(
                 mediaSourceCanOpenApp = mediaSourceCanOpenApp,
                 mediaSourceIconPainter = mediaSourceIconPainter,
                 onOpenPlaybackApp = onOpenPlaybackApp,
-                connectionRecovery = connectionRecovery,
-                onReconnect = onReconnect,
-                onOpenNotificationAccess = onOpenNotificationAccess,
             )
         }
     }
@@ -117,19 +110,7 @@ private fun PlaybackSourceStatusPill(
     mediaSourceCanOpenApp: Boolean,
     mediaSourceIconPainter: Painter?,
     onOpenPlaybackApp: () -> Unit,
-    connectionRecovery: PlaybackConnectionRecoveryUiState?,
-    onReconnect: () -> Unit,
-    onOpenNotificationAccess: () -> Unit,
 ) {
-    var showRecovery by remember(connectionRecovery == null) { mutableStateOf(false) }
-    if (showRecovery && connectionRecovery != null) {
-        PlaybackConnectionRecoveryDialog(
-            state = connectionRecovery,
-            onReconnect = onReconnect,
-            onOpenNotificationAccess = onOpenNotificationAccess,
-            onDismissRequest = { showRecovery = false },
-        )
-    }
     val palette = playbackSourceStatusPalette(connectionState)
     val canOpenConnectedSource =
         connectionState == PlaybackSourceConnectionUiState.CONNECTED &&
@@ -139,14 +120,9 @@ private fun PlaybackSourceStatusPill(
         modifier = Modifier
             .widthIn(max = 220.dp)
             .clickable(
-                enabled = canOpenConnectedSource || connectionRecovery != null,
+                enabled = canOpenConnectedSource,
                 role = Role.Button,
-                onClickLabel = if (connectionRecovery != null) {
-                    stringResource(R.string.playback_connection_details)
-                } else null,
-                onClick = {
-                    if (connectionRecovery != null) showRecovery = true else onOpenPlaybackApp()
-                },
+                onClick = onOpenPlaybackApp,
             ),
         shape = RoundedCornerShape(AALyricsRadius.Full),
         color = palette.background,
@@ -173,16 +149,7 @@ private fun PlaybackSourceStatusPill(
                     StatusText(
                         text = stringResource(R.string.playback_source_connecting),
                         color = palette.foreground,
-                        modifier = Modifier.weight(1f, fill = false),
                     )
-                    if (connectionRecovery != null) {
-                        Icon(
-                            imageVector = AALyricsIcons.Info,
-                            contentDescription = null,
-                            tint = palette.foreground,
-                            modifier = Modifier.size(AALyricsSpacing.Space16),
-                        )
-                    }
                 }
 
                 PlaybackSourceConnectionUiState.CONNECTED -> {
@@ -253,24 +220,13 @@ private fun PlaybackSourceStatusPill(
                         modifier = Modifier.size(AALyricsSpacing.Space16),
                     )
                     StatusText(
-                        text = stringResource(
-                            if (errorReason == PlaybackSourceErrorUiReason.LISTENER_CONNECTION_TIMEOUT) {
-                                R.string.playback_connection_failed
-                            } else R.string.playback_source_error,
-                        ),
+                        text = stringResource(R.string.playback_source_error),
                         color = palette.foreground,
-                        modifier = Modifier.weight(1f, fill = false),
                     )
-                    if (connectionRecovery != null) {
-                        Icon(
-                            imageVector = AALyricsIcons.Info,
-                            contentDescription = null,
-                            tint = palette.foreground,
-                            modifier = Modifier.size(AALyricsSpacing.Space16),
-                        )
-                    } else {
-                        PlaybackSourceErrorTooltip(reason = errorReason, tint = palette.foreground)
-                    }
+                    PlaybackSourceErrorTooltip(
+                        reason = errorReason,
+                        tint = palette.foreground,
+                    )
                 }
             }
         }
@@ -367,15 +323,12 @@ private fun StatusSeparator() {
 private fun StatusText(
     text: String,
     color: Color,
-    modifier: Modifier = Modifier,
 ) {
     Text(
         text = text,
         style = AALyricsTypography.Label,
         color = color,
         maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-        modifier = modifier,
     )
 }
 
@@ -477,8 +430,6 @@ private fun playbackSourceErrorMessage(
     reason: PlaybackSourceErrorUiReason?,
 ): String =
     when (reason) {
-        PlaybackSourceErrorUiReason.LISTENER_CONNECTION_TIMEOUT ->
-            stringResource(R.string.playback_connection_timeout_message)
         PlaybackSourceErrorUiReason.NOTIFICATION_ACCESS_LOST ->
             stringResource(R.string.playback_source_error_notification_access_lost)
         PlaybackSourceErrorUiReason.SESSION_QUERY_FAILED ->

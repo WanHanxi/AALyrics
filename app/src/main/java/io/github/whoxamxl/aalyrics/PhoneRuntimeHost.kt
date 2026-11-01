@@ -77,12 +77,10 @@ internal fun PhoneRuntimeHost(
     onOpenSupportAALyrics: () -> Unit,
     onOpenUpdateRelease: (String) -> Unit = {},
     onExportConnectionDiagnostics: (() -> Unit)? = null,
-    onOpenNotificationAccess: () -> Unit = {},
 ) {
     val playback by application.playbackState.collectAsStateWithLifecycle()
     val playbackSourceRuntimeState by
         application.playbackSourceRuntimeState.collectAsStateWithLifecycle()
-    val connectionRecovery by application.mediaConnectionRecoveryState.collectAsStateWithLifecycle()
     val lyricsState by application.lyricsState.collectAsStateWithLifecycle()
     val lyricsTimingOffset by application.lyricsTimingOffset.collectAsStateWithLifecycle()
     val tapSyncState by application.tapSyncState.collectAsStateWithLifecycle()
@@ -219,7 +217,6 @@ internal fun PhoneRuntimeHost(
         runtimeState = playbackSourceRuntimeState,
         playback = playback,
         playbackSourceAppInfo = playbackSourceAppInfo,
-        recoveryState = connectionRecovery,
     )
     val displayedPlaybackSourceAppInfo = playbackSourceAppInfo
         ?.takeIf { appInfo -> appInfo.packageName == playbackSourcePresentation.packageName }
@@ -264,7 +261,6 @@ internal fun PhoneRuntimeHost(
             mediaSourceUnavailableReason = playbackSourcePresentation.unavailableReason,
             mediaSourceErrorReason = playbackSourcePresentation.errorReason,
             mediaSourceCanOpenApp = playbackSourceCanOpenApp,
-            connectionRecovery = playbackSourcePresentation.recovery,
             playbackSurface = playbackSurface,
         ),
         onDestinationSelected = { destination ->
@@ -293,8 +289,6 @@ internal fun PhoneRuntimeHost(
         onSeekTo = application::seekTo,
         onQueueItemSelected = application::skipToQueueItem,
         onOpenPlaybackApp = { application.openSelectedPlaybackApp() },
-        onReconnect = application::reconnectMediaListener,
-        onOpenNotificationAccess = onOpenNotificationAccess,
         onTranslationEnabledChanged = application::setTranslationEnabled,
         karaokeFeatureEnabled = karaokeFeatureEnabled,
         karaokeModeEnabled = karaokeModeEnabled,

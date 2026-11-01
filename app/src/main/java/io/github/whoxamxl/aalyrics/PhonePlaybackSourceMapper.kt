@@ -5,7 +5,6 @@ import io.github.whoxamxl.aalyrics.platform.media.PlaybackSourceErrorReason
 import io.github.whoxamxl.aalyrics.platform.media.PlaybackSourceRuntimeState
 import io.github.whoxamxl.aalyrics.platform.media.PlaybackSourceUnavailableReason
 import io.github.whoxamxl.aalyrics.ui.phone.state.PlaybackSourceConnectionUiState
-import io.github.whoxamxl.aalyrics.ui.phone.state.PlaybackConnectionRecoveryUiState
 import io.github.whoxamxl.aalyrics.ui.phone.state.PlaybackSourceErrorUiReason
 import io.github.whoxamxl.aalyrics.ui.phone.state.PlaybackSourceUnavailableUiReason
 
@@ -27,33 +26,14 @@ internal data class PhonePlaybackSourcePresentationState(
     val packageName: String? = null,
     val unavailableReason: PlaybackSourceUnavailableUiReason? = null,
     val errorReason: PlaybackSourceErrorUiReason? = null,
-    val recovery: PlaybackConnectionRecoveryUiState? = null,
 )
 
 internal fun mapPhonePlaybackSourcePresentationState(
     runtimeState: PlaybackSourceRuntimeState,
     playback: PlaybackSnapshot,
     playbackSourceAppInfo: PlaybackSourceAppInfo?,
-    recoveryState: MediaConnectionRecoveryState = MediaConnectionRecoveryState.CONNECTED,
-): PhonePlaybackSourcePresentationState {
-    when (recoveryState) {
-        MediaConnectionRecoveryState.CONNECTING -> return PhonePlaybackSourcePresentationState(
-            connectionState = PlaybackSourceConnectionUiState.CONNECTING,
-            recovery = PlaybackConnectionRecoveryUiState.CONNECTING,
-        )
-        MediaConnectionRecoveryState.TIMED_OUT -> return PhonePlaybackSourcePresentationState(
-            connectionState = PlaybackSourceConnectionUiState.ERROR,
-            errorReason = PlaybackSourceErrorUiReason.LISTENER_CONNECTION_TIMEOUT,
-            recovery = PlaybackConnectionRecoveryUiState.TIMED_OUT,
-        )
-        MediaConnectionRecoveryState.ACCESS_REQUIRED -> return PhonePlaybackSourcePresentationState(
-            connectionState = PlaybackSourceConnectionUiState.ERROR,
-            errorReason = PlaybackSourceErrorUiReason.NOTIFICATION_ACCESS_LOST,
-            recovery = PlaybackConnectionRecoveryUiState.ACCESS_REQUIRED,
-        )
-        MediaConnectionRecoveryState.CONNECTED, MediaConnectionRecoveryState.IDLE -> Unit
-    }
-    return when (runtimeState) {
+): PhonePlaybackSourcePresentationState =
+    when (runtimeState) {
         PlaybackSourceRuntimeState.Connecting ->
             PhonePlaybackSourcePresentationState(
                 connectionState = PlaybackSourceConnectionUiState.CONNECTING,
@@ -95,7 +75,6 @@ internal fun mapPhonePlaybackSourcePresentationState(
                 errorReason = runtimeState.reason.toUiReason(),
             )
     }
-}
 
 private fun PlaybackSourceErrorReason.toUiReason(): PlaybackSourceErrorUiReason =
     when (this) {

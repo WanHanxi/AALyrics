@@ -6,56 +6,12 @@ import io.github.whoxamxl.aalyrics.platform.media.PlaybackSourceErrorReason
 import io.github.whoxamxl.aalyrics.platform.media.PlaybackSourceRuntimeState
 import io.github.whoxamxl.aalyrics.platform.media.PlaybackSourceUnavailableReason
 import io.github.whoxamxl.aalyrics.ui.phone.state.PlaybackSourceConnectionUiState
-import io.github.whoxamxl.aalyrics.ui.phone.state.PlaybackConnectionRecoveryUiState
 import io.github.whoxamxl.aalyrics.ui.phone.state.PlaybackSourceErrorUiReason
 import io.github.whoxamxl.aalyrics.ui.phone.state.PlaybackSourceUnavailableUiReason
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class PhonePlaybackSourceMapperTest {
-    @Test
-    fun `binding timeout replaces endless connecting with an actionable error`() {
-        val mapped = mapPhonePlaybackSourcePresentationState(
-            PlaybackSourceRuntimeState.Connecting, PlaybackSnapshot(), null,
-            MediaConnectionRecoveryState.TIMED_OUT,
-        )
-        assertEquals(PlaybackSourceConnectionUiState.ERROR, mapped.connectionState)
-        assertEquals(PlaybackSourceErrorUiReason.LISTENER_CONNECTION_TIMEOUT, mapped.errorReason)
-        assertEquals(PlaybackConnectionRecoveryUiState.TIMED_OUT, mapped.recovery)
-    }
-
-    @Test
-    fun `binding recovery hides stale source identity while waiting for actual connection`() {
-        val mapped = mapPhonePlaybackSourcePresentationState(
-            PlaybackSourceRuntimeState.Connected("com.spotify.music"),
-            playback("com.spotify.music"), appInfo("com.spotify.music"),
-            MediaConnectionRecoveryState.CONNECTING,
-        )
-        assertEquals(PlaybackSourceConnectionUiState.CONNECTING, mapped.connectionState)
-        assertEquals(null, mapped.packageName)
-        assertEquals(PlaybackConnectionRecoveryUiState.CONNECTING, mapped.recovery)
-    }
-
-    @Test
-    fun `connected binding without media does not show listener recovery`() {
-        val mapped = mapPhonePlaybackSourcePresentationState(
-            PlaybackSourceRuntimeState.Disconnected, PlaybackSnapshot(), null,
-            MediaConnectionRecoveryState.CONNECTED,
-        )
-        assertEquals(PlaybackSourceConnectionUiState.DISCONNECTED, mapped.connectionState)
-        assertEquals(null, mapped.recovery)
-    }
-
-    @Test
-    fun `permission loss is distinct from binding timeout`() {
-        val mapped = mapPhonePlaybackSourcePresentationState(
-            PlaybackSourceRuntimeState.Connecting, PlaybackSnapshot(), null,
-            MediaConnectionRecoveryState.ACCESS_REQUIRED,
-        )
-        assertEquals(PlaybackSourceErrorUiReason.NOTIFICATION_ACCESS_LOST, mapped.errorReason)
-        assertEquals(PlaybackConnectionRecoveryUiState.ACCESS_REQUIRED, mapped.recovery)
-    }
-
     @Test
     fun `connected requires runtime playback and app metadata package match`() {
         val mapped = mapPhonePlaybackSourcePresentationState(

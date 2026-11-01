@@ -400,8 +400,8 @@ Requirements:
 - `LyricsBrowserService.onCreate()` marks Automotive host demand active through the application-owned demand gate;
 - `LyricsBrowserService.onDestroy()` removes only that host-service demand source;
 - losing Phone foreground or one Automotive signal must not suspend provider work while another demand source remains active;
-- Automotive host activation enters the shared bounded binding-recovery policy when the listener is missing, so process recreation can recover observation without requiring the Phone Activity to reopen;
-- `MediaSessionListenerService.onListenerDisconnected()` reports lost binding after publishing the disconnected/error transition; application-owned recovery requests rebind while Phone or Automotive demand remains active (see `MEDIA_CONNECTION_RECOVERY.md`);
+- Automotive host activation re-requests the system Notification Listener binding so process recreation can recover active MediaSession observation without requiring the Phone Activity to reopen;
+- `MediaSessionListenerService.onListenerDisconnected()` requests a system rebind after publishing the disconnected/error transition;
 - recovery must rebuild state from current MediaSession observation and canonical provider work rather than persisting transient playback/lyrics state;
 - do not use an unconditional started service, foreground-service keepalive, or boot receiver merely to prevent process death in this slice.
 
@@ -557,7 +557,7 @@ At minimum cover:
 - Phone foreground demand can disappear while Automotive host demand keeps lyrics work active;
 - CarConnection demand can disappear temporarily while an active `LyricsBrowserService` still keeps lyrics work active;
 - final removal of all Phone/Automotive demand suspends provider-owning work;
-- Notification Listener disconnection must trigger bounded recovery while Phone or Automotive demand remains active;
+- Notification Listener disconnection must request rebind;
 - process recreation via the Automotive browser service must not require reopening the Phone Activity before MediaSession observation can recover;
 - a first-attempt provider failure can recover on one bounded retry without requiring a track change;
 - persistent provider failure stops after the second attempt;

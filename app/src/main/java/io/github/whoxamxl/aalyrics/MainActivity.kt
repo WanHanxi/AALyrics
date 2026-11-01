@@ -66,7 +66,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        (application as? AALyricsApplication)?.onPhoneResumed()
+        (application as? AALyricsApplication)?.onPhoneResumedForDiagnostics()
         renderEntryState()
     }
 
@@ -116,7 +116,6 @@ class MainActivity : ComponentActivity() {
                     AALyricsTheme {
                         PhoneRuntimeHost(
                             application = application as AALyricsApplication,
-                            onOpenNotificationAccess = notificationAccessController::openSettings,
                             onExportConnectionDiagnostics = if (BuildConfig.DEBUG) {
                                 { exportConnectionDiagnostics() }
                             } else null,

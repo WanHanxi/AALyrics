@@ -307,14 +307,6 @@
     <string name="playback_collapse">Collapse player</string>
     <string name="playback_translation">Translation</string>
     <string name="playback_source_connecting">Connecting</string>
-    <string name="playback_connection_details">Playback connection</string>
-    <string name="playback_connection_failed">Connection failed</string>
-    <string name="playback_connection_waiting_message">Waiting for Android to connect AALyrics to playback updates. Automatic retries will stop after 30 seconds.</string>
-    <string name="playback_connection_timeout_message">Android has not connected AALyrics to playback updates. Try reconnecting. If it still fails, open Notification access settings and turn access for AALyrics off and on.</string>
-    <string name="playback_connection_access_message">Allow notification access for AALyrics to detect music from your player.</string>
-    <string name="playback_connection_reconnect">Reconnect</string>
-    <string name="playback_connection_notification_settings">Notification access settings</string>
-    <string name="playback_connection_close">Close</string>
     <string name="playback_source_connected">Connected</string>
     <string name="playback_source_disconnected">Disconnected</string>
     <string name="playback_source_unavailable">Unavailable</string>

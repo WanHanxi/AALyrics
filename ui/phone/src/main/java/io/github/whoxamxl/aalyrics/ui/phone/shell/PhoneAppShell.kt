@@ -35,8 +35,6 @@ fun PhoneAppShell(
     onQueueItemSelected: (Long) -> Unit,
     onOpenPlaybackApp: () -> Unit,
     onTranslationEnabledChanged: (Boolean) -> Unit,
-    onReconnect: () -> Unit = {},
-    onOpenNotificationAccess: () -> Unit = {},
     karaokeFeatureEnabled: Boolean = false,
     karaokeModeEnabled: Boolean = false,
     onKaraokeModeEnabledChanged: (Boolean) -> Unit = {},
@@ -65,9 +63,6 @@ fun PhoneAppShell(
                 mediaSourceCanOpenApp = state.mediaSourceCanOpenApp,
                 mediaSourceIconPainter = mediaSourceIconPainter,
                 onOpenPlaybackApp = onOpenPlaybackApp,
-                connectionRecovery = state.connectionRecovery,
-                onReconnect = onReconnect,
-                onOpenNotificationAccess = onOpenNotificationAccess,
             )
             Box(
                 modifier = Modifier

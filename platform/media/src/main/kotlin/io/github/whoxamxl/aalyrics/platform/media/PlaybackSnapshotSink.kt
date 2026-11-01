@@ -84,11 +84,6 @@ fun interface PlaybackSourceRuntimeStateSink {
     fun onPlaybackSourceRuntimeState(state: PlaybackSourceRuntimeState)
 }
 
-/** Actual notification-listener binding, independent of selected sessions and Debug diagnostics. */
-fun interface MediaListenerConnectionSink {
-    fun onConnectionChanged(connected: Boolean)
-}
-
 /**
  * Android-owned artwork boundary for the selected session.
  *
@@ -125,26 +120,6 @@ fun interface PlaybackSessionLauncher {
 
 /** Process-local attachment point used by Android-created media services. */
 object MediaSessionRuntimeHost {
-    @Volatile
-    private var listenerConnectionSink: MediaListenerConnectionSink? = null
-
-    @Volatile
-    private var listenerConnected = false
-
-    fun attachListenerConnection(sink: MediaListenerConnectionSink) {
-        listenerConnectionSink = sink
-        sink.onConnectionChanged(listenerConnected)
-    }
-
-    fun detachListenerConnection(sink: MediaListenerConnectionSink) {
-        if (listenerConnectionSink === sink) listenerConnectionSink = null
-    }
-
-    internal fun forwardListenerConnection(connected: Boolean) {
-        listenerConnected = connected
-        listenerConnectionSink?.onConnectionChanged(connected)
-    }
-
     @Volatile
     private var sink: PlaybackSnapshotSink? = null
 

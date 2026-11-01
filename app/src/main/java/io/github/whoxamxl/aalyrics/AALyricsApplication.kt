@@ -24,7 +24,6 @@ import io.github.whoxamxl.aalyrics.provider.selection.CrossProviderCandidateSele
 import io.github.whoxamxl.aalyrics.provider.synclrc.SyncLrcProvider
 import io.github.whoxamxl.aalyrics.platform.media.MediaBrowserClientTrust
 import io.github.whoxamxl.aalyrics.platform.media.MediaConnectionDiagnostics
-import io.github.whoxamxl.aalyrics.platform.media.MediaListenerConnectionSink
 import io.github.whoxamxl.aalyrics.platform.media.MediaSessionListenerService
 import io.github.whoxamxl.aalyrics.platform.media.MediaSessionRuntimeHost
 import io.github.whoxamxl.aalyrics.platform.media.PlaybackArtworkSink
@@ -86,10 +85,6 @@ private data class TranslationDetailsFacts(
 class AALyricsApplication : Application() {
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var connectionDiagnostics: ConnectionDiagnosticsRuntime? = null
-    private lateinit var mediaConnectionRecovery: MediaConnectionRecovery
-    private val listenerConnectionSink = MediaListenerConnectionSink { connected ->
-        mediaConnectionRecovery.onConnectionChanged(connected)
-    }
     private lateinit var graph: ApplicationGraph
     private lateinit var demandLifecycle: LyricsDemandLifecycle
     private lateinit var automotiveBinding: AutomotiveRuntimeBinding
@@ -174,9 +169,6 @@ class AALyricsApplication : Application() {
 
     internal val playbackSourceRuntimeState: StateFlow<PlaybackSourceRuntimeState>
         get() = effectivePlaybackSourceRuntimeStateFlow
-
-    internal val mediaConnectionRecoveryState: StateFlow<MediaConnectionRecoveryState>
-        get() = mediaConnectionRecovery.state
 
     val translationState: StateFlow<TranslationState>
         get() = translationCoordinator.state
@@ -458,12 +450,6 @@ class AALyricsApplication : Application() {
         if (BuildConfig.DEBUG) {
             connectionDiagnostics = ConnectionDiagnosticsRuntime(this, applicationScope)
         }
-        mediaConnectionRecovery = MediaConnectionRecovery(
-            scope = CoroutineScope(applicationScope.coroutineContext + Dispatchers.Main.immediate),
-            hasAccess = { isNotificationAccessGranted(this) },
-            requestRebind = { MediaSessionListenerService.requestSystemRebind(this) },
-            record = { event, fields -> MediaConnectionDiagnostics.record(event) { fields } },
-        )
         lyricsTimingSettings = createLyricsTimingSettings(this)
         val updateUserAgent = "AALyrics/${BuildConfig.VERSION_NAME}"
         updateRecoveryStore = SharedPreferencesUpdateRecoveryStore(this)
@@ -692,7 +678,6 @@ class AALyricsApplication : Application() {
         MediaSessionRuntimeHost.attachArtwork(playbackArtworkSink)
         MediaSessionRuntimeHost.attachQueueArtworkBitmaps(queueArtworkBitmapSink)
         MediaSessionRuntimeHost.attachSourceRuntimeState(graph.playbackSourceRuntimeStateSink)
-        MediaSessionRuntimeHost.attachListenerConnection(listenerConnectionSink)
         automotiveBinding = AutomotiveRuntimeBinding(
             playback = graph.playbackState,
             lyrics = graph.lyricsState,
@@ -720,7 +705,9 @@ class AALyricsApplication : Application() {
                     mapOf("active" to active.toString())
                 }
                 graph.lyricsDemandGate.setAutomotiveHostActive(active)
-                updateConnectionRecoveryDemand()
+                if (active) {
+                    MediaSessionListenerService.requestSystemRebind(this)
+                }
             },
             transport = object : AutomotiveTransport {
                 override fun play() = MediaSessionRuntimeHost.play()
@@ -738,24 +725,13 @@ class AALyricsApplication : Application() {
             },
         )
         AutomotiveRuntimeHost.attach(automotiveBinding)
-        demandLifecycle = LyricsDemandLifecycle(
-            this,
-            graph.lyricsDemandGate,
-            ::updateConnectionRecoveryDemand,
-        ).also { it.start() }
+        demandLifecycle = LyricsDemandLifecycle(this, graph.lyricsDemandGate).also { it.start() }
         connectionDiagnostics?.start(::connectionDiagnosticState)
     }
 
-    private fun updateConnectionRecoveryDemand() {
-        mediaConnectionRecovery.setDemandActive(graph.lyricsDemandGate.isActive())
-    }
-
-    internal fun onPhoneResumed() {
-        mediaConnectionRecovery.refreshAccess()
+    internal fun onPhoneResumedForDiagnostics() {
         connectionDiagnostics?.onPhoneResume()
     }
-
-    internal fun reconnectMediaListener() = mediaConnectionRecovery.reconnect()
 
     internal fun exportConnectionDiagnostics(uri: Uri, onComplete: (Boolean) -> Unit) {
         val diagnostics = connectionDiagnostics
@@ -766,13 +742,10 @@ class AALyricsApplication : Application() {
         val playback = graph.playbackState.value
         val runtime = effectivePlaybackSourceRuntimeStateFlow.value
         val appInfo = phonePlaybackSourceAppInfoStateFlow.value
-        val presentation = mapPhonePlaybackSourcePresentationState(
-            runtime, playback, appInfo, mediaConnectionRecovery.state.value,
-        )
+        val presentation = mapPhonePlaybackSourcePresentationState(runtime, playback, appInfo)
         val demandActive = graph.lyricsDemandGate.isActive()
         return ConnectionDiagnosticState(
-            connecting = presentation.connectionState == PlaybackSourceConnectionUiState.CONNECTING ||
-                mediaConnectionRecovery.state.value == MediaConnectionRecoveryState.TIMED_OUT,
+            connecting = presentation.connectionState == PlaybackSourceConnectionUiState.CONNECTING,
             demandActive = demandActive,
             fields = mapOf(
                 "runtime" to graph.playbackSourceRuntimeState.value.toString(),
@@ -784,7 +757,6 @@ class AALyricsApplication : Application() {
                 "has_track" to (playback.track != null).toString(),
                 "playback" to playback.status.name,
                 "demand_active" to demandActive.toString(),
-                "recovery" to mediaConnectionRecovery.state.value.name,
             ),
         )
     }
@@ -797,8 +769,6 @@ class AALyricsApplication : Application() {
         phonePresentationSettingsStore.close()
         translationSettingsStore.close()
         demandLifecycle.stop()
-        mediaConnectionRecovery.stop()
-        MediaSessionRuntimeHost.detachListenerConnection(listenerConnectionSink)
         AutomotiveRuntimeHost.detach(automotiveBinding)
         MediaSessionRuntimeHost.detachSourceRuntimeState(graph.playbackSourceRuntimeStateSink)
         MediaSessionRuntimeHost.detachQueueArtworkBitmaps(queueArtworkBitmapSink)
