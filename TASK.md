@@ -1,17 +1,25 @@
 # Phone Performance mode: centered lyrics and album background
 
+## Draft PR handoff approved (2026-11-03)
+
+- The owner confirmed the current visual result is acceptable and explicitly requested a PR. The visual-design gate is cleared. Target `WanHanxi/AALyrics:main` from `feature/phone-performance-redesign`, as a Draft PR; stop after creating it. Merge, ready-for-review conversion and review requests remain unauthorized.
+- Final `test` validation passed in 39 seconds: 863 tests across 109 suites, zero failures/errors/skips (Gradle reused unchanged test tasks). Architecture and branch-wide whitespace checks passed. The full 31-file branch diff remains scoped to Phone fullscreen presentation, its host/window integration, shared Karaoke extraction, tests/Previews and aligned documentation.
+- Verified personal `main` is still `2d72cb2` and is an ancestor of the feature branch. Reuse the successful `679e955` Debug APK below: the current source differs only in task documentation and its SHA256 is unchanged. No rebuild or new APK upload is needed.
+- Final tests used the verified 3 GiB memory cap and zero swap, one worker and in-process Kotlin. The task scope is inactive/not loaded. Owner visual feedback is recorded; no exhaustive native lifecycle/device matrix is claimed.
+- The three local `backup/phone-*-build-*` refs preserve exact APK build commits. Each has the same Git tree as its corresponding API-published source commit; no `backup/*` branch is present on the personal remote. Keep these build references until normal post-merge cleanup.
+
 ## Completed follow-up: current translation contrast (2026-11-03)
 
 - The owner approved using the same white color for the current fullscreen original and its translation. The smaller translation typography continues to distinguish the two; previous/next context stays gray.
 - Implemented with the existing `TextPrimary` color token. Existing portrait/landscape translated Compose Previews exercise the production change. This adds no state or reset behavior.
 - `:app:assembleDebug` passed in 45 seconds, compiling the existing production Previews. Architecture and whitespace checks passed; no additional unit test was added for this color-only presentation change. The build verified the 3 GiB/zero-swap limits; its scope is inactive and the Gradle JVM configuration is unchanged. Native appearance remains subject to phone verification.
-- APK delivery preference: keep future builds local and report their paths. Do not upload to Google Drive. The existing no-PR visual-design gate remains in effect.
+- APK delivery preference: keep future builds local and report their paths. Do not upload to Google Drive. PR creation is now authorized as recorded above.
 - Local APK: `app/build/outputs/apk/debug/aalyrics-performance-translation-white-679e955.apk` (92,156,103 bytes), version `1.0.0-beta.1-dev+679e955`. SHA256: `127bff29992ad89fb23df7804077d88b5a2dc643938f5a00ae30c9bd3ccbf5f2`. Package and signing certificate match the earlier Debug APKs for an in-place update. No APK upload was performed.
 - Published source `a4cda8b` and built local commit `679e955` share tree `f35ced4be79a54eefbec0a45e92ea2b90d2ae92c`; `backup/phone-translation-color-build-679e955` preserves the exact build revision. Only this documentation follows the successful build; reuse the verified artifact. No PR was opened.
 
 ## Completed follow-up: space-preferred wrapping (2026-11-03)
 
-- The owner approved prioritizing existing spaces for fullscreen line breaks after a phone screenshot split `這天` across lines. Continue on the existing personal topic branch; the visual-design gate still defers PR creation.
+- The owner approved prioritizing existing spaces for fullscreen line breaks after a phone screenshot split `這天` across lines. Work continued on the existing personal topic branch; PR creation was deferred at that checkpoint pending visual feedback.
 - Measure real text width, keep complete space-delimited phrases together when possible, and retain platform wrapping for oversized phrases. Cover original/neighbor/translated text, orientation/font changes and existing explicit newlines.
 - Keep canonical text and UTF-16 Karaoke offsets unchanged; do not alter timing, providers, normal scrolling lyrics, durable state or reset behavior.
 - [x] Implement focused wrapping and regression tests, including the reported Chinese line and WORD offsets.
@@ -30,7 +38,7 @@ Updated artifact: `app/build/outputs/apk/debug/aalyrics-performance-space-wrap-f
 - The owner selected the compact centered design and approved implementation with a softly blurred, darkened album-art background on 2026-11-02. Cover portrait and landscape; keep current lyrics and their translation readable at large font scales.
 - Continue the unmerged Phone fullscreen implementation on personal main `2d72cb2`, retaining its notification-listener recovery fixes. Branch `feature/phone-performance-redesign` follows the repository's CI branch-name policy. The original Performance branch and the reserved upstream Sync branch remain untouched.
 - Carry forward fullscreen entry/exit, resumed-only immersive/screen-awake effects, authoritative three-row selection, shared WORD Karaoke and PLAIN fallback. Do not alter providers, timing, Translation execution, playback controls or Android Auto.
-- The owner explicitly asked for no PR before the visual design is settled. Implement the selected direction, finish validation, and hand over the preview/APK for visual feedback; defer PR creation until that design gate is cleared. No merge or review request is authorized.
+- The owner required visual feedback before PR creation, then accepted the current result and authorized a PR on 2026-11-03. Implementation and final validation are complete; open a Draft PR targeting the personal fork. No merge or review request is authorized.
 
 ## Acceptance criteria
 
@@ -50,7 +58,7 @@ Updated artifact: `app/build/outputs/apk/debug/aalyrics-performance-space-wrap-f
 - [x] Validate tests/build/architecture/whitespace under workstation limits; inspect complete branch and align docs.
 - [x] Prepare visible portrait/landscape previews and an installable Debug APK; record actual device-validation limits.
 - [x] Publish coherent checkpoints to the personal feature branch through the GitHub connector, verifying every tree against the local commit.
-- Publication handoff: publish this final documentation checkpoint and provide the preview/APK, then stop for the owner's visual feedback. Do not open a PR yet under the explicit design gate above. A later authorized Draft PR must target `WanHanxi/AALyrics:main`.
+- Publication handoff: implementation checkpoints, preview/APK delivery and owner visual feedback are complete. Publish the final validation/approval record, open the authorized Draft PR targeting `WanHanxi/AALyrics:main`, then stop.
 
 ## Verification budget and handoff
 
