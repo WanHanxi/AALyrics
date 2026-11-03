@@ -7,10 +7,14 @@
 - Keep canonical text and UTF-16 Karaoke offsets unchanged; do not alter timing, providers, normal scrolling lyrics, durable state or reset behavior.
 - [x] Implement focused wrapping and regression tests, including the reported Chinese line and WORD offsets.
 - [x] Add native Compose Preview cases for portrait/landscape, large fonts and wrapped WORD sweep; align the fullscreen documentation.
-- [ ] Validate Phone tests, architecture/whitespace and the updated Debug APK within the workstation memory budget.
-- [ ] Publish the coherent checkpoint and deliver the updated privately uploaded APK for phone verification. No PR yet.
+- [x] Validate Phone tests, architecture/whitespace and the updated Debug APK within the workstation memory budget.
+- [x] Publish the coherent checkpoint and prepare the updated privately uploaded APK for phone verification. No PR yet.
 
 Follow-up validation: `:ui:phone:testDebugUnitTest` passed (85 tests in 12 suites, including 11 new wrapping regressions; zero failures/errors/skips). The run verified `memory.max=3221225472` and `memory.swap.max=0`, using one worker and in-process Kotlin. Production Preview fixtures compile, including the reported Chinese line and a WORD sweep across the replaced separator. Architecture and whitespace checks passed. Native rendering remains a phone-verification handoff rather than a claimed emulator result.
+
+`:app:assembleDebug` passed in a subsequent 48-second run under the same verified limits. Both task scopes are now inactive/not loaded; no emulator was started and the Gradle JVM configuration retains its recorded hash. The locally built commit `ff82058` and published source commit `3c11692` have identical tree `b7fb22cbaf779dc943689aa7a3d9c44f084a23dc`; `backup/phone-space-wrap-build-ff82058` preserves the exact local build commit. The personal topic branch is synchronized with the published source. No PR was opened.
+
+Updated artifact: `app/build/outputs/apk/debug/aalyrics-performance-space-wrap-ff82058.apk`, 92,156,099 bytes, package `io.github.whoxamxl.aalyrics.debug`, version `1.0.0-beta.1-dev+ff82058`, versionCode 1. SHA256: `970bef815906307efc035aed90ba8861cf9e7a64a93336e38370c77bb3b63fd5`. Verified the same Debug signing certificate as the previous handoff, so the APK can update that installation. Uploaded to the owner's private Drive and read back the matching filename/size and unshared status. Only this handoff documentation follows the build; reuse the verified APK.
 
 ## Approved scope
 
