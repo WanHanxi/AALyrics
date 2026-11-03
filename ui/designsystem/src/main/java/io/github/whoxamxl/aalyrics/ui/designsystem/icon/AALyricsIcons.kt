@@ -4,6 +4,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.ExpandMore
+import androidx.compose.material.icons.rounded.Fullscreen
+import androidx.compose.material.icons.rounded.FullscreenExit
 import androidx.compose.material.icons.rounded.ChevronLeft
 import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.Check
@@ -45,6 +47,8 @@ object AALyricsIcons {
     val NavigateNext: ImageVector = Icons.Rounded.ChevronRight
     val Check: ImageVector = Icons.Rounded.Check
     val Close: ImageVector = Icons.Rounded.Close
+    val Fullscreen: ImageVector = Icons.Rounded.Fullscreen
+    val ExitFullscreen: ImageVector = Icons.Rounded.FullscreenExit
     val Download: ImageVector = Icons.Rounded.Download
     val Retry: ImageVector = Icons.Rounded.Sync
     val TranslationDirection: ImageVector = Icons.Rounded.ArrowForward
