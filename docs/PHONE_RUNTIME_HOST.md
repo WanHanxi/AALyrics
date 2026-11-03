@@ -138,7 +138,7 @@ PhoneShellUiState
 └─ playbackSurface       <- AALyricsApplication.phonePlaybackSurfaceState
 ```
 
-The Top Bar, Playback Surface, and Bottom Navigation remain shell-owned.
+The Top Bar, Playback Surface, and Bottom Navigation remain shell-owned. Phone fullscreen Performance mode temporarily replaces that shell while the selected destination remains Lyrics; see `PHONE_PERFORMANCE_MODE.md`. The existing Phone timing mapper/ticker supplies the fullscreen rows, Translation and Karaoke. The app owns lifecycle-bound immersive window effects; exit returns to Lyrics Follow.
 
 Playback-source package metadata is owned by `:app`. The label-only resolver is replaced by `PlaybackSourceAppInfoResolver`, which performs one cached `ApplicationInfo` lookup per package and derives the presentation label, optional app icon, diagnostic category, minimum SDK level, and target SDK level. Connected resolution follows the selected playback package. Unavailable resolution prefers the package carried by the runtime state, allowing a policy-rejected session to retain real app identity even when no selected playback snapshot exists; if app metadata still cannot be resolved, the Top Bar falls back to its metadata-independent Unavailable presentation. The package identifier remains the human-readable label fallback after successful package identification but failed label lookup. The Top Bar icon is supplied as caller-owned renderable content, analogous to selected-session artwork, so `ApplicationInfo`, `PackageManager`, and Android `Drawable` objects do not become Phone UI state. When no icon is available for a known app, `PhoneTopBar` retains its cyan-dot fallback.
 
@@ -321,6 +321,7 @@ Do not expand this slice into implementation of those capabilities merely becaus
 The following may remain UI/host-local because they do not represent durable application policy:
 
 - currently selected Phone primary destination;
+- saved fullscreen Performance visibility (cleared on exit/reset; no durable preference);
 - Settings sub-screen selection/visibility (Main / Advanced / Changelog / Privacy Policy / License / Support AALyrics);
 - modal/picker visibility;
 - Lyrics viewport follow/browse interaction mode;
