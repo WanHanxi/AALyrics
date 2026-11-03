@@ -20,4 +20,3 @@ internal fun performanceLyricsFrame(state: LyricsViewportUiState): PerformanceLy
         next = state.lines.getOrNull(index?.plus(1) ?: 0),
     )
 }
-
