@@ -1,11 +1,13 @@
 # Phone Performance mode: centered lyrics and album background
 
-## Active follow-up: current translation contrast (2026-11-03)
+## Completed follow-up: current translation contrast (2026-11-03)
 
 - The owner approved using the same white color for the current fullscreen original and its translation. The smaller translation typography continues to distinguish the two; previous/next context stays gray.
 - Implemented with the existing `TextPrimary` color token. Existing portrait/landscape translated Compose Previews exercise the production change. This adds no state or reset behavior.
-- Validate through the Debug build and architecture/whitespace checks; no additional unit test is needed for this color-only presentation change.
+- `:app:assembleDebug` passed in 45 seconds, compiling the existing production Previews. Architecture and whitespace checks passed; no additional unit test was added for this color-only presentation change. The build verified the 3 GiB/zero-swap limits; its scope is inactive and the Gradle JVM configuration is unchanged. Native appearance remains subject to phone verification.
 - APK delivery preference: keep future builds local and report their paths. Do not upload to Google Drive. The existing no-PR visual-design gate remains in effect.
+- Local APK: `app/build/outputs/apk/debug/aalyrics-performance-translation-white-679e955.apk` (92,156,103 bytes), version `1.0.0-beta.1-dev+679e955`. SHA256: `127bff29992ad89fb23df7804077d88b5a2dc643938f5a00ae30c9bd3ccbf5f2`. Package and signing certificate match the earlier Debug APKs for an in-place update. No APK upload was performed.
+- Published source `a4cda8b` and built local commit `679e955` share tree `f35ced4be79a54eefbec0a45e92ea2b90d2ae92c`; `backup/phone-translation-color-build-679e955` preserves the exact build revision. Only this documentation follows the successful build; reuse the verified artifact. No PR was opened.
 
 ## Completed follow-up: space-preferred wrapping (2026-11-03)
 
