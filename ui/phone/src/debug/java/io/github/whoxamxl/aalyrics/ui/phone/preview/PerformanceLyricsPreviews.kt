@@ -5,14 +5,70 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.whoxamxl.aalyrics.core.model.LyricsSyncType
 import io.github.whoxamxl.aalyrics.ui.designsystem.theme.AALyricsTheme
 import io.github.whoxamxl.aalyrics.ui.phone.lyrics.LyricsScreen
 import io.github.whoxamxl.aalyrics.ui.phone.lyrics.LyricsScreenUiState
 import io.github.whoxamxl.aalyrics.ui.phone.lyrics.LyricsViewportLineUiState
+import io.github.whoxamxl.aalyrics.ui.phone.lyrics.LyricsViewportUiState
 import io.github.whoxamxl.aalyrics.ui.phone.lyrics.PerformanceLyricsScreen
 import io.github.whoxamxl.aalyrics.ui.phone.lyrics.TrackCardLyricsStatus
+import io.github.whoxamxl.aalyrics.ui.phone.lyrics.TrackCardUiState
+
+@Preview(name = "Album · portrait", group = "Performance", widthDp = 412, heightDp = 892)
+@Preview(name = "Album · landscape", group = "Performance", widthDp = 892, heightDp = 412)
+@Composable
+internal fun PerformanceAlbumPreview() {
+    PerformancePreview(performanceAlbumState, rememberPerformanceCover(PerformanceCover.NIGHT))
+}
+
+@Preview(name = "White cover · contrast", group = "Performance", widthDp = 412, heightDp = 892)
+@Preview(name = "White cover · landscape", group = "Performance", widthDp = 740, heightDp = 360)
+@Composable
+internal fun PerformanceWhiteCoverPreview() {
+    PerformancePreview(performanceAlbumState, rememberPerformanceCover(PerformanceCover.WHITE))
+}
+
+@Preview(name = "Busy cover · narrow", group = "Performance", widthDp = 320, heightDp = 640)
+@Composable
+internal fun PerformanceBusyCoverPreview() {
+    PerformancePreview(performanceAlbumState, rememberPerformanceCover(PerformanceCover.BUSY))
+}
+
+@Preview(name = "Artwork change and removal · interactive", group = "Performance", widthDp = 412, heightDp = 892)
+@Composable
+internal fun PerformanceArtworkChangePreview() {
+    // Use Preview's interactive mode to cycle cover -> bright cover -> no artwork with the exit icon.
+    var index by remember { mutableStateOf(0) }
+    val artwork = when (index % 3) {
+        0 -> rememberPerformanceCover(PerformanceCover.NIGHT)
+        1 -> rememberPerformanceCover(PerformanceCover.WHITE)
+        else -> null
+    }
+    AALyricsTheme {
+        PerformanceLyricsScreen(performanceAlbumState, onExit = { index++ }, artwork = artwork)
+    }
+}
+
+private val performanceAlbumState = LyricsScreenUiState(
+    trackCard = TrackCardUiState(
+        title = "晚风片段",
+        artist = "排版示例",
+        providerLabel = "Musixmatch",
+        lyricsStatus = TrackCardLyricsStatus.READY,
+    ),
+    viewport = LyricsViewportUiState(
+        syncType = LyricsSyncType.LINE,
+        currentLineIndex = 1,
+        lines = listOf(
+            LyricsViewportLineUiState("街灯在身后亮起"),
+            LyricsViewportLineUiState("就让晚风慢一点", translatedText = "Let the evening breeze linger."),
+            LyricsViewportLineUiState("把这一刻留在眼前"),
+        ),
+    ),
+)
 
 @Preview(name = "Three rows · translated", group = "Performance", widthDp = 412, heightDp = 892)
 @Preview(name = "Landscape", group = "Performance", widthDp = 892, heightDp = 412)
@@ -28,6 +84,7 @@ internal fun PerformanceKaraokePreview() {
         PhonePreviewFixtures.lyricsScreenWord.let {
             it.copy(viewport = it.viewport.copy(syncType = LyricsSyncType.WORD))
         },
+        rememberPerformanceCover(PerformanceCover.NIGHT),
     )
 }
 
@@ -38,6 +95,7 @@ private fun PerformanceIntroPreview() {
         PhonePreviewFixtures.lyricsScreenLine.let {
             it.copy(viewport = it.viewport.copy(currentLineIndex = null))
         },
+        rememberPerformanceCover(PerformanceCover.BUSY),
     )
 }
 
@@ -69,6 +127,7 @@ internal fun PerformanceLongLinesPreview() {
                 ),
             ))
         },
+        rememberPerformanceCover(PerformanceCover.NIGHT),
     )
 }
 
@@ -125,12 +184,13 @@ internal fun PerformanceEntryExitPreview() {
 }
 
 @Composable
-private fun PerformancePreview(initialState: LyricsScreenUiState) {
+private fun PerformancePreview(initialState: LyricsScreenUiState, artwork: ImageBitmap? = null) {
     AALyricsTheme {
         var state by remember(initialState) { mutableStateOf(initialState) }
         PerformanceLyricsScreen(
             state = state,
             onExit = {},
+            artwork = artwork,
             onViewportInteractionModeChange = {
                 state = state.copy(viewport = state.viewport.copy(interactionMode = it))
             },

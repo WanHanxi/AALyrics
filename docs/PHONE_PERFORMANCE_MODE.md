@@ -2,7 +2,7 @@
 
 ## Product contract
 
-The Lyrics Track Card's fullscreen action opens a Phone-local Performance surface. The owner selected the previous/current/next presentation on 2026-10-31. The normal Lyrics destination keeps its responsive scrolling document.
+The Lyrics Track Card's fullscreen action opens a Phone-local Performance surface. The owner selected the previous/current/next presentation on 2026-10-31, then approved the compact centered layout and album-art background on 2026-11-02. The normal Lyrics destination keeps its responsive scrolling document.
 
 Performance mode replaces the Top Bar, Track Card, Playback Surface and Bottom Navigation with compact track identity, provider attribution, an exit button and lyrics. System Back and the exit button return to Lyrics in Follow mode. Playback controls remain available after exiting. Tapping lyrics does not accidentally exit the surface.
 
@@ -19,9 +19,19 @@ LINE and WORD sources consume the existing `LyricsViewportUiState.currentLineInd
 - no invented previous/next row at document boundaries;
 - blank timed lines render a musical note without skipping their timing interval.
 
-The current line includes its already identity-gated translated text when available. Neighbor slots show canonical text. Text wraps without ellipsis or font-size reduction; each slot can scroll when a long logical line or large system font exceeds its available height. Scroll position resets when its displayed line changes. Short windows reduce spacing while preserving font scaling and the exit control.
+The current line includes its already identity-gated translated text when available. Neighbors show canonical text. The measured group replaces the old weighted vertical slots: the current original/translation block sits near 44% of the available lyric area, with adjacent lines only a content-sized gap away. Portrait uses 48sp/56sp current text, 26sp/32sp neighbors, 20sp/26sp translation and 24dp neighbor gaps. Landscape uses 60sp/70sp, 28sp/34sp, 22sp/28sp and 16dp respectively. System font scaling remains enabled. The title/artist header stays compact, and provider attribution sits in a quiet footer.
+
+Every row is measured at its actual wrapped size. If the complete group does not fit, hide the previous row first, then the next if necessary. Never ellipsize or shrink the current lyric: its original and translation share a scroll container constrained to the lyric area, so even an oversized line remains fully reachable. Scroll position resets when the displayed current line changes. Missing neighbors reserve no empty slots; hidden rows do not overlap the current block or the exit control.
 
 The surface selects at most three existing rows. It does not copy or remap the entire lyrics document on the playback tick. Seeks, track changes, pauses, and the global timing offset are reflected through the existing app-owned Phone mapping.
+
+## Album background
+
+The host passes its existing playback artwork directly to the Phone surface. It is cropped to fill each orientation without stretching. A small, softened version preserves recognizable cover shapes/colors, with a dark base scrim and a stronger central gradient protecting lyrics even on white or busy covers. Artwork changes crossfade over 400ms. Missing or unreadable artwork fades to the plain dark base; the branded missing-cover logo is not enlarged behind lyrics.
+
+Phone-local preparation runs on `Dispatchers.Default` once per artwork identity while fullscreen is composed, independently of timing ticks and viewport size. The derived bitmap's longest side is at most 192px; three radius-3 separable box passes provide blur on every supported Android version, including API 26–30. Shared source bitmaps are never modified or recycled. Obsolete preparation cannot publish after its coroutine is cancelled. Debug Preview performs the same preparation synchronously because its render clock may not advance.
+
+There is no new network request, disk cache or setting. Derived images are transient composition state and become reclaimable on exit, replacement, recreation or reset; only the outgoing/incoming images are needed during a normal transition. Existing playback artwork ownership and persistent lyrics-cache retention do not change.
 
 ## Karaoke and plain lyrics
 
@@ -45,11 +55,13 @@ Current `whoxamxl/auto-lyrics:main` was inspected at `8484bed2dbe8db5ca7b17dec54
 
 Preserved behavior: immersive viewing, foreground screen-awake behavior, strong current-line hierarchy and adjacent-line context. The rendering is rewritten for Compose and the existing AALyrics presentation seams. Legacy `MediaTracker`, independent playback-position calculations, active-word size pulses, artwork color extraction and tap-anywhere exit are not migrated.
 
+The owner's additional background reference is `GitUpGitUp/auto-lyrics`: `activity_performance.xml` blob `262db2c9fc0d97ab1536d6e8fd425fc149418d5f` uses a center-cropped album image at alpha 0.15. This version retains that visual idea with bounded blur, contrast scrims and a short transition; it does not import a legacy playback pipeline.
+
 ## Validation and device handoff
 
-Focused JVM tests cover intro, first/middle/last rows, invalid indices, blank intervals, backward seek/Browse independence, Translation row identity, PLAIN fallback, Karaoke range validation, and lifecycle acquisition/restoration.
+Focused JVM tests cover intro, first/middle/last rows, invalid indices, blank intervals, backward seek/Browse independence, Translation row identity, PLAIN fallback, Karaoke range validation, lifecycle acquisition/restoration, measured geometry under font/translation pressure, and bounded blur behavior/source preservation.
 
-Production-component Previews cover portrait/landscape, current Translation, WORD sweep, intro/end, long lines with enlarged fonts, PLAIN, loading/no-media/not-found/failure, and interactive entry/exit. These are deterministic debug fixtures, not alternative production renderers.
+Production-component Previews cover portrait/landscape, dark/white/busy/missing synthetic artwork, current Translation, WORD sweep, intro/end, long lines with enlarged fonts, PLAIN, loading/no-media/not-found/failure, and interactive entry/exit/artwork replacement. These are deterministic debug fixtures, not alternative production renderers. Conversation mockups illustrate the design but do not substitute for Android rendering/device verification.
 
 Device checks should verify:
 
@@ -57,7 +69,8 @@ Device checks should verify:
 2. Rotate in fullscreen; inspect cutouts, gesture/button navigation and temporary system bars.
 3. Background and return; confirm system bars and screen-awake flags are released and restored appropriately.
 4. Exercise live WORD Karaoke and Translation, pause, seek backward, switch tracks and lose/recover the source.
-5. Read long original/translated rows at large font scale, including scrolling an oversized current slot.
+5. Read long original/translated rows at large font scale, including hidden neighbors and scrolling an oversized current block.
 6. Open PLAIN lyrics with and without playback duration, browse manually, then exit to normal Follow.
+7. Switch among bright/dark/busy covers and missing artwork; inspect portrait/landscape cropping, text contrast and the transition on both older and newer Android versions.
 
 Branch-specific build/test and device evidence belongs in `TASK.md`.

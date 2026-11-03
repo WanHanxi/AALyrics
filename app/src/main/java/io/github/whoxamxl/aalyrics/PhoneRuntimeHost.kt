@@ -268,7 +268,7 @@ internal fun PhoneRuntimeHost(
                 performanceMode = false
                 lyricsInteractionMode = LyricsViewportInteractionMode.FOLLOW
             },
-            artwork = { AlbumArtwork(image = playbackArtworkImage) },
+            artwork = playbackArtworkImage,
             onViewportInteractionModeChange = { lyricsInteractionMode = it },
         )
     } else PhoneAppShell(

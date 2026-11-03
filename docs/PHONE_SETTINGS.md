@@ -986,7 +986,7 @@ When the reset scope changes, update this document, the reset tooltip/dialog cop
 
 Bundled legal-document text, Settings-local subscreen selection, and `HelpFeedbackDestination` routing are not durable application preferences and are not reset targets. Adding or changing those read-only/transient presentation surfaces alone does not expand the `Reset AALyrics` scope.
 
-Fullscreen Performance visibility is likewise saved Phone navigation state, not a durable preference. The host explicitly clears it during Reset before onboarding is re-evaluated; its window effect restores system bars and screen-awake flags on disposal. No storage key or user-visible reset-policy change is introduced. See `PHONE_PERFORMANCE_MODE.md`.
+Fullscreen Performance visibility is likewise saved Phone navigation state, not a durable preference. The host explicitly clears it during Reset before onboarding is re-evaluated; its window effect restores system bars and screen-awake flags on disposal. Its softened album background is transient composition state derived from existing artwork and is released with the surface; no downloaded artwork or disk cache is added. No storage key or user-visible reset-policy change is introduced. See `PHONE_PERFORMANCE_MODE.md`.
 
 Both Storage and Reset explanations use the shared `SettingInfoTooltip`; explanatory subtitle text is not permanently rendered in the rows.
 

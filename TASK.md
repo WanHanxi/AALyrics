@@ -20,8 +20,8 @@
 
 - [x] Inspect approved prototype, existing fullscreen branch, artwork seam and current personal main.
 - [x] Carry existing fullscreen source onto current personal main without dropping connection-recovery changes.
-- [ ] Implement measured centered layout, responsive typography and focused geometry tests.
-- [ ] Add bounded album-background preparation, contrast/crossfade/fallback and production Previews.
+- [x] Implement measured centered layout, responsive typography and focused geometry tests.
+- [x] Add bounded album-background preparation, contrast/crossfade/fallback and production Previews.
 - [ ] Validate tests/build/architecture/whitespace under workstation limits; inspect complete branch and align docs.
 - [ ] Provide visible portrait/landscape previews and an installable Debug APK; record actual device-validation limits.
 - [ ] Push coherent checkpoints and, once all criteria are complete, open a personal Draft PR and stop.
@@ -33,3 +33,9 @@
 - Preserve the user's IDE and generated JVM configuration. Reuse successful builds after docs-only changes. Do not retry the API 37 emulator that previously forced a 4 GiB guest allocation under a 3 GiB limit.
 - Physical-device checks remain entry/exit/Back, rotation/cutouts/system bars, background/resume, artwork changes/missing artwork, bright covers, long original/translation at large font scale, WORD sweep, pause/seeks/source loss, and normal Follow restoration.
 - Origin SSH fetch currently fails because its agent cannot sign. HTTPS fetch succeeded and personal main remains `2d72cb2`; publication will be attempted through available authorized credentials after implementation.
+
+## Checkpoint evidence
+
+- Focused `:ui:phone:testDebugUnitTest :app:testDebugUnitTest` passed in 55 seconds: 74 Phone tests and 402 app tests, zero failures/errors/skips. This compiles the production Compose Previews, but is not a device-rendering result.
+- The test process verified `memory.max=3221225472` and `memory.swap.max=0`. Architecture and whitespace checks passed; the generated Gradle JVM file is unchanged.
+- HTTPS checkpoint push cannot authenticate (`could not read Username` with prompts disabled). SSH signing also failed as recorded above; local coherent commits are preserved. Check connected GitHub publication capability before declaring a final blocker.
