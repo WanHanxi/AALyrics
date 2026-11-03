@@ -21,7 +21,7 @@ internal enum class MediaConnectionRecoveryState {
 internal class MediaConnectionRecovery(
     private val scope: CoroutineScope,
     private val hasAccess: () -> Boolean,
-    private val requestRebind: () -> Unit,
+    private val requestRebind: (resetBinding: Boolean) -> Unit,
     private val record: (String, Map<String, String>) -> Unit = { _, _ -> },
 ) {
     private val mutableState = MutableStateFlow(MediaConnectionRecoveryState.IDLE)
@@ -60,10 +60,12 @@ internal class MediaConnectionRecovery(
     fun refreshAccess() = reconcile()
 
     fun reconnect() {
-        if (!demandActive || listenerConnected || recoveryJob?.isActive == true) return
+        if (!demandActive || listenerConnected || recoveryJob?.isActive == true ||
+            state.value != MediaConnectionRecoveryState.TIMED_OUT
+        ) return
         record("recovery_manual", emptyMap())
         publish(MediaConnectionRecoveryState.IDLE)
-        reconcile()
+        reconcile(resetBinding = true)
     }
 
     fun stop() {
@@ -71,7 +73,7 @@ internal class MediaConnectionRecovery(
         cancelRecovery()
     }
 
-    private fun reconcile() {
+    private fun reconcile(resetBinding: Boolean = false) {
         if (!demandActive) return
         if (!hasAccess()) {
             cancelRecovery()
@@ -96,7 +98,8 @@ internal class MediaConnectionRecovery(
                     return@launch
                 }
                 record("recovery_attempt", mapOf("attempt" to (index + 1).toString()))
-                requestRebind()
+                // Only a manual retry after timeout may reset the system binding, once per episode.
+                requestRebind(resetBinding && index == 0)
                 delay(waitMs)
             }
             if (isActive && demandActive && !listenerConnected) {

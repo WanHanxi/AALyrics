@@ -4,6 +4,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.media.session.MediaSession
 import android.media.session.MediaSessionManager
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.service.notification.NotificationListenerService
@@ -82,21 +83,19 @@ class MediaSessionListenerService : NotificationListenerService() {
          * Android Auto can recreate the app process through the media-browser service while the
          * Phone Activity remains closed. Re-requesting this binding lets active-session observation
          * recover independently of the Activity lifecycle.
+         *
+         * Only a user-requested retry after timeout sets [resetBinding]. API 34+ can unbind our
+         * component without a live service instance, then request a fresh binding immediately.
          */
-        fun requestSystemRebind(context: Context) {
-            MediaConnectionDiagnostics.record("rebind_requested")
-            runCatching {
-                NotificationListenerService.requestRebind(
-                    ComponentName(context, MediaSessionListenerService::class.java),
-                )
-            }.onSuccess {
-                // The request returning does not prove that Android has connected the service.
-                MediaConnectionDiagnostics.record("rebind_request_returned")
-            }.onFailure { failure ->
-                MediaConnectionDiagnostics.record("rebind_request_failed") {
-                    mapOf("exception" to failure.javaClass.simpleName)
-                }
-            }
+        fun requestSystemRebind(context: Context, resetBinding: Boolean = false) {
+            val component = ComponentName(context, MediaSessionListenerService::class.java)
+            requestMediaListenerRebind(
+                resetBinding = resetBinding,
+                requestUnbind = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    { NotificationListenerService.requestUnbind(component) }
+                } else null,
+                requestRebind = { NotificationListenerService.requestRebind(component) },
+            )
         }
     }
 }

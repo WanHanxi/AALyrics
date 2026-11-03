@@ -208,7 +208,7 @@ The Debug application also records permission and lifecycle/demand facts, normal
 
 ### Bounded binding recovery
 
-Production recovery now distinguishes actual listener binding from player availability. Phone foreground and both Automotive demand sources share immediate/5s/15s rebind attempts, a 30s timeout, and actual-callback success handling. The Phone status offers manual retry and notification-settings navigation. Debug diagnostics also include recovery transitions and limited Android process-exit facts. The complete policy, reset decision and physical-device handoff are in `docs/MEDIA_CONNECTION_RECOVERY.md`.
+Production recovery now distinguishes actual listener binding from player availability. Phone foreground and both Automotive demand sources share immediate/5s/15s rebind attempts, a 30s timeout, and actual-callback success handling. The Phone status offers manual retry and notification-settings navigation. After timeout, a manual retry on API 34+ requests one component unbind immediately followed by rebind; automatic requests stay non-resetting, and older versions or an unbind failure fall back to ordinary rebind. Debug diagnostics distinguish unbind/rebind requests from actual connection callbacks and also include recovery transitions and limited Android process-exit facts. The complete policy, reset decision and physical-device handoff are in `docs/MEDIA_CONNECTION_RECOVERY.md`.
 
 ## Phone playback-surface follow-up
 

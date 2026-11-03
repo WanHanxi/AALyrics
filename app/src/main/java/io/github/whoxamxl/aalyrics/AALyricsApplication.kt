@@ -461,7 +461,9 @@ class AALyricsApplication : Application() {
         mediaConnectionRecovery = MediaConnectionRecovery(
             scope = CoroutineScope(applicationScope.coroutineContext + Dispatchers.Main.immediate),
             hasAccess = { isNotificationAccessGranted(this) },
-            requestRebind = { MediaSessionListenerService.requestSystemRebind(this) },
+            requestRebind = { resetBinding ->
+                MediaSessionListenerService.requestSystemRebind(this, resetBinding)
+            },
             record = { event, fields -> MediaConnectionDiagnostics.record(event) { fields } },
         )
         lyricsTimingSettings = createLyricsTimingSettings(this)

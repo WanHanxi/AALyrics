@@ -105,7 +105,7 @@ Records include UTC/monotonic timestamps, build/device identity, package names, 
 
 Storage is private `noBackupFilesDir/connection-diagnostics`: four 256 KiB event files and three 128 KiB incident files (1.375 MiB total). A 256-command queue bounds pending work; IO runs off the main thread. Export waits for earlier accepted events and reports dropped-event and write-failure totals. Old events/incidents rotate across process restarts. Diagnostics intentionally survive Reset AALyrics so resetting while troubleshooting does not erase evidence; the Debug reset dialog says so. Android Clear storage or uninstall removes local records. Exported copies are user-owned and remain outside the reset/storage boundary. Compose previews cover the export row at normal/narrow/landscape sizes and the diagnostic-retention reset dialog.
 
-The production connection-recovery policy is independent of this Debug observer. It adds no durable preferences or reset target; system access and retained diagnostic records keep their existing reset treatment. See `MEDIA_CONNECTION_RECOVERY.md` for automatic retry and the Phone status action.
+The production connection-recovery policy is independent of this Debug observer. After timeout, the Phone Reconnect action on Android 14+ requests one listener unbind/rebind pair without revoking notification access; automatic retries remain ordinary rebind requests. Unbind request/return/failure events are recorded separately from an actual connection. Recovery adds no durable preferences or reset target; system access and retained diagnostic records keep their existing reset treatment. See `MEDIA_CONNECTION_RECOVERY.md` for the complete retry policy and notification-access Settings fallback.
 
 ## Destination composition
 
