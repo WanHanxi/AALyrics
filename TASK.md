@@ -1,6 +1,13 @@
 # Phone Performance mode: centered lyrics and album background
 
-## Active follow-up: space-preferred wrapping (2026-11-03)
+## Active follow-up: current translation contrast (2026-11-03)
+
+- The owner approved using the same white color for the current fullscreen original and its translation. The smaller translation typography continues to distinguish the two; previous/next context stays gray.
+- Implemented with the existing `TextPrimary` color token. Existing portrait/landscape translated Compose Previews exercise the production change. This adds no state or reset behavior.
+- Validate through the Debug build and architecture/whitespace checks; no additional unit test is needed for this color-only presentation change.
+- APK delivery preference: keep future builds local and report their paths. Do not upload to Google Drive. The existing no-PR visual-design gate remains in effect.
+
+## Completed follow-up: space-preferred wrapping (2026-11-03)
 
 - The owner approved prioritizing existing spaces for fullscreen line breaks after a phone screenshot split `這天` across lines. Continue on the existing personal topic branch; the visual-design gate still defers PR creation.
 - Measure real text width, keep complete space-delimited phrases together when possible, and retain platform wrapping for oversized phrases. Cover original/neighbor/translated text, orientation/font changes and existing explicit newlines.

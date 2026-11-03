@@ -198,7 +198,7 @@ private fun PerformanceTimedLyrics(
                             PerformanceText(
                                 text = it,
                                 style = translationStyle,
-                                color = AALyricsColors.TextSecondary,
+                                color = AALyricsColors.TextPrimary,
                             )
                         }
                     }
