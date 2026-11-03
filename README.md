@@ -14,13 +14,13 @@
 
 <p align="center">
   <a href="https://www.android.com/"><img src="https://img.shields.io/badge/Android-8.0%2B-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android 8.0+" /></a>
-  <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/AALyrics-1.0_Beta-43DFF5?style=for-the-badge" alt="AALyrics 1.0 Beta" /></a>
+  <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/AALyrics-1.1_Beta-43DFF5?style=for-the-badge" alt="AALyrics 1.1 Beta" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-PolyForm_Noncommercial-59636E?style=for-the-badge" alt="PolyForm Noncommercial" /></a>
 </p>
 
 <p align="center">
   <a href="https://www.buymeacoffee.com/whoxamxi"><img src="https://img.shields.io/badge/Support-Buy_Me_a_Coffee-FFDD00?style=for-the-badge&logo=buymeacoffee&logoColor=000000" height="40" alt="Support AALyrics on Buy Me a Coffee" /></a>
-  <a href="https://github.com/whoxamxl/AALyrics/releases"><img src="https://img.shields.io/badge/Download_APK-GitHub_Releases-181717?style=for-the-badge&logo=github&logoColor=white" height="40" alt="Download AALyrics APK from GitHub Releases" /></a>
+  <a href="https://github.com/WanHanxi/AALyrics/releases"><img src="https://img.shields.io/badge/Download_APK-GitHub_Releases-181717?style=for-the-badge&logo=github&logoColor=white" height="40" alt="Download AALyrics APK from GitHub Releases" /></a>
 </p>
 
 ### Android Auto experience
@@ -57,14 +57,18 @@ AALyrics observes the active Android media session, matches the current track ag
 - **Multiple lyrics providers** — LRCLIB, PetitLyrics, Musixmatch, and SyncLRC with provider-independent candidate selection.
 - **On-device Translation** — translated lyrics remain tied to the canonical lyric document and playback timing.
 - **Experimental WORD_SYNC Karaoke** — opt-in Phone presentation for genuine word-timed lyrics.
+- **Fullscreen Phone lyrics** — centered lyrics and translations over a softened album-art background, with portrait and landscape support.
+- **Lyrics calibration** — three-tap sync, fine adjustments and exact offset entry shared with Android Auto.
 - **Phone playback surface** — play/pause, previous/next, seek, relative seek, and Queue support where the active media app exposes them.
 - **Built-in updates** — signed GitHub Release APK discovery, SHA-256 verification, package/signing preflight, and Android PackageInstaller handoff.
+
+This is [WanHanxi’s personal fork](https://github.com/WanHanxi/AALyrics) of [the original AALyrics project](https://github.com/whoxamxl/AALyrics). The planned first personal release is **1.1 Beta 1**; see [release setup and validation](docs/RELEASES.md). Original licensing, notices and support links retain their upstream attribution.
 
 ## Get AALyrics
 
 AALyrics requires **Android 8.0 (API 26) or later** and is distributed outside Google Play as a **signed APK through GitHub Releases**.
 
-**[Open GitHub Releases →](https://github.com/whoxamxl/AALyrics/releases)**
+**[Open GitHub Releases →](https://github.com/WanHanxi/AALyrics/releases)**
 
 1. Download the current signed `AALyrics-vX.Y.Z[-channel.N].apk`.
 2. Install the APK. Android may ask you to allow the browser or file manager to install unknown apps.
@@ -76,7 +80,7 @@ Each Release also includes a matching `.sha256` file for APK integrity verificat
 After the first release-signed installation, later AALyrics releases signed with the same key can update the installed app normally. AALyrics can also discover, verify, and hand off newer releases through its in-app update flow.
 
 > [!NOTE]
-> Current Debug and Release builds use separate application IDs and can coexist. If you installed a Debug build from before this split, uninstall that legacy Debug build before installing the first signed Release APK because it used the Release application ID with a different signing identity.
+> The personal app is labeled **AALyrics Fork** (or **AALyrics Fork Debug**) and can coexist with upstream. Install it as a new app: original-app settings, cached lyrics and Android permissions do not transfer. Enable Notification access and select the new app in Android Auto. Future personal Release builds use the same personal signing key and can update this installation.
 
 ## Android Auto
 
@@ -92,17 +96,17 @@ To enable it:
 
 The host receives the active track, artwork, supported playback actions, current synchronized lyric line, and an eligible translated line when available. Android Auto controls the final layout and text truncation.
 
-## AALyrics 1.0 Beta
+## AALyrics 1.1 Beta
 
 AALyrics has moved beyond the construction-only stage. Its primary purpose — following lyrics for the track currently playing — is functional on Phone and Android Auto.
 
-The **1.0 Beta** line means the intended product identity and core experience are established, while some advanced functionality is still evolving:
+The **1.1 Beta** line means the intended product identity and core experience are established, while some advanced functionality is still evolving:
 
 - Manual Sync calibration is available in this fork: three-tap calibration, ±50/500 ms, exact millisecond entry, live preview, and a saved global offset shared by Phone and Android Auto. Per-song and automatic calibration remain future work.
 - Phone WORD_SYNC Karaoke remains experimental and opt-in.
 - Android Auto is currently line-oriented Now Playing rather than full Phone feature parity or Karaoke presentation.
 
-These are Beta limitations, not a claim that the app is feature-complete or ready for a stable `1.0.0` release.
+These are Beta limitations, not a claim that the app is feature-complete or ready for a stable `1.1.0` release.
 
 ## Lyrics, Translation & Karaoke
 
@@ -176,7 +180,9 @@ Start with:
 - [Release policy](docs/RELEASES.md)
 - [Roadmap](docs/ROADMAP.md)
 
-Package: `io.github.whoxamxl.aalyrics`
+Release package: `io.github.wanhanxi.aalyrics`
+
+Debug package: `io.github.wanhanxi.aalyrics.debug`; source namespace: `io.github.whoxamxl.aalyrics`.
 
 </details>
 

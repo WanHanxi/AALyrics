@@ -700,10 +700,10 @@ Source code                  GitHub   [external-link icon]
 
 The trailing glyph is a proper external-link icon rather than a text arrow. The row is visually distinct from internal navigation rows, which continue to use the standard chevron.
 
-Canonical repository:
+Canonical personal repository:
 
 ```text
-https://github.com/whoxamxl/AALyrics
+https://github.com/WanHanxi/AALyrics
 ```
 
 ## About & Support section

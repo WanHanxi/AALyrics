@@ -80,8 +80,17 @@ Do not append personal features or fork-specific policy changes to `feature/lyri
 
 A newly authorized upstream contribution should start from `upstream/main`, not personal `main`, and include only the intended changes. Consult the original repository's contribution policy and select `whoxamxl/AALyrics` explicitly for that PR. No upstream submission or merge is implied by personal development.
 
-## Separate application distribution decisions
+## Personal application distribution
 
-Git remote setup does not change the APK's update destination or installation identity. The update client currently queries `whoxamxl/AALyrics` releases; source/release/help links and application IDs also retain the original project's values.
+The personal release channel targets `WanHanxi/AALyrics`. In-app update discovery, release download pages and the Source code row use this repository. Kotlin namespaces and the original license/notices remain unchanged.
 
-Before establishing a personal release channel, separately decide the update source or whether to disable in-app update discovery, personal release/versioning policy, and signing identity. A distinct application ID is needed if the personal release should coexist with the original release. These are future product/build changes, not part of this workflow setup; see `docs/RELEASES.md` and `docs/UPDATE_UX.md`.
+- Release application ID: `io.github.wanhanxi.aalyrics`; launcher/Android Auto label: `AALyrics Fork`.
+- Debug application ID: `io.github.wanhanxi.aalyrics.debug`; label: `AALyrics Fork Debug`.
+- Personal releases use their own durable signing key, independent of the original author and Android Debug keys.
+- First personal target: `v1.1.0-beta.1`. Version tags remain independent of upstream's release schedule.
+
+The new package can coexist with upstream and earlier Debug installs. It is a fresh installation: app settings/cache and Android permissions are separate, with no automatic migration. Later personal releases must retain this package identity and signing key and increase `versionCode`.
+
+Existing upstream community/support links remain attributed to upstream; this change does not create a personal Issues/Discussions service. Personal Issues and Discussions are currently disabled. Do not report personal-only defects upstream as if they were original-app bugs.
+
+Release signing setup, missing provider credentials, verification and the no-tag-before-approval procedure are documented in `docs/RELEASES.md`. Repository setup and a successful local build alone do not establish a working hosted release channel.

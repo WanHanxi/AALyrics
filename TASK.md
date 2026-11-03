@@ -10,7 +10,7 @@
 ## Checkpoints
 
 - [x] Route update discovery and distribution links to the personal repository; separate the install identity while preserving Kotlin namespaces and upstream attribution.
-- [ ] Curate `1.1.0-beta.1` Changelog with user-facing highlights, installation guidance, fixes and actual limitations; align release documentation.
+- [x] Curate `1.1.0-beta.1` Changelog with user-facing highlights, installation guidance, fixes and actual limitations; align release documentation.
 - [ ] Create and verify a durable personal release key outside Git, prepare repeatable release checks, and inspect available GitHub Actions configuration.
 - [ ] Run architecture checks and relevant tests/builds sequentially under the verified 3 GiB / zero-swap budget; inspect the signed APK identity, certificate and bundled changelog.
 - [ ] Review the complete branch, record validation and external prerequisites, push coherent checkpoints and open the personal Draft PR.
