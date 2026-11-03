@@ -13,7 +13,7 @@
 - [x] Make PetitLyrics optional in Gradle configuration, production composition and the Release secret gate; retain mandatory release signing.
 - [x] Align Changelog, Privacy, README, provider/composition and release documentation with the default three-source build.
 - [x] Verify absent/complete/partial configuration, provider/graph tests, architecture and the signed candidate under the workstation resource budget.
-- [ ] Review the branch diff, push coherent checkpoints, verify hosted CI and update Draft PR #4; stop before merge/tag.
+- [x] Review the branch diff, push coherent checkpoints, verify hosted CI and update Draft PR #4; stop before merge/tag.
 
 ## Decisions and boundaries
 
@@ -45,7 +45,8 @@
 - Exercised the actual Release workflow signing gate with synthetic inputs: it accepts missing PetitLyrics configuration and rejects each missing required signing field. The signed build still receives optional provider variables for authoritative Gradle validation.
 - Current signed candidate: `app/build/outputs/apk/release/aalyrics-personal-1.1.0-beta.1-validation.apk`, 84409579 bytes; SHA256 `54b2f67dafd52b37ac89f49a1593ae2bdf4183a2196058be122330c435cf416b`. Package `io.github.wanhanxi.aalyrics`, label `AALyrics`, version `1.1.0-beta.1`, code `1001`, and the pinned personal certificate all pass inspection. The six bundled documents match current source, all four generated Release provider fields are empty, and synthetic configuration is absent from APK code.
 - Architecture and whitespace checks pass. Rechecked the cumulative branch scope and personal remote main, still `175e821`. No provider implementation, reset code, UI flow, signing key or upstream-facing branch was changed by this follow-up. Generated JVM settings retain their recorded hash.
-- Pending: push the optional-source checkpoint, verify hosted CI on that source and refresh Draft PR #4.
+- Optional-source checkpoint `15ce4ea` is pushed. [Hosted Build 41626517577](https://github.com/WanHanxi/AALyrics/actions/runs/41626517577) passed on that exact source in 5m 12s: architecture, Debug APK, unit tests and both Debug artifact uploads. As before, no automatic run was visible after the push; an explicit manual Build dispatch supplied this verification. No publication workflow was triggered.
+- Draft PR #4 now describes the optional provider and the current local/hosted results, with no missing-PetitLyrics publication blocker. The remaining record-only commit changes TASK.md, so it reuses the successful APKs and CI. All task Gradle scopes are inactive/not loaded; no emulator was started. Stop without ready conversion, review request, merge or tag.
 
 ## Publication handoff
 
