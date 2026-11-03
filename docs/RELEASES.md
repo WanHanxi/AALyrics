@@ -127,7 +127,7 @@ Do not rotate the release key casually. A signing-key change requires an explici
 
 The checked-in source/configuration can be prepared and reviewed before publishing. These are separate gates:
 
-1. **Repository setup:** in `WanHanxi/AALyrics`, enable GitHub Actions if the fork workflow banner requests it. Check the Build workflow can run; zero recorded runs is not a successful CI check.
+1. **Repository setup:** the personal Build and Release workflows are active. Build runs on `main` and `release/**` pushes, PRs and manual dispatch; check a successful run for the reviewed revision. Release-branch/PR Build checks do not receive provider secrets. If a fresh fork shows the Actions enablement banner, enable it before testing; zero recorded runs is not a successful CI check.
 2. **Personal signing:** install the four signing secrets above in this repository. Keep the keystore/password backup outside Git and independently of GitHub Secrets. Never paste private signing data into issues, PRs or logs.
 3. **PetitLyrics:** provide the four existing provider credential values above. Forking does not copy upstream Secrets. Do not replace `PETITLYRICS_PKG_NAME` with the new Android application ID; this is a provider client identity, and changing it is not part of application renaming. The owner currently has no known local credential file; this remains a publication prerequisite, and the workflow deliberately fails if it is missing.
 4. **CI and signed candidate:** run Build on the reviewed branch (manual dispatch may target it after Actions is enabled). The optional `update_test_release_signed` fixture checks signing without publishing. The Release workflow independently tests and verifies the actual tagged artifact before publication.
@@ -199,7 +199,7 @@ On Windows PowerShell, convert the keystore to the single-line Base64 value used
 
 After the intended commit is merged into `main`, ensure the release version is the newest entry in repository-root `CHANGELOG.md`, then create and push the version tag.
 
-For the first personal release, complete the preparation PR and obtain explicit merge/release approval first. Confirm that the signing and provider prerequisites below are complete and that the release date in Changelog is still correct. Then, from a clean checkout:
+For the first personal release, complete the preparation PR and obtain explicit merge/release approval first. Confirm that the signing and provider prerequisites above are complete and that the release date in Changelog is still correct. Then, from a clean checkout:
 
 ```bash
 git switch main

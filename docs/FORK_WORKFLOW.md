@@ -58,7 +58,7 @@ Use an actual GitHub PR for integration. If the connector cannot create or merge
 
 After a confirmed PR merge, fetch `origin`, fast-forward local `main`, and delete the task's completed remote and local topic branches plus temporary integration branches. For a squash merge, confirm the PR is merged and that its merged head contains all work on the branch before deleting it; `git branch --merged` alone is insufficient. Keep branches with unmerged changes, unrelated active work, and reserved upstream contributions. If PR integration is blocked, retain the pending source branch and clean only temporary branches whose work is already safely recorded.
 
-The existing Build workflow listens to pushes to `main`, pull requests, and manual dispatch. Ordinary feature-branch pushes alone do not start Build. GitHub Actions must be enabled in the fork for its workflows to run.
+The Build workflow listens to pushes to `main` and `release/**`, pull requests, and manual dispatch. Release-preparation branches therefore receive CI before a PR is opened. Ordinary feature-branch pushes alone do not start Build. GitHub Actions must be enabled in the fork for its workflows to run. Provider secrets remain restricted to pushes to `main`; release-branch and PR checks do not receive them.
 
 ## Periodic upstream updates
 

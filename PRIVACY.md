@@ -117,7 +117,7 @@ The Privacy Policy shipped inside AALyrics is bundled from this repository's `PR
 
 ## Contact
 
-AALyrics is maintained by Yuta Miura (`whoxamxl`).
+The original AALyrics project is maintained by Yuta Miura (`whoxamxl`). This personal fork is maintained by `WanHanxi`.
 
 For privacy-related questions, use the AALyrics GitHub repository. Avoid posting sensitive personal information in a public issue or discussion.
 
