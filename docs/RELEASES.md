@@ -444,7 +444,7 @@ The Settings `Changelog` entry remains independent of the update-network path. I
 
 ## Installation and updates
 
-Personal Release uses `io.github.wanhanxi.aalyrics` and Debug uses `io.github.wanhanxi.aalyrics.debug`. They can coexist with upstream (`io.github.whoxamxl.aalyrics`) and earlier upstream-identity Debug builds. Kotlin namespaces remain unchanged. The launcher and Android Auto labels distinguish `AALyrics Fork` and `AALyrics Fork Debug`.
+Personal Release uses `io.github.wanhanxi.aalyrics` and Debug uses `io.github.wanhanxi.aalyrics.debug`. They can coexist with upstream (`io.github.whoxamxl.aalyrics`) and earlier upstream-identity Debug builds. Kotlin namespaces remain unchanged. The owner keeps the original display names `AALyrics` and `AALyrics Debug`; Android distinguishes the original and personal apps by package ID.
 
 Install the first personal build as a new app. Upstream settings, lyrics cache, downloaded models and Android permissions are not migrated. Enable Notification access for the new app and select it in Android Auto. This identity change adds no persisted preference and does not broaden Reset AALyrics; Android-owned permissions and each package's separate storage remain outside cross-app reset behavior.
 

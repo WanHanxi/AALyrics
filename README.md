@@ -80,7 +80,7 @@ Each Release also includes a matching `.sha256` file for APK integrity verificat
 After the first release-signed installation, later AALyrics releases signed with the same key can update the installed app normally. AALyrics can also discover, verify, and hand off newer releases through its in-app update flow.
 
 > [!NOTE]
-> The personal app is labeled **AALyrics Fork** (or **AALyrics Fork Debug**) and can coexist with upstream. Install it as a new app: original-app settings, cached lyrics and Android permissions do not transfer. Enable Notification access and select the new app in Android Auto. Future personal Release builds use the same personal signing key and can update this installation.
+> The personal app is labeled **AALyrics** (or **AALyrics Debug**) and can coexist with upstream. Install it as a new app: original-app settings, cached lyrics and Android permissions do not transfer. Enable Notification access and select the new app in Android Auto. Future personal Release builds use the same personal signing key and can update this installation.
 
 ## Android Auto
 

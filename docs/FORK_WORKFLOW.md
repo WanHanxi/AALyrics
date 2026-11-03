@@ -84,8 +84,8 @@ A newly authorized upstream contribution should start from `upstream/main`, not 
 
 The personal release channel targets `WanHanxi/AALyrics`. In-app update discovery, release download pages and the Source code row use this repository. Kotlin namespaces and the original license/notices remain unchanged.
 
-- Release application ID: `io.github.wanhanxi.aalyrics`; launcher/Android Auto label: `AALyrics Fork`.
-- Debug application ID: `io.github.wanhanxi.aalyrics.debug`; label: `AALyrics Fork Debug`.
+- Release application ID: `io.github.wanhanxi.aalyrics`; launcher/Android Auto label: `AALyrics`.
+- Debug application ID: `io.github.wanhanxi.aalyrics.debug`; label: `AALyrics Debug`.
 - Personal releases use their own durable signing key, independent of the original author and Android Debug keys.
 - First personal target: `v1.1.0-beta.1`. Version tags remain independent of upstream's release schedule.
 

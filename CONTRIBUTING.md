@@ -32,7 +32,7 @@ Debug and release builds intentionally use separate Android application IDs so t
 - Debug: `io.github.wanhanxi.aalyrics.debug`
 - Release: `io.github.wanhanxi.aalyrics`
 
-The Kotlin/Android namespace remains `io.github.whoxamxl.aalyrics`; the personal install-time application IDs are independent of upstream. The launcher and Android Auto labels are `AALyrics Fork` and `AALyrics Fork Debug`, so both are distinguishable from the original app. This is a fresh installation: original-app settings, cached lyrics and permissions are not migrated.
+The Kotlin/Android namespace remains `io.github.whoxamxl.aalyrics`; the personal install-time application IDs are independent of upstream. The launcher and Android Auto labels are `AALyrics` and `AALyrics Debug`; the personal and original apps are distinguished by package ID. This is a fresh installation: original-app settings, cached lyrics and permissions are not migrated.
 
 Do not use a normal debug build to validate the production self-update path. Published releases target the release application ID and durable release signing identity; use the dedicated release-signed update-test workflow when production update compatibility must be exercised.
 

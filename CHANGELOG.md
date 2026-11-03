@@ -4,9 +4,9 @@ This first personal-fork beta adds a fullscreen lyrics view with album artwork, 
 
 ### Installation notes
 
-This is the **WanHanxi personal fork**, based on upstream AALyrics 1.0 Beta 1. It installs as **AALyrics Fork**, alongside the original app, and checks for updates in `WanHanxi/AALyrics`.
+This is the **WanHanxi personal fork**, based on upstream AALyrics 1.0 Beta 1. It installs as **AALyrics**, alongside the original app, and checks for updates in `WanHanxi/AALyrics`.
 
-The new package has its own signing identity and storage. It does not replace the original app or earlier Debug builds, and their settings and cached lyrics are not copied. Enable Notification access for the new app; Android Auto users should also select **AALyrics Fork** in the launcher settings.
+The new package has its own signing identity and storage. It does not replace the original app or earlier Debug builds, and their settings and cached lyrics are not copied. Enable Notification access for the new app; Android Auto users should also select **AALyrics** in the launcher settings.
 
 ### New features
 
@@ -18,7 +18,7 @@ The new package has its own signing identity and storage. It does not replace th
 
 - Recover missing media-listener connections with a limited retry sequence while Phone or Android Auto needs lyrics. A failed attempt now shows a connection dialog instead of leaving an endless Connecting state.
 - On Android 14 and later, manual Reconnect can reset a stalled listener binding before retrying. Notification access settings remain available when Android still does not reconnect.
-- Separate personal Release and Debug installations from upstream, with distinct launcher/Android Auto names and a personal signed-update channel.
+- Separate personal Release and Debug installations from upstream, with independent package IDs and a personal signed-update channel.
 
 ### Development builds
 
