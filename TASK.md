@@ -5,7 +5,7 @@
 - The owner selected the compact centered design and approved implementation with a softly blurred, darkened album-art background on 2026-11-02. Cover portrait and landscape; keep current lyrics and their translation readable at large font scales.
 - Continue the unmerged Phone fullscreen implementation on personal main `2d72cb2`, retaining its notification-listener recovery fixes. Branch `feature/phone-performance-redesign` follows the repository's CI branch-name policy. The original Performance branch and the reserved upstream Sync branch remain untouched.
 - Carry forward fullscreen entry/exit, resumed-only immersive/screen-awake effects, authoritative three-row selection, shared WORD Karaoke and PLAIN fallback. Do not alter providers, timing, Translation execution, playback controls or Android Auto.
-- No PR during implementation or before the selected design is settled. Complete implementation, validation and visual handoff before a personal Draft PR; no merge or review request is authorized.
+- The owner explicitly asked for no PR before the visual design is settled. Implement the selected direction, finish validation, and hand over the preview/APK for visual feedback; defer PR creation until that design gate is cleared. No merge or review request is authorized.
 
 ## Acceptance criteria
 
@@ -25,7 +25,7 @@
 - [x] Validate tests/build/architecture/whitespace under workstation limits; inspect complete branch and align docs.
 - [x] Prepare visible portrait/landscape previews and an installable Debug APK; record actual device-validation limits.
 - [x] Publish coherent checkpoints to the personal feature branch through the GitHub connector, verifying every tree against the local commit.
-- Publication handoff: publish this final documentation checkpoint, open a Draft PR against `WanHanxi/AALyrics:main`, then stop. No merge, Ready transition or review request is authorized.
+- Publication handoff: publish this final documentation checkpoint and provide the preview/APK, then stop for the owner's visual feedback. Do not open a PR yet under the explicit design gate above. A later authorized Draft PR must target `WanHanxi/AALyrics:main`.
 
 ## Verification budget and handoff
 
