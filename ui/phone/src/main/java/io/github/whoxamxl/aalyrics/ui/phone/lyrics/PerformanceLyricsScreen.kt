@@ -15,18 +15,22 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -191,12 +195,10 @@ private fun PerformanceTimedLyrics(
                     ) {
                         PerformanceLine(frame.current, currentStyle, current = true, karaoke = karaoke)
                         frame.current?.translatedText?.takeIf(String::isNotBlank)?.let {
-                            Text(
+                            PerformanceText(
                                 text = it,
                                 style = translationStyle,
                                 color = AALyricsColors.TextSecondary,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth(),
                             )
                         }
                     }
@@ -236,19 +238,48 @@ private fun PerformanceLine(
     val instrumental = line?.text.isNullOrBlank()
     val text = if (instrumental) "♪" else line.text
     val safeKaraoke = if (current && !instrumental) validKaraokeLine(text, karaoke) else null
-    if (safeKaraoke != null) {
-        KaraokeLineText(text, safeKaraoke, style, textAlign = TextAlign.Center)
-    } else {
-        val noteDescription = stringResource(R.string.performance_instrumental)
-        Text(
-            text = text,
-            modifier = Modifier.fillMaxWidth().then(
-                if (instrumental) Modifier.semantics { contentDescription = noteDescription }
-                else Modifier,
-            ),
-            style = style,
-            color = if (current) AALyricsColors.TextPrimary else AALyricsColors.TextSecondary,
-            textAlign = TextAlign.Center,
-        )
+    val noteDescription = stringResource(R.string.performance_instrumental)
+    PerformanceText(
+        text = text,
+        style = style,
+        color = if (current) AALyricsColors.TextPrimary else AALyricsColors.TextSecondary,
+        karaoke = safeKaraoke,
+        modifier = if (instrumental) Modifier.semantics { contentDescription = noteDescription } else Modifier,
+    )
+}
+
+@Composable
+private fun PerformanceText(
+    text: String,
+    style: TextStyle,
+    color: Color,
+    modifier: Modifier = Modifier,
+    karaoke: KaraokeLineUiState? = null,
+) {
+    val textMeasurer = rememberTextMeasurer()
+    val resolvedStyle = LocalTextStyle.current.merge(style)
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        val width = constraints.maxWidth
+        // Recompute for text/width/font changes, never for progress-only Karaoke updates.
+        val displayText = remember(text, resolvedStyle, width, textMeasurer) {
+            performanceWrappedText(text) { candidate ->
+                textMeasurer.measure(
+                    text = candidate,
+                    style = resolvedStyle,
+                    softWrap = false,
+                ).multiParagraph.maxIntrinsicWidth <= width
+            }
+        }
+        if (karaoke != null) {
+            KaraokeLineText(displayText, karaoke, resolvedStyle, textAlign = TextAlign.Center)
+        } else {
+            Text(
+                text = displayText,
+                style = resolvedStyle,
+                color = color,
+                textAlign = TextAlign.Center,
+                modifier = modifier.fillMaxWidth(),
+            )
+        }
     }
 }

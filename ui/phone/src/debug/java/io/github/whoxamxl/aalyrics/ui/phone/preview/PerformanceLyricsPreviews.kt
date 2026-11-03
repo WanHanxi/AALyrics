@@ -9,6 +9,8 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.whoxamxl.aalyrics.core.model.LyricsSyncType
 import io.github.whoxamxl.aalyrics.ui.designsystem.theme.AALyricsTheme
+import io.github.whoxamxl.aalyrics.ui.phone.lyrics.KaraokeLineUiState
+import io.github.whoxamxl.aalyrics.ui.phone.lyrics.KaraokeSweepUiState
 import io.github.whoxamxl.aalyrics.ui.phone.lyrics.LyricsScreen
 import io.github.whoxamxl.aalyrics.ui.phone.lyrics.LyricsScreenUiState
 import io.github.whoxamxl.aalyrics.ui.phone.lyrics.LyricsViewportLineUiState
@@ -69,6 +71,46 @@ private val performanceAlbumState = LyricsScreenUiState(
         ),
     ),
 )
+
+private val performanceSpaceWrapState = performanceAlbumState.copy(
+    trackCard = performanceAlbumState.trackCard.copy(title = "空格断行示例"),
+    viewport = performanceAlbumState.viewport.copy(
+        lines = listOf(
+            LyricsViewportLineUiState("晚風輕輕吹過 街燈慢慢亮起"),
+            LyricsViewportLineUiState(
+                "原來幻想中的這天 會比幻想更唯美",
+                translatedText = "This moment feels even more beautiful than we imagined",
+            ),
+            LyricsViewportLineUiState("把這一刻留在眼前 讓歌聲繼續"),
+        ),
+    ),
+)
+
+@Preview(name = "Space wrapping · reported landscape", group = "Performance", widthDp = 740, heightDp = 360)
+@Preview(name = "Space wrapping · portrait", group = "Performance", widthDp = 360, heightDp = 780)
+@Preview(name = "Space wrapping · large font", group = "Performance", widthDp = 360, heightDp = 640, fontScale = 1.8f)
+@Composable
+internal fun PerformanceSpaceWrapPreview() {
+    PerformancePreview(performanceSpaceWrapState, rememberPerformanceCover(PerformanceCover.NIGHT))
+}
+
+@Preview(name = "WORD across space break · landscape", group = "Performance", widthDp = 740, heightDp = 360)
+@Preview(name = "WORD across space break · portrait", group = "Performance", widthDp = 360, heightDp = 780)
+@Composable
+internal fun PerformanceSpaceWrapKaraokePreview() {
+    PerformancePreview(
+        performanceSpaceWrapState.copy(
+            viewport = performanceSpaceWrapState.viewport.copy(
+                syncType = LyricsSyncType.WORD,
+                karaokeLine = KaraokeLineUiState(
+                    completedEnd = 6,
+                    sweep = KaraokeSweepUiState(start = 6, end = 12, progress = 0.65f),
+                ),
+            ),
+        ),
+        rememberPerformanceCover(PerformanceCover.NIGHT),
+    )
+}
 
 @Preview(name = "Three rows · translated", group = "Performance", widthDp = 412, heightDp = 892)
 @Preview(name = "Landscape", group = "Performance", widthDp = 892, heightDp = 412)

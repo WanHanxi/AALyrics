@@ -1,5 +1,17 @@
 # Phone Performance mode: centered lyrics and album background
 
+## Active follow-up: space-preferred wrapping (2026-11-03)
+
+- The owner approved prioritizing existing spaces for fullscreen line breaks after a phone screenshot split `這天` across lines. Continue on the existing personal topic branch; the visual-design gate still defers PR creation.
+- Measure real text width, keep complete space-delimited phrases together when possible, and retain platform wrapping for oversized phrases. Cover original/neighbor/translated text, orientation/font changes and existing explicit newlines.
+- Keep canonical text and UTF-16 Karaoke offsets unchanged; do not alter timing, providers, normal scrolling lyrics, durable state or reset behavior.
+- [x] Implement focused wrapping and regression tests, including the reported Chinese line and WORD offsets.
+- [x] Add native Compose Preview cases for portrait/landscape, large fonts and wrapped WORD sweep; align the fullscreen documentation.
+- [ ] Validate Phone tests, architecture/whitespace and the updated Debug APK within the workstation memory budget.
+- [ ] Publish the coherent checkpoint and deliver the updated privately uploaded APK for phone verification. No PR yet.
+
+Follow-up validation: `:ui:phone:testDebugUnitTest` passed (85 tests in 12 suites, including 11 new wrapping regressions; zero failures/errors/skips). The run verified `memory.max=3221225472` and `memory.swap.max=0`, using one worker and in-process Kotlin. Production Preview fixtures compile, including the reported Chinese line and a WORD sweep across the replaced separator. Architecture and whitespace checks passed. Native rendering remains a phone-verification handoff rather than a claimed emulator result.
+
 ## Approved scope
 
 - The owner selected the compact centered design and approved implementation with a softly blurred, darkened album-art background on 2026-11-02. Cover portrait and landscape; keep current lyrics and their translation readable at large font scales.

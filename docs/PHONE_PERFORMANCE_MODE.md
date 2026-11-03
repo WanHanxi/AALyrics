@@ -23,6 +23,8 @@ The current line includes its already identity-gated translated text when availa
 
 Every row is measured at its actual wrapped size. If the complete group does not fit, hide the previous row first, then the next if necessary. Never ellipsize or shrink the current lyric: its original and translation share a scroll container constrained to the lyric area, so even an oversized line remains fully reachable. Scroll position resets when the displayed current line changes. Missing neighbors reserve no empty slots; hidden rows do not overlap the current block or the exit control.
 
+Fullscreen originals, neighbors and translations prefer wrapping at existing spaces (including tabs and full-width spaces). Pack complete phrases using the actual font metrics and available width; a line that fits stays intact. Only a phrase wider than the available width falls back to platform soft wrapping. Preserve existing explicit line breaks and nonbreaking spaces. The display replaces selected separators with newlines without inserting or removing UTF-16 units, preserving canonical WORD Karaoke offsets in both text layers. Recompute on text, font or width changes, not playback-progress ticks. This is transient presentation; provider text, cached lyrics, timing, normal scrolling lyrics and reset/storage semantics do not change.
+
 The surface selects at most three existing rows. It does not copy or remap the entire lyrics document on the playback tick. Seeks, track changes, pauses, and the global timing offset are reflected through the existing app-owned Phone mapping.
 
 ## Album background
@@ -59,9 +61,9 @@ The owner's additional background reference is `GitUpGitUp/auto-lyrics`: `activi
 
 ## Validation and device handoff
 
-Focused JVM tests cover intro, first/middle/last rows, invalid indices, blank intervals, backward seek/Browse independence, Translation row identity, PLAIN fallback, Karaoke range validation, lifecycle acquisition/restoration, measured geometry under font/translation pressure, and bounded blur behavior/source preservation.
+Focused JVM tests cover intro, first/middle/last rows, invalid indices, blank intervals, backward seek/Browse independence, Translation row identity, PLAIN fallback, Karaoke range validation, lifecycle acquisition/restoration, measured geometry under font/translation pressure, bounded blur behavior/source preservation, and space-preferred wrapping with preserved WORD offsets.
 
-Production-component Previews cover portrait/landscape, dark/white/busy/missing synthetic artwork, current Translation, WORD sweep, intro/end, long lines with enlarged fonts, PLAIN, loading/no-media/not-found/failure, and interactive entry/exit/artwork replacement. These are deterministic debug fixtures, not alternative production renderers. Conversation mockups illustrate the design but do not substitute for Android rendering/device verification.
+Production-component Previews cover portrait/landscape, dark/white/busy/missing synthetic artwork, current Translation, WORD sweep, intro/end, long lines with enlarged fonts, space-delimited Chinese phrases and WORD sweeps crossing their breaks, PLAIN, loading/no-media/not-found/failure, and interactive entry/exit/artwork replacement. These are deterministic debug fixtures, not alternative production renderers. Conversation mockups illustrate the design but do not substitute for Android rendering/device verification.
 
 Device checks should verify:
 
