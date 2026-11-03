@@ -13,7 +13,8 @@
 - [x] Curate `1.1.0-beta.1` Changelog with user-facing highlights, installation guidance, fixes and actual limitations; align release documentation.
 - [x] Create and verify a durable personal release key outside Git, prepare repeatable release checks, and inspect available GitHub Actions configuration.
 - [x] Run architecture checks and relevant tests/builds sequentially under the verified 3 GiB / zero-swap budget; inspect the signed APK identity, certificate and bundled changelog.
-- [ ] Review the complete branch, record validation and external prerequisites, push coherent checkpoints and open the personal Draft PR.
+- [x] Review the complete branch, record validation and external prerequisites, and push coherent checkpoints.
+- [ ] Open the personal Draft PR after final handoff; stop without merge or tag publication.
 
 ## Decisions and boundaries
 
@@ -43,3 +44,12 @@
 - Owner correction: retain the original display names `AALyrics` / `AALyrics Debug`; distinguish the personal app by its package ID. Repackage the verified source after this resource-only change; no new unit tests are needed for label text.
 
 - Display-name correction validated with `:app:assembleRelease` in 51 seconds under the same limits. The final signed APK reports label `AALyrics`; the package ID, personal certificate and bundled Changelog verification pass. The final artifact hash/size above now refer to this corrected build.
+
+## Final branch review and external handoff
+
+- Reviewed the whole branch against personal main `175e821`; the final scope is release preparation, distribution identity/routing and documentation. No provider behavior, playback/timing semantics or reset implementation was changed. All commits use the repository's Conventional Commit form.
+- Remote main remains `175e821`; the personal release branch was verified pushed through the requested display-name correction. No upstream-facing branch was touched.
+- Repeated authenticated-connector and public API reads after release-branch pushes still returned zero Actions runs, although workflow metadata is `active`. Hosted CI has **not** passed. Repository-level Actions settings/run eligibility need an authenticated administrative check; no cause is claimed yet.
+- A checksum-verified official GitHub CLI was prepared outside the repository and a device login was requested from the owner, because the connector cannot manage Actions Secrets. Hosted signing setup is pending that login; no secrets have been uploaded by this task so far.
+- All task Gradle scopes are inactive/not loaded; no emulator was started. The task-started empty adb server was stopped. The generated Gradle JVM settings retain SHA256 `6c13aa5ba36690ccfbbb25a8807d01d98c15833e446d7ae82ddc726472cb8ef7`.
+- The corrected local signing artifact is the existing validated APK above. Later task/status documentation does not require rebuilding it. The PR must state cloud setup, PetitLyrics credentials, independent key backup and real-device validation as publication prerequisites.
