@@ -32,7 +32,15 @@ The following existing configuration values must not be changed unless the user 
 
 PetitLyrics configuration values are not stored in source control.
 
-Local development reads the four keys from repository-root `secrets.properties.local`, which is ignored by the existing `*.properties.local` rule. Trusted `main` push builds supply the same key names through GitHub Actions repository secrets, exposed to the build as environment variables. Pull-request builds receive empty values so unreviewed code cannot read provider credentials. When both environment values and the local file are available, environment variables take precedence.
+Local development reads the four keys from repository-root `secrets.properties.local`, which is ignored by the existing `*.properties.local` rule. Trusted `main` push builds and signed Release builds supply the same key names through GitHub Actions repository secrets, exposed to the build as environment variables. Pull-request and release-branch Build checks receive empty values so unreviewed code cannot read provider credentials. When both environment values and the local file are available, environment variables take precedence, including explicitly blank values.
+
+PetitLyrics is optional at build time:
+
+- All four values absent or blank: the build succeeds and the application excludes PetitLyrics from its active provider list. It makes no requests to that source; LRCLIB, Musixmatch, and SyncLRC remain available.
+- All four values nonblank: the application enables PetitLyrics using those exact values.
+- Only some values nonblank: Gradle rejects the configuration and lists missing field names without logging values.
+
+Use only credentials you are authorized to use; a fork does not need to copy credentials from upstream or another project. The personal 1.1 Beta 1 release leaves the source disabled. This is build configuration, not a persisted user setting, so Reset AALyrics does not change it. Active provider IDs already form part of cache request identity; enabling or disabling the source produces distinct cache entries without deleting stored lyrics.
 
 Never commit or log the actual values. Tests use injected/fake configuration and do not require live PetitLyrics credentials.
 
@@ -91,7 +99,7 @@ Outside PetitLyrics:
 
 ## Implemented adapter and intentional adaptations
 
-- `:provider:petitlyrics` exposes `PetitLyricsProvider`, implementing `LyricsProvider` with `LINE` and `WORD` capabilities. Configuration, HTTP client, endpoint, and app version metadata are injected for deterministic tests and later composition-root wiring.
+- `:provider:petitlyrics` exposes `PetitLyricsProvider`, implementing `LyricsProvider` with `LINE` and `WORD` capabilities. Configuration, HTTP client, endpoint, and app version metadata are injected for deterministic tests and composition-root wiring.
 - The four immutable configuration keys are generated into the app BuildConfig from environment variables first, then ignored root `secrets.properties.local`. Trusted `main` push CI exposes the same repository-secret names to build and test steps; pull-request CI uses empty values. Actual values are never committed or logged; configuration string output reports only completeness.
 - Discovery preserves title+artist+album, title+artist, and title-only order, local metadata ranking, word-before-line tie preference, attempted-result deduplication, and artist-query corroboration evidence. When missing metadata makes adjacent discovery stages identical, the actual request fields are deduplicated so one unavailable response cannot add redundant timeout cycles.
 - WSY preserves word text spacing, absolute start/end timing, timed blank lines, ordering, and duplicate-line removal. LSY preserves protection-key permutation, centisecond rollover, line/text pairing, blank-line markers, and malformed payload rejection.
@@ -99,4 +107,4 @@ Outside PetitLyrics:
 - Neutral metadata plausibility moved from the production selector into `:provider:matching` without changing its calculation. PetitLyrics keeps duration out of local/global matching because its response units are ambiguous.
 - Individual request failures do not prevent the mature provider-local fallback sequence. When discovery exhausts without a usable candidate, the first operational failure is surfaced; coroutine cancellation cancels the in-flight OkHttp call. Malformed provider data remains a rejected result rather than an operational failure.
 - Provider response metadata is normalized without inventing missing artist, album, or duration. Candidates missing the required title are rejected, and attribution retains the PetitLyrics lyrics ID.
-- Application provider wiring remains separate work.
+- The application composition root registers PetitLyrics only when `PetitLyricsConfig.isConfigured` is true. The provider itself retains its defensive no-request/empty-result behavior when constructed directly with incomplete configuration.

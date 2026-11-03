@@ -93,4 +93,4 @@ The new package can coexist with upstream and earlier Debug installs. It is a fr
 
 Existing upstream community/support links remain attributed to upstream; this change does not create a personal Issues/Discussions service. Personal Issues and Discussions are currently disabled. Do not report personal-only defects upstream as if they were original-app bugs.
 
-Release signing setup, missing provider credentials, verification and the no-tag-before-approval procedure are documented in `docs/RELEASES.md`. Repository setup and a successful local build alone do not establish a working hosted release channel.
+Release signing setup, optional PetitLyrics configuration, verification and the no-tag-before-approval procedure are documented in `docs/RELEASES.md`. Repository setup and a successful local build alone do not establish a working hosted release channel.

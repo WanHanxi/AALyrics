@@ -8,6 +8,8 @@ This is the **WanHanxi personal fork**, based on upstream AALyrics 1.0 Beta 1. I
 
 The new package has its own signing identity and storage. It does not replace the original app or earlier Debug builds, and their settings and cached lyrics are not copied. Enable Notification access for the new app; Android Auto users should also select **AALyrics** in the launcher settings.
 
+This release uses **LRCLIB, Musixmatch, and SyncLRC**. PetitLyrics is optional and disabled in this build, so songs available only from that source will not be found.
+
 ### New features
 
 - **Fullscreen lyrics:** a centered current line and translation, previous/next context, and a softened album-art background. Portrait and landscape layouts support long lyrics, large text and word-synced Karaoke; lines prefer existing spaces when wrapping.
@@ -19,6 +21,7 @@ The new package has its own signing identity and storage. It does not replace th
 - Recover missing media-listener connections with a limited retry sequence while Phone or Android Auto needs lyrics. A failed attempt now shows a connection dialog instead of leaving an endless Connecting state.
 - On Android 14 and later, manual Reconnect can reset a stalled listener binding before retrying. Notification access settings remain available when Android still does not reconnect.
 - Separate personal Release and Debug installations from upstream, with independent package IDs and a personal signed-update channel.
+- Make PetitLyrics optional at build time: builds and releases work without its credentials; supplying all four configuration values enables it.
 
 ### Development builds
 

@@ -34,9 +34,11 @@ AALyrics does not use Notification Access to build a notification history, and t
 To find lyrics, AALyrics may contact one or more third-party lyrics providers, currently:
 
 - LRCLIB;
-- PetitLyrics;
+- PetitLyrics (only in builds with its optional configuration enabled);
 - Musixmatch;
 - SyncLRC.
+
+Builds without PetitLyrics configuration do not register or contact that source. The personal 1.1 Beta 1 release uses LRCLIB, Musixmatch, and SyncLRC.
 
 Depending on the provider and the metadata available for a track, a request may include the track title, artist, album, duration, and a supported service identifier such as a Spotify track identifier.
 

@@ -15,6 +15,7 @@ import io.github.whoxamxl.aalyrics.provider.api.LyricsProvider
 import io.github.whoxamxl.aalyrics.provider.api.LyricsProviderDescriptor
 import io.github.whoxamxl.aalyrics.provider.api.LyricsProviderId
 import io.github.whoxamxl.aalyrics.provider.api.LyricsRequest
+import io.github.whoxamxl.aalyrics.provider.petitlyrics.PetitLyricsConfig
 import io.github.whoxamxl.aalyrics.provider.petitlyrics.PetitLyricsProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.awaitCancellation
@@ -30,23 +31,55 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalCoroutinesApi::class)
 class ApplicationGraphTest {
     @Test
-    fun `production graph contains every provider and preserves karaoke default`() = runTest {
+    fun `production graph uses build configuration and preserves karaoke default`() = runTest {
         val graph = createProductionApplicationGraph(this, LyricsCache.None)
-
-        assertEquals(
-            listOf("lrclib", "petitlyrics", "musixmatch", "synclrc"),
-            graph.providers.map { it.descriptor.id.value },
-        )
-        assertEquals(LyricsSyncType.WORD, graph.selectionPreferences.preferredSyncType)
-        assertSame(graph.coordinator.state, graph.lyricsState)
-        val petitLyrics = graph.providers.filterIsInstance<PetitLyricsProvider>().single()
         val hasCompletePetitLyricsConfig = listOf(
             BuildConfig.PETITLYRICS_USER_ID,
             BuildConfig.PETITLYRICS_APP_NAME,
             BuildConfig.PETITLYRICS_PKG_NAME,
             BuildConfig.PETITLYRICS_CLIENT_APP_ID,
         ).all { it.isNotBlank() }
-        assertEquals(hasCompletePetitLyricsConfig, petitLyrics.isConfigured)
+
+        assertEquals(
+            if (hasCompletePetitLyricsConfig) {
+                listOf("lrclib", "petitlyrics", "musixmatch", "synclrc")
+            } else {
+                listOf("lrclib", "musixmatch", "synclrc")
+            },
+            graph.providers.map { it.descriptor.id.value },
+        )
+        assertTrue(graph.providers.filterIsInstance<PetitLyricsProvider>().all { it.isConfigured })
+        assertEquals(LyricsSyncType.WORD, graph.selectionPreferences.preferredSyncType)
+        assertSame(graph.coordinator.state, graph.lyricsState)
+    }
+
+    @Test
+    fun `production graph omits PetitLyrics without configuration`() = runTest {
+        val graph = createProductionApplicationGraph(
+            this,
+            LyricsCache.None,
+            petitLyricsConfig = PetitLyricsConfig("", "", "", ""),
+        )
+
+        assertEquals(
+            listOf("lrclib", "musixmatch", "synclrc"),
+            graph.providers.map { it.descriptor.id.value },
+        )
+    }
+
+    @Test
+    fun `production graph enables PetitLyrics with complete configuration`() = runTest {
+        val graph = createProductionApplicationGraph(
+            this,
+            LyricsCache.None,
+            petitLyricsConfig = PetitLyricsConfig("test-user", "test-app", "test-package", "test-client"),
+        )
+
+        assertEquals(
+            listOf("lrclib", "petitlyrics", "musixmatch", "synclrc"),
+            graph.providers.map { it.descriptor.id.value },
+        )
+        assertTrue(graph.providers.filterIsInstance<PetitLyricsProvider>().single().isConfigured)
     }
 
     @Test

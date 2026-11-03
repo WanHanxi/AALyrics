@@ -106,7 +106,7 @@ AALYRICS_RELEASE_KEY_ALIAS
 AALYRICS_RELEASE_KEY_PASSWORD
 ```
 
-The existing PetitLyrics production credentials are also required by the Release workflow:
+PetitLyrics is optional. Leave all four of these repository secrets unset to build and publish with LRCLIB, Musixmatch, and SyncLRC only:
 
 ```text
 PETITLYRICS_USER_ID
@@ -115,7 +115,9 @@ PETITLYRICS_PKG_NAME
 PETITLYRICS_CLIENT_APP_ID
 ```
 
-The workflow fails instead of publishing a release when required signing or provider credentials are missing.
+To enable PetitLyrics, supply all four values that you are authorized to use. Local builds may use the ignored root `secrets.properties.local`; environment variables take precedence, including explicitly blank values. All four absent/blank disables the source, all four nonblank enables it, and a partially filled configuration fails Gradle configuration with missing field names only. The app does not register or contact PetitLyrics when it is disabled. See `docs/providers/PETITLYRICS.md`.
+
+Signing secrets remain mandatory. The workflow checks those before building, and Gradle rejects incomplete optional provider configuration before publication. Missing PetitLyrics credentials alone do not block a release.
 
 ### Keystore backup rule
 
@@ -129,7 +131,7 @@ The checked-in source/configuration can be prepared and reviewed before publishi
 
 1. **Repository setup:** the personal Build and Release workflows are active. Build runs on `main` and `release/**` pushes, PRs and manual dispatch; check a successful run for the reviewed revision. Release-branch/PR Build checks do not receive provider secrets. If a fresh fork shows the Actions enablement banner, enable it before testing; zero recorded runs is not a successful CI check.
 2. **Personal signing:** install the four signing secrets above in this repository. Keep the keystore/password backup outside Git and independently of GitHub Secrets. Never paste private signing data into issues, PRs or logs.
-3. **PetitLyrics:** provide the four existing provider credential values above. Forking does not copy upstream Secrets. Do not replace `PETITLYRICS_PKG_NAME` with the new Android application ID; this is a provider client identity, and changing it is not part of application renaming. The owner currently has no known local credential file; this remains a publication prerequisite, and the workflow deliberately fails if it is missing.
+3. **Optional PetitLyrics:** the personal 1.1 Beta 1 release leaves all four values unset. No upstream or third-party credentials are required or copied. If enabling the source later, configure your own authorized values as a complete set and update the release notes to reflect the enabled sources. Do not replace `PETITLYRICS_PKG_NAME` with the Android application ID; it is a separate provider client identity.
 4. **CI and signed candidate:** run Build on the reviewed branch (manual dispatch may target it after Actions is enabled). The optional `update_test_release_signed` fixture checks signing without publishing. The Release workflow independently tests and verifies the actual tagged artifact before publication.
 5. **Device validation:** install a personal signed fixture and check launch, Notification access, MediaSession detection and Android Auto discovery. For the later update test, use the same key/package with a lower code, then verify source trust, download, Android confirmation, preserved settings and success feedback. APK metadata inspection and JVM tests do not prove these Android flows.
 6. **Approval and publication:** merge the completed personal PR only after owner approval, then tag only after explicit release authorization. Check both APK and checksum assets, curated notes, Pre-release labeling and in-app discovery afterward.
@@ -199,7 +201,7 @@ On Windows PowerShell, convert the keystore to the single-line Base64 value used
 
 After the intended commit is merged into `main`, ensure the release version is the newest entry in repository-root `CHANGELOG.md`, then create and push the version tag.
 
-For the first personal release, complete the preparation PR and obtain explicit merge/release approval first. Confirm that the signing and provider prerequisites above are complete and that the release date in Changelog is still correct. Then, from a clean checkout:
+For the first personal release, complete the preparation PR and obtain explicit merge/release approval first. Confirm the signing setup and intended optional-provider configuration above, and check that the release date in Changelog is still correct. Then, from a clean checkout:
 
 ```bash
 git switch main

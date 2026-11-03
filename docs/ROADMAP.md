@@ -134,7 +134,7 @@ Provider migration proceeded one adapter at a time behind `LyricsProvider`.
 
 Merged in PR #25.
 
-The application now constructs one production object graph containing all four providers, `CrossProviderCandidateSelector`, `LyricsCoordinator`, and `PlaybackLyricsController`. The graph is process-owned by `AALyricsApplication`, exposes the shared `LyricsState`, uses existing BuildConfig values for PetitLyrics, and preserves the karaoke-enabled production default through `preferredSyncType = WORD`.
+The application now constructs one production object graph containing LRCLIB, Musixmatch, optional PetitLyrics, SyncLRC, `CrossProviderCandidateSelector`, `LyricsCoordinator`, and `PlaybackLyricsController`. The graph is process-owned by `AALyricsApplication`, exposes the shared `LyricsState`, enables PetitLyrics only with complete BuildConfig values, and preserves the karaoke-enabled production default through `preferredSyncType = WORD`.
 
 Playback lookup ownership now includes both track identity and candidate-selection preferences. Same-track preference changes trigger a fresh lookup while position/status/rate/duration churn does not.
 
