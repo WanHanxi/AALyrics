@@ -31,6 +31,7 @@ import io.github.whoxamxl.aalyrics.ui.designsystem.component.AlbumArtwork
 import io.github.whoxamxl.aalyrics.ui.phone.details.DetailsScreen
 import io.github.whoxamxl.aalyrics.ui.phone.lyrics.LyricsScreen
 import io.github.whoxamxl.aalyrics.ui.phone.lyrics.LyricsViewportInteractionMode
+import io.github.whoxamxl.aalyrics.ui.phone.lyrics.PerformanceLyricsScreen
 import io.github.whoxamxl.aalyrics.ui.phone.navigation.PhoneDestination
 import io.github.whoxamxl.aalyrics.ui.phone.settings.AndroidAutoCompatibilityUiStatus
 import io.github.whoxamxl.aalyrics.ui.phone.settings.HelpFeedbackDestination
@@ -75,6 +76,7 @@ internal fun PhoneRuntimeHost(
     onOpenSourceCode: () -> Unit,
     onOpenHelpFeedback: (HelpFeedbackDestination) -> Unit,
     onOpenSupportAALyrics: () -> Unit,
+    performanceWindow: @Composable (Boolean) -> Unit,
     onOpenUpdateRelease: (String) -> Unit = {},
     onExportConnectionDiagnostics: (() -> Unit)? = null,
     onOpenNotificationAccess: () -> Unit = {},
@@ -135,6 +137,9 @@ internal fun PhoneRuntimeHost(
     var selectedDestination by rememberSaveable {
         mutableStateOf(PhoneDestination.Home)
     }
+    var performanceMode by rememberSaveable { mutableStateOf(false) }
+    val performanceModeVisible = performanceMode && selectedDestination == PhoneDestination.Lyrics
+    performanceWindow(performanceModeVisible)
     DisposableEffect(application, selectedDestination) {
         onDispose { application.cancelTapSync() }
     }
@@ -256,7 +261,17 @@ internal fun PhoneRuntimeHost(
         state.isAppOwnedUpdateProcessPresentation()
     }
 
-    PhoneAppShell(
+    if (performanceModeVisible) {
+        PerformanceLyricsScreen(
+            state = lyricsUiState,
+            onExit = {
+                performanceMode = false
+                lyricsInteractionMode = LyricsViewportInteractionMode.FOLLOW
+            },
+            artwork = { AlbumArtwork(image = playbackArtworkImage) },
+            onViewportInteractionModeChange = { lyricsInteractionMode = it },
+        )
+    } else PhoneAppShell(
         state = PhoneShellUiState(
             selectedDestination = selectedDestination,
             mediaSourceLabel = displayedPlaybackSourceAppInfo?.label,
@@ -322,6 +337,10 @@ internal fun PhoneRuntimeHost(
                 },
                 onViewportInteractionModeChange = { lyricsInteractionMode = it },
                 onTranslationRetry = application::retryTranslation,
+                onEnterPerformanceMode = {
+                    lyricsInteractionMode = LyricsViewportInteractionMode.FOLLOW
+                    performanceMode = true
+                },
             )
 
             PhoneDestination.Sync -> SyncScreen(
@@ -374,6 +393,7 @@ internal fun PhoneRuntimeHost(
                 onDismissTranslationModelCleanupFailure =
                     application::dismissTranslationModelCleanupFailure,
                 onResetAALyrics = {
+                    performanceMode = false
                     plainLyricsAutoScrollEnabled = true
                     application.resetAppOwnedSettings()
                     onResetAALyrics()
