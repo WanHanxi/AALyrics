@@ -17,7 +17,7 @@ import androidx.lifecycle.LifecycleOwner
 internal fun PerformanceWindowEffect(window: Window, lifecycle: Lifecycle, enabled: Boolean) {
     if (!enabled) return
     DisposableEffect(window, lifecycle) {
-        val observer = PerformanceWindowObserver { acquirePerformanceWindow(window) }
+        val observer = PerformanceWindowObserver(performanceWindowSession(window))
         // LifecycleRegistry synchronizes new observers, including when already resumed.
         lifecycle.addObserver(observer)
         onDispose {
@@ -27,7 +27,7 @@ internal fun PerformanceWindowEffect(window: Window, lifecycle: Lifecycle, enabl
     }
 }
 
-private fun acquirePerformanceWindow(window: Window): () -> Unit {
+private fun performanceWindowSession(window: Window): () -> (() -> Unit) {
     val controller = WindowCompat.getInsetsController(window, window.decorView)
     val previousBehavior = controller.systemBarsBehavior
     val previousInsets = ViewCompat.getRootWindowInsets(window.decorView)
@@ -37,15 +37,20 @@ private fun acquirePerformanceWindow(window: Window): () -> Unit {
     val navigationVisible = previousInsets?.isVisible(navigationBars) ?: true
     val alreadyKeptAwake = window.attributes.flags and WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON != 0
 
-    controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-    controller.hide(WindowInsetsCompat.Type.systemBars())
-    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-
+    // Keep the normal-window snapshot for this entire presentation. On resume, root insets can
+    // still report the previous hidden bars until the next traversal; recapturing them would
+    // incorrectly make hidden bars the state restored on exit.
     return {
-        controller.systemBarsBehavior = previousBehavior
-        if (statusVisible) controller.show(statusBars) else controller.hide(statusBars)
-        if (navigationVisible) controller.show(navigationBars) else controller.hide(navigationBars)
-        if (!alreadyKeptAwake) window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        controller.hide(WindowInsetsCompat.Type.systemBars())
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        val restore: () -> Unit = {
+            controller.systemBarsBehavior = previousBehavior
+            if (statusVisible) controller.show(statusBars) else controller.hide(statusBars)
+            if (navigationVisible) controller.show(navigationBars) else controller.hide(navigationBars)
+            if (!alreadyKeptAwake) window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+        restore
     }
 }
 
