@@ -113,7 +113,7 @@ internal class HttpGitHubReleaseClient(
 
     private companion object {
         const val DEFAULT_RELEASES_ENDPOINT =
-            "https://api.github.com/repos/whoxamxl/AALyrics/releases"
+            "https://api.github.com/repos/WanHanxi/AALyrics/releases"
         const val PAGE_SIZE = 100
         const val CONNECT_TIMEOUT_MS = 10_000
         const val READ_TIMEOUT_MS = 15_000

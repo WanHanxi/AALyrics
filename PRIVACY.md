@@ -121,4 +121,4 @@ AALyrics is maintained by Yuta Miura (`whoxamxl`).
 
 For privacy-related questions, use the AALyrics GitHub repository. Avoid posting sensitive personal information in a public issue or discussion.
 
-<https://github.com/whoxamxl/AALyrics>
+<https://github.com/WanHanxi/AALyrics>

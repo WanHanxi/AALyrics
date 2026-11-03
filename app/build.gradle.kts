@@ -109,7 +109,7 @@ android {
     sourceSets.getByName("main").assets.srcDir(generatedBundledDocumentsAssetsDir)
 
     defaultConfig {
-        applicationId = "io.github.whoxamxl.aalyrics"
+        applicationId = "io.github.wanhanxi.aalyrics"
         minSdk = 26
         targetSdk = 36
         versionCode = configuredVersionCode

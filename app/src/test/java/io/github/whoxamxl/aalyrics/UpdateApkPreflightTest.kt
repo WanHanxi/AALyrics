@@ -37,10 +37,10 @@ class UpdateApkPreflightTest {
     }
 
     @Test
-    fun `different package fails closed`() {
+    fun `upstream archive cannot replace the personal fork`() {
         assertRejected(
             reason = UpdateApkPreflightRejection.PACKAGE_MISMATCH,
-            facts = validFacts().copy(archivePackageName = "example.other"),
+            facts = validFacts().copy(archivePackageName = "io.github.whoxamxl.aalyrics"),
         )
     }
 
@@ -93,10 +93,10 @@ class UpdateApkPreflightTest {
     private fun validFacts() = UpdateApkPreflightFacts(
         retainedFileExists = true,
         canonicalRetainedArtifact = true,
-        archivePackageName = "io.github.whoxamxl.aalyrics",
+        archivePackageName = "io.github.wanhanxi.aalyrics",
         archiveVersionCode = 41L,
         archiveVersionName = "0.2.0-alpha.2",
-        installedPackageName = "io.github.whoxamxl.aalyrics",
+        installedPackageName = "io.github.wanhanxi.aalyrics",
         installedVersionCode = 40L,
         expectedVersionName = "0.2.0-alpha.2",
         signingIdentityCompatible = true,
