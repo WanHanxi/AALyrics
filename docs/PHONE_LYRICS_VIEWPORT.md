@@ -12,7 +12,7 @@ The established scrolling/focus behavior is production baseline. PR #79 adds tra
 
 The viewport should feel like one continuous lyrics document that follows playback when appropriate, but immediately yields control when the user browses manually.
 
-The design takes the legacy Auto-Lyrics fullscreen Performance mode as a reference for strong current-line hierarchy. AALyrics does not copy its fixed previous/current/next three-row layout or its active-word size pop. The Phone UI instead uses a responsive scrolling document.
+The design takes the legacy Auto-Lyrics fullscreen Performance mode as a reference for strong current-line hierarchy. The normal LyricsViewport uses a responsive scrolling document rather than a fixed three-row layout or active-word size pop. The separately selected fullscreen surface uses previous/current/next rows as defined in `PHONE_PERFORMANCE_MODE.md`; it does not change this viewport's layout contract.
 
 ## Responsive layout
 

@@ -370,6 +370,10 @@ Compose application/domain capability facts into the smallest presentation contr
 
 Must follow `docs/PRESENTATION_STATE_ARCHITECTURE.md`. Do not create one universal giant UI state. Keep shared semantic facts shareable and surface-local state local.
 
+#### Phone fullscreen Performance mode — implemented on personal topic branch
+
+The Lyrics Track Card opens a fullscreen previous/current/next surface with a compact centered group, larger portrait/landscape typography, a softened album-art background, current Translation and the existing gated WORD Karaoke sweep. PLAIN retains scrollable reading with an unsynchronized label. The app owns lifecycle-bound immersive bars and screen-awake flags; exit returns to Lyrics Follow. No new timing, provider, durable settings or Android Auto policy is introduced. The owner selected this presentation on 2026-10-31 and approved the centered album-background redesign on 2026-11-02; the contract is `docs/PHONE_PERFORMANCE_MODE.md`, with validation in `TASK.md`.
+
 #### Phone LyricsViewport lazy composition — implemented / PR #86 validated
 
 PR #86 replaces eager full-document Phone Compose/layout with lazy row composition without changing retrieval or shared timing semantics.

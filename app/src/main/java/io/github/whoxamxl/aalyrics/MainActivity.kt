@@ -117,6 +117,9 @@ class MainActivity : ComponentActivity() {
                         PhoneRuntimeHost(
                             application = application as AALyricsApplication,
                             onOpenNotificationAccess = notificationAccessController::openSettings,
+                            performanceWindow = { enabled ->
+                                PerformanceWindowEffect(window, lifecycle, enabled)
+                            },
                             onExportConnectionDiagnostics = if (BuildConfig.DEBUG) {
                                 { exportConnectionDiagnostics() }
                             } else null,

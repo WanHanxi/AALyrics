@@ -21,6 +21,7 @@ fun LyricsScreen(
     artwork: (@Composable BoxScope.() -> Unit)? = null,
     onViewportInteractionModeChange: (LyricsViewportInteractionMode) -> Unit = {},
     onTranslationRetry: (() -> Unit)? = null,
+    onEnterPerformanceMode: (() -> Unit)? = null,
 ) {
     Column(
         modifier = modifier.fillMaxSize(),
@@ -34,6 +35,7 @@ fun LyricsScreen(
             ),
             artwork = artwork,
             onTranslationRetry = onTranslationRetry,
+            onEnterPerformanceMode = onEnterPerformanceMode,
         )
 
         Spacer(Modifier.height(AALyricsSpacing.Space12))

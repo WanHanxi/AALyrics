@@ -607,7 +607,7 @@ This slice does not redesign:
 - system notification controls;
 - shuffle/repeat unless a later capability contract is explicitly approved;
 - arbitrary MediaSession custom actions;
-- full-screen now-playing presentation;
+- full-screen now-playing transport presentation (the separate lyrics-only Performance surface is defined in `PHONE_PERFORMANCE_MODE.md`);
 - volume controls.
 
 ## Historical implementation sequence

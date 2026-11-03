@@ -221,6 +221,12 @@
     <string name="sync_plain">These lyrics have no timestamps. You can still edit the saved offset above; it will apply to the next song with timed lyrics.</string>
     <string name="sync_unavailable">No timed lyrics are available for this song. You can still edit the saved offset above, or try another song to preview timing.</string>
 
+    <string name="performance_enter">Enter fullscreen lyrics</string>
+    <string name="performance_exit">Exit fullscreen lyrics</string>
+    <string name="performance_title">Performance mode</string>
+    <string name="performance_no_media">Play a song to see lyrics</string>
+    <string name="performance_plain">Unsynchronized lyrics</string>
+    <string name="performance_instrumental">Instrumental</string>
     <string name="track_card_lyrics_loading">Loading...</string>
     <string name="track_card_lyrics_not_found">Lyrics not found</string>
     <string name="track_card_lyrics_failed">Lyrics lookup failed</string>

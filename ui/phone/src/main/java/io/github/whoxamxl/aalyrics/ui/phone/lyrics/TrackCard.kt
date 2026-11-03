@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,6 +48,7 @@ fun TrackCard(
     state: TrackCardUiState,
     modifier: Modifier = Modifier,
     onTranslationRetry: (() -> Unit)? = null,
+    onEnterPerformanceMode: (() -> Unit)? = null,
     artwork: (@Composable BoxScope.() -> Unit)? = null,
 ) {
     Surface(
@@ -69,6 +71,15 @@ fun TrackCard(
                 onTranslationRetry = onTranslationRetry,
                 modifier = Modifier.weight(1f),
             )
+            onEnterPerformanceMode?.let { enter ->
+                IconButton(onClick = enter) {
+                    Icon(
+                        imageVector = AALyricsIcons.Fullscreen,
+                        contentDescription = stringResource(R.string.performance_enter),
+                        tint = AALyricsColors.TextPrimary,
+                    )
+                }
+            }
         }
     }
 }

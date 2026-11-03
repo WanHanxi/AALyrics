@@ -1,56 +1,92 @@
-# Manual notification-listener rebinding
+# Phone Performance mode: centered lyrics and album background
 
-## Scope and evidence
+## Draft PR handoff approved (2026-11-03)
 
-- Continue the owner's connection-recovery work after the 2026-10-31 22:51 PDT incident on Xiaomi 15 Pro / Android 16 / Spotify, using Debug revision `7667815`.
-- The exported incident shows notification access granted but no listener created/connected. The manual tap at 22:51:13 triggered three ordinary rebind requests; every request returned without a binding callback. The owner confirmed that turning AALyrics Debug notification access off/on restored detection.
-- Android 16 AOSP `ManagedServices.setComponentState` can return immediately when a requested component state is already enabled. This explains a limitation of repeated `requestRebind`, but the application's log cannot establish Xiaomi's internal state or why binding stopped. Recorded process-exit reason 13 means `REASON_OTHER`, not proof of a crash or memory/battery kill.
-- Personal topic `fix/manual-listener-rebind` starts at personal main `23e928b`; target only `WanHanxi/AALyrics:main`. Preserve unrelated branches and upstream PR #91. Complete validation, push checkpoints, then open a Draft PR and stop; this follow-up has no merge authorization.
+- The owner confirmed the current visual result is acceptable and explicitly requested a PR. The visual-design gate is cleared. Target `WanHanxi/AALyrics:main` from `feature/phone-performance-redesign`, as a Draft PR; stop after creating it. Merge, ready-for-review conversion and review requests remain unauthorized.
+- Final `test` validation passed in 39 seconds: 863 tests across 109 suites, zero failures/errors/skips (Gradle reused unchanged test tasks). Architecture and branch-wide whitespace checks passed. The full 31-file branch diff remains scoped to Phone fullscreen presentation, its host/window integration, shared Karaoke extraction, tests/Previews and aligned documentation.
+- Verified personal `main` is still `2d72cb2` and is an ancestor of the feature branch. Reuse the successful `679e955` Debug APK below: the current source differs only in task documentation and its SHA256 is unchanged. No rebuild or new APK upload is needed.
+- Final tests used the verified 3 GiB memory cap and zero swap, one worker and in-process Kotlin. The task scope is inactive/not loaded. Owner visual feedback is recorded; no exhaustive native lifecycle/device matrix is claimed.
+- The three local `backup/phone-*-build-*` refs preserve exact APK build commits. Each has the same Git tree as its corresponding API-published source commit; no `backup/*` branch is present on the personal remote. Keep these build references until normal post-merge cleanup.
+
+## Completed follow-up: current translation contrast (2026-11-03)
+
+- The owner approved using the same white color for the current fullscreen original and its translation. The smaller translation typography continues to distinguish the two; previous/next context stays gray.
+- Implemented with the existing `TextPrimary` color token. Existing portrait/landscape translated Compose Previews exercise the production change. This adds no state or reset behavior.
+- `:app:assembleDebug` passed in 45 seconds, compiling the existing production Previews. Architecture and whitespace checks passed; no additional unit test was added for this color-only presentation change. The build verified the 3 GiB/zero-swap limits; its scope is inactive and the Gradle JVM configuration is unchanged. Native appearance remains subject to phone verification.
+- APK delivery preference: keep future builds local and report their paths. Do not upload to Google Drive. PR creation is now authorized as recorded above.
+- Local APK: `app/build/outputs/apk/debug/aalyrics-performance-translation-white-679e955.apk` (92,156,103 bytes), version `1.0.0-beta.1-dev+679e955`. SHA256: `127bff29992ad89fb23df7804077d88b5a2dc643938f5a00ae30c9bd3ccbf5f2`. Package and signing certificate match the earlier Debug APKs for an in-place update. No APK upload was performed.
+- Published source `a4cda8b` and built local commit `679e955` share tree `f35ced4be79a54eefbec0a45e92ea2b90d2ae92c`; `backup/phone-translation-color-build-679e955` preserves the exact build revision. Only this documentation follows the successful build; reuse the verified artifact. No PR was opened.
+
+## Completed follow-up: space-preferred wrapping (2026-11-03)
+
+- The owner approved prioritizing existing spaces for fullscreen line breaks after a phone screenshot split `這天` across lines. Work continued on the existing personal topic branch; PR creation was deferred at that checkpoint pending visual feedback.
+- Measure real text width, keep complete space-delimited phrases together when possible, and retain platform wrapping for oversized phrases. Cover original/neighbor/translated text, orientation/font changes and existing explicit newlines.
+- Keep canonical text and UTF-16 Karaoke offsets unchanged; do not alter timing, providers, normal scrolling lyrics, durable state or reset behavior.
+- [x] Implement focused wrapping and regression tests, including the reported Chinese line and WORD offsets.
+- [x] Add native Compose Preview cases for portrait/landscape, large fonts and wrapped WORD sweep; align the fullscreen documentation.
+- [x] Validate Phone tests, architecture/whitespace and the updated Debug APK within the workstation memory budget.
+- [x] Publish the coherent checkpoint and prepare the updated privately uploaded APK for phone verification. No PR yet.
+
+Follow-up validation: `:ui:phone:testDebugUnitTest` passed (85 tests in 12 suites, including 11 new wrapping regressions; zero failures/errors/skips). The run verified `memory.max=3221225472` and `memory.swap.max=0`, using one worker and in-process Kotlin. Production Preview fixtures compile, including the reported Chinese line and a WORD sweep across the replaced separator. Architecture and whitespace checks passed. Native rendering remains a phone-verification handoff rather than a claimed emulator result.
+
+`:app:assembleDebug` passed in a subsequent 48-second run under the same verified limits. Both task scopes are now inactive/not loaded; no emulator was started and the Gradle JVM configuration retains its recorded hash. The locally built commit `ff82058` and published source commit `3c11692` have identical tree `b7fb22cbaf779dc943689aa7a3d9c44f084a23dc`; `backup/phone-space-wrap-build-ff82058` preserves the exact local build commit. The personal topic branch is synchronized with the published source. No PR was opened.
+
+Updated artifact: `app/build/outputs/apk/debug/aalyrics-performance-space-wrap-ff82058.apk`, 92,156,099 bytes, package `io.github.whoxamxl.aalyrics.debug`, version `1.0.0-beta.1-dev+ff82058`, versionCode 1. SHA256: `970bef815906307efc035aed90ba8861cf9e7a64a93336e38370c77bb3b63fd5`. Verified the same Debug signing certificate as the previous handoff, so the APK can update that installation. Uploaded to the owner's private Drive and read back the matching filename/size and unshared status. Only this handoff documentation follows the build; reuse the verified APK.
+
+## Approved scope
+
+- The owner selected the compact centered design and approved implementation with a softly blurred, darkened album-art background on 2026-11-02. Cover portrait and landscape; keep current lyrics and their translation readable at large font scales.
+- Continue the unmerged Phone fullscreen implementation on personal main `2d72cb2`, retaining its notification-listener recovery fixes. Branch `feature/phone-performance-redesign` follows the repository's CI branch-name policy. The original Performance branch and the reserved upstream Sync branch remain untouched.
+- Carry forward fullscreen entry/exit, resumed-only immersive/screen-awake effects, authoritative three-row selection, shared WORD Karaoke and PLAIN fallback. Do not alter providers, timing, Translation execution, playback controls or Android Auto.
+- The owner required visual feedback before PR creation, then accepted the current result and authorized a PR on 2026-11-03. Implementation and final validation are complete; open a Draft PR targeting the personal fork. No merge or review request is authorized.
 
 ## Acceptance criteria
 
-- On Android 14/API 34+, only a manual Reconnect after timeout requests one component `requestUnbind` immediately followed by `requestRebind`. Use the official static API, which does not require a live listener instance.
-- Automatic startup/disconnect recovery and subsequent retries remain ordinary rebind requests at 0/5/15 seconds with a 30-second deadline. A manual episode resets only on its first request; repeated taps cannot overlap jobs or extend the deadline.
-- Require active demand and notification access; never reset a known healthy listener, including one with no player. Check conditions again when the coroutine executes. Only actual listener connection callbacks prove success and cancel retries, including synchronous/late callbacks.
-- Pair unbind/rebind without a cancellable delay. If unbind is unsupported or fails, still attempt ordinary rebinding. Record request/return/failure separately from actual binding; contain platform request failures and keep diagnostic fields free of exception messages or media/notification contents.
-- Keep the existing notification-access Settings fallback because app requests cannot guarantee recovery from an OEM system fault. Do not toggle component enabled state, change permissions, add a keepalive, or change Spotify/session selection.
-- No new persisted preferences or caches. System access stays user-owned, recovery stays process-local, and existing bounded diagnostic retention/reset semantics remain unchanged. Existing UI and Compose Previews remain applicable.
+- Replace weighted vertical slots with a compact measured group near the visual center. Current text uses 48sp in portrait and 60sp in landscape, with normal system font scaling; neighbors and translation have a quieter hierarchy.
+- Measure wrapped content. Hide the previous row first under pressure, then the next if needed. Keep the entire current original/translation reachable through scrolling when it exceeds the viewport. Never ellipsize or shrink the current lyric.
+- Keep a compact title/artist header and accessible exit button; provider attribution is a quiet footer. Respect safe drawing insets and short windows.
+- Reuse existing playback artwork, crop without distortion, soften/darken it with additional lyric-region contrast, and crossfade artwork changes. Missing artwork returns to the plain dark base without a giant fallback logo.
+- Artwork preparation is bounded, asynchronous and keyed to artwork changes, never playback/Karaoke ticks. No network request, disk cache or durable preference is added. The existing reset clears transient fullscreen visibility; derived artwork is released with the surface.
+- Production Compose Previews cover both orientations, bright/dark/busy/no artwork, translated and WORD lyrics, long lines/large fonts, intro/end, PLAIN and empty states.
 
 ## Checkpoints
 
-- [x] Read the new incident, confirm the user's successful Settings recovery, and inspect official Android API/AOSP binding behavior.
-- [x] Fetch personal origin and create an isolated topic from current personal main.
-- [x] Implement manual-only reset policy and the API-guarded unbind/rebind pair, with focused lifecycle/fallback tests.
-- [x] Align recovery/runtime/settings documentation and phone testing instructions.
-- [x] Run constrained tests/build, architecture and whitespace checks; review the complete branch against personal main.
-- [x] Produce a signature-compatible Debug APK and record validation/limitations for the personal Draft PR.
-- Publication handoff: push the final documentation checkpoint, open a Draft PR against `WanHanxi/AALyrics:main`, then stop. No merge or external review request is authorized for this follow-up.
+- [x] Inspect approved prototype, existing fullscreen branch, artwork seam and current personal main.
+- [x] Carry existing fullscreen source onto current personal main without dropping connection-recovery changes.
+- [x] Implement measured centered layout, responsive typography and focused geometry tests.
+- [x] Add bounded album-background preparation, contrast/crossfade/fallback and production Previews.
+- [x] Validate tests/build/architecture/whitespace under workstation limits; inspect complete branch and align docs.
+- [x] Prepare visible portrait/landscape previews and an installable Debug APK; record actual device-validation limits.
+- [x] Publish coherent checkpoints to the personal feature branch through the GitHub connector, verifying every tree against the local commit.
+- Publication handoff: implementation checkpoints, preview/APK delivery and owner visual feedback are complete. Publish the final validation/approval record, open the authorized Draft PR targeting `WanHanxi/AALyrics:main`, then stop.
 
-## Verification constraints and handoff
+## Verification budget and handoff
 
-- Inspect host memory before Gradle. Run builds/tests/emulator work sequentially with one worker, no parallel/daemon reuse, a 1 GiB Gradle JVM, in-process Kotlin, and a verified 3 GiB systemd scope with zero swap. Do not alter IDE/Gradle JVM settings or stop unrelated processes.
-- No emulator is required for this binding-policy change. JVM tests validate ordering, lifecycle guards, timing and fallback behavior; they cannot reproduce Xiaomi's system notification-service state. Reuse a successful build after documentation-only changes.
-- Verify the new Debug package/signing identity against the previous APK. Physical Xiaomi/Android Auto recovery remains a follow-up device check, not a claimed test pass. If manual recovery still fails, use the already verified notification-access off/on fallback and export the new events.
-- The original process-exit/system scheduling cause remains unresolved and outside this narrow improvement. The separately unmerged Phone Performance mode is not included in the personal-main-based APK.
+- Inspect available memory before heavy work. Run Gradle/tests/preview work sequentially, with no emulator running during compilation.
+- Gradle: one worker, no parallel/daemon reuse, 1 GiB heap, 512 MiB metaspace, in-process Kotlin; verify a task-specific systemd scope has `memory.max=3221225472` and `memory.swap.max=0` before launching it.
+- Preserve the user's IDE and generated JVM configuration. Reuse successful builds after docs-only changes. Do not retry the API 37 emulator that previously forced a 4 GiB guest allocation under a 3 GiB limit.
+- Physical-device checks remain entry/exit/Back, rotation/cutouts/system bars, background/resume, artwork changes/missing artwork, bright covers, long original/translation at large font scale, WORD sweep, pause/seeks/source loss, and normal Follow restoration.
+- Origin SSH fetch currently fails because its agent cannot sign. HTTPS fetch succeeded and personal main remains `2d72cb2`; publication will be attempted through available authorized credentials after implementation.
 
-## Checkpoint validation
+## Checkpoint evidence
 
-- `:platform:media:testDebugUnitTest :app:testDebugUnitTest` completed successfully: 459 tests across 61 suites, zero failures/errors/skips. This includes 16 recovery timing/lifecycle cases and five platform-request ordering/fallback/privacy cases.
-- Architecture and whitespace checks passed. The build helper verified the actual cgroup had `memory.max=3221225472` and `memory.swap.max=0`; no emulator was started.
-- An additional `:platform:media:lintDebug` check failed on unchanged `AndroidMediaSessionSource.kt:198` (`NewApi` for the existing pending-intent launch helper). That helper already returns null below API 34; lint does not infer the SDK guard through its result. The report also contains two existing `InlinedApi` warnings in that helper and a newer compileSdk advisory. No lint finding targets the new rebind code. This unrelated static-analysis issue is recorded for follow-up; no baseline/suppression or session-launch change was added here.
+- Focused `:ui:phone:testDebugUnitTest :app:testDebugUnitTest` passed in 55 seconds: 74 Phone tests and 402 app tests, zero failures/errors/skips. This compiles the production Compose Previews, but is not a device-rendering result.
+- The test process verified `memory.max=3221225472` and `memory.swap.max=0`. Architecture and whitespace checks passed; the generated Gradle JVM file is unchanged.
+- HTTPS checkpoint push cannot authenticate (`could not read Username` with prompts disabled). SSH signing also failed as recorded above; local coherent commits are preserved. Check connected GitHub publication capability before declaring a final blocker.
 
-## Final validation and review
+## Final validation and scope review
 
-- Production revision `7439e52` passed `test :app:assembleDebug` in 42 seconds: 830 tests across 104 suites, zero failures/errors/skips. Existing Phone Compose Previews remain compiled and unchanged. Architecture and branch-wide whitespace checks passed.
-- Reviewed all changed application/platform code, tests and docs against personal main `23e928b`. Confirmed manual-timeout-only reset, access/demand/healthy-listener guards, lazy-job assignment and reentrant/late callbacks, one reset per episode, immediate request pairing, API 34 guard and failure fallback, diagnostic privacy, and unchanged reset/retention contracts. No unresolved current-scope blocking finding remains.
-- The optional lint limitation above is retained; no all-checks-green claim is made. Remote GitHub Actions results are not part of this local validation.
-- Both Gradle runs verified a 3 GiB memory ceiling with no swap. Their systemd scopes are now inactive/not loaded; no emulator was started. The user's Gradle JVM file still has SHA256 `6c13aa5ba36690ccfbbb25a8807d01d98c15833e446d7ae82ddc726472cb8ef7`.
-- Remote personal main was rechecked at `23e928b`; reserved Sync and unrelated Performance branch heads remain unchanged. Only documentation follows the successful production build, so reuse the verified APK without rebuilding.
+- `test :app:assembleDebug` passed in 59 seconds at local source revision `d2b6e65`: 852 tests across 108 suites, zero failures/errors/skips. Production Compose Preview fixtures compiled. No emulator or physical-device rendering result is claimed.
+- Architecture and branch-wide whitespace checks passed. Reviewed the complete branch against personal main `2d72cb2`: the shared Karaoke extraction preserves normal scrolling behavior, recovery code/callbacks remain intact, the fullscreen layout consumes existing authoritative rows, and only Phone presentation/window ownership changes. Providers, durable preferences/caches, Android Auto and reset retention semantics are unchanged.
+- Both Gradle runs verified a 3 GiB memory cap with zero swap. The isolated browser preview used a separate verified 1 GiB cap with zero swap after Gradle finished. All three scopes are inactive/not loaded; no task Java/emulator process remains. No IDE/JVM settings were altered; `gradle/gradle-daemon-jvm.properties` still hashes to `6c13aa5ba36690ccfbbb25a8807d01d98c15833e446d7ae82ddc726472cb8ef7`.
+- The conversation mockup was visually inspected and exercised across 144 combinations of 320/360/760px host widths, dark/white/busy/missing covers, short/long Chinese/English text, translation on/off and 1.0/1.8 font scale. No JavaScript errors or geometry overlap/overflow were found. These are browser-rendered design illustrations, not Android screenshots. Production Compose Previews and the APK are provided for native inspection within the workstation's resource budget.
+- Native device follow-up is limited to the listed rotation/insets, lifecycle, live artwork transition, Karaoke and oversized-text checks. No new runtime feature is deferred. The previous API 37 emulator was not restarted because it exceeded the workstation budget.
 
-## APK and device handoff
+## Publication and APK handoff
 
-- APK: `app/build/outputs/apk/debug/aalyrics-manual-rebind-7439e52.apk`.
-- Package `io.github.whoxamxl.aalyrics.debug`; version `1.0.0-beta.1-dev+7439e52`; versionCode 1.
-- APK SHA256: `0ca9d839124f6a4c34ac63dbd94d8444a36bcae64b7d714652952f9325557acb`.
-- Verified Debug certificate SHA256: `bbcffafa7296076c0a8c9565798a83c49f4860856e6743d758fa4d5aad1f5703`, matching the previous Debug APK for an in-place install.
-- On the next incident, keep Spotify playing, wait for timeout, and tap Reconnect once. Check whether the song returns; export diagnostics even if a subsequent notification-access off/on is still needed. The new log distinguishes the unbind/rebind request pair from real service creation/connection. No physical Xiaomi recovery result is claimed yet.
+- The connected GitHub API can write the personal repository. Published the seven coherent local checkpoints as equivalent Git trees on `feature/phone-performance-redesign`; each returned tree SHA was checked before updating that branch with an expected-head lease. No PR was opened during implementation.
+- Published source commit `16e9e10` and locally built `d2b6e65` have the identical tree `2f13d0078ef1850442da497fdf7cf2ad3642843f`. Commit IDs differ because the API generated new commit metadata. The clean local topic now follows the published branch; `backup/phone-performance-build-d2b6e65` retains the exact local build revision. Original Performance and reserved Sync branches remain untouched. Personal main was re-fetched and remains `2d72cb2`.
+- APK: `app/build/outputs/apk/debug/aalyrics-performance-d2b6e65.apk`; package `io.github.whoxamxl.aalyrics.debug`, version `1.0.0-beta.1-dev+d2b6e65`, versionCode 1.
+- APK SHA256: `24918b44a299576b8ecc1b2622091fdb7f5c439b4e7a3fd6a801568dbb6584ab`.
+- Debug signing certificate SHA256: `bbcffafa7296076c0a8c9565798a83c49f4860856e6743d758fa4d5aad1f5703`, matching the earlier Debug handoff for an in-place install.
+- Only documentation follows the successful source build; reuse the verified APK without rebuilding. No remote CI or physical-device success is claimed.

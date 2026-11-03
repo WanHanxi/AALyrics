@@ -343,7 +343,9 @@ Still deferred:
 - LINE-only synthetic intra-line progress;
 - any future Android Auto Karaoke proposal, which requires a new explicit product decision;
 - any translated-word Karaoke timing;
-- broader fullscreen/Performance-mode Karaoke presentation.
+- a Performance-specific whole-word pulse or active-word size-pop renderer.
+
+Phone fullscreen Performance presentation is implemented as a separate three-row surface in `PHONE_PERFORMANCE_MODE.md`. It reuses the existing gated WORD continuous sweep and shared timing facts; entering fullscreen does not change Karaoke enablement or lyrics selection.
 
 The implemented Phone path consumes `LyricsTimingProjection`, keeps enablement outside the timing engine, tests presentation separately from timing semantics, and keeps Phone and automotive presentation independent. PR #86 further isolates current-row Karaoke updates from static lazy-row content without changing these timing semantics.
 
