@@ -12,8 +12,8 @@
 - [x] Separate original-project and fork-maintainer credits, preserve the original donation recipient, and align bundled policy/branding documentation and Compose Previews.
 - [x] Enable and verify the personal repository's feedback channels; move app/documentation feedback routes and the LRCLIB User-Agent to this fork.
 - [x] Run focused routing/provider tests, architecture checks and a Debug build under the workstation resource budget; inspect the resulting APK and review the full diff.
-- [ ] Add the owner-supplied personal donation entry with matching policy/docs, Preview coverage and navigation validation.
-- [ ] Complete final verification and branch review after the donation follow-up.
+- [x] Add the owner-supplied personal donation entry with matching policy/docs, Preview coverage and navigation validation.
+- [x] Complete final local verification and branch review after the donation follow-up.
 
 Delivery gate: push this record, require a successful hosted Build on the final branch head, then open a Draft PR against the personal repository and stop. The PR records the hosted run and final delivery status.
 
@@ -32,7 +32,7 @@ Delivery gate: push this record, require a successful hosted Build on the final 
 ## Validation and status
 
 - Baseline: clean personal main, matching remote `ebf7af2863bb39050cbe3fa1c5a3cbfd47b92808`.
-- Initial attribution/feedback implementation passed local and hosted validation. The personal donation follow-up is in progress and requires a fresh Debug build; the published Release and version channel are unchanged.
+- Final implementation and local validation are complete, including both donation recipients. The published Release and version channel are unchanged. Hosted validation of the final head precedes Draft PR creation.
 
 - Attribution checkpoint: architecture checks and `git diff --check` pass; all Settings/runtime/Preview call sites carry the separate original-project callback. Dedicated footer Previews cover typical, narrow and enlarged-font layouts. Compilation is deferred to the final source checkpoint to avoid redundant local builds.
 
@@ -48,3 +48,12 @@ Delivery gate: push this record, require a successful hosted Build on the final 
 - UI validation is compilation/resource inspection plus Compose Preview coverage. No emulator or on-device visual test was run; typical/narrow/enlarged-font footer Previews and the existing Support screen Previews are available for visual review.
 - Initial hosted Build [41778846680](https://github.com/WanHanxi/AALyrics/actions/runs/41778846680) passed on `027ec69`, including full unit tests, Debug build and artifact uploads.
 - The owner-supplied personal support URL returned HTTP 200 with page title `WHX`. No payment was initiated. Final app/documentation changes retain two distinct recipients.
+
+## Final donation follow-up validation
+
+- Source checkpoint `d393218`: `SettingsNavigationTest` (3 tests) and `:app:assembleDebug` passed in 48 seconds. Existing navigation coverage includes the new support child and returns it to Settings home; no new persistence/reset behavior was introduced.
+- The verified 3 GiB / zero-swap scope peaked at 2,508,328,960 bytes (2.34 GiB), with zero OOM/limit events. The scope ended after verification. No emulator was started and generated JVM settings remain unchanged.
+- Current Debug APK: `app/build/outputs/apk/debug/app-debug.apk`, 92,160,303 bytes; SHA256 `35671be711e27f64a555d73a8524e5de9225e480934bc05489143d130813dad5`. Package `io.github.wanhanxi.aalyrics.debug`, version `1.1.0-beta.1-dev+d393218`, label `AALyrics Debug`.
+- APK inspection confirms both Buy Me a Coffee URLs, both recipient-specific labels/accessibility descriptions, separate maintainer/original credits, and the personal feedback routes. All six bundled documents exactly match current source. Funding YAML parses with `buy_me_a_coffee: wancy` and the original-author URL as a separate custom link.
+- Both support pages reuse the same native presentation while supplying distinct copy and callbacks. Added personal-support Previews cover typical, narrow and enlarged-font layouts; original-author Previews remain available. Source review traced each callback to its corresponding URL. Visual/on-device verification remains an optional handoff, with no emulator run claimed.
+- Final branch-wide scope review, architecture checks and diff checks pass. The prior 23 routing/provider tests remain applicable to unchanged code; final hosted CI runs the complete suite and Debug build. No remaining implementation work is deferred.
