@@ -137,13 +137,13 @@
     <string name="settings_github_ideas">Ideas</string>
     <string name="settings_github_general">General</string>
     <string name="settings_private_report">Private report</string>
+    <string name="settings_support">Support AALyrics</string>
     <string name="settings_support_fork">Support this fork</string>
-    <string name="settings_support_fork_body">This personal fork of AALyrics is maintained by WanHanxi.\n\nYou can support its maintenance and development through Buy Me a Coffee.</string>
-    <string name="settings_support_fork_subtext">Support is optional. Payments go to WanHanxi and are handled externally by Buy Me a Coffee.</string>
+    <string name="settings_support_fork_body">Support WanHanxi, who maintains and develops this personal fork.</string>
     <string name="settings_support_fork_button_description">Support WanHanxi, this fork\'s maintainer, on Buy Me a Coffee</string>
     <string name="settings_support_aalyrics">Support the original author</string>
-    <string name="settings_support_body">AALyrics was created by Yuta Miura (whoxamxl). This personal fork is maintained by WanHanxi.\n\nYou can support the original author through Buy Me a Coffee.</string>
-    <string name="settings_support_subtext">Support is optional. Payments go to the original author and are handled externally by Buy Me a Coffee.</string>
+    <string name="settings_support_body">Support Yuta Miura (whoxamxl), creator of the original AALyrics project.</string>
+    <string name="settings_support_subtext">Support is optional. Contributions go to the recipient you choose and are handled by Buy Me a Coffee.</string>
     <string name="settings_support_button_description">Support Yuta Miura, the original author, on Buy Me a Coffee</string>
     <string name="settings_support_fallback_label">Buy Me a Coffee</string>
     <string name="settings_support_open_note">Opens Buy Me a Coffee</string>

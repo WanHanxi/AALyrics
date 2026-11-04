@@ -47,14 +47,11 @@ import io.github.whoxamxl.aalyrics.ui.phone.R
 
 private const val BMC_BUTTON_ASPECT_RATIO = 545f / 153f
 
-/** Native Settings landing surface identifying the selected recipient before external payment. */
+/** One Settings support destination with separate cards for the fork and original author. */
 @Composable
 internal fun SupportAALyricsSettingsScreen(
-    title: String,
-    body: String,
-    supportNote: String,
-    buttonDescription: String,
-    onSupport: () -> Unit,
+    onSupportFork: () -> Unit,
+    onSupportOriginalAuthor: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     bottomOverlayInset: Dp = 0.dp,
@@ -72,55 +69,91 @@ internal fun SupportAALyricsSettingsScreen(
             ),
     ) {
         SettingsSubscreenHeader(
-            title = title,
+            title = stringResource(R.string.settings_support),
             backContentDescription = stringResource(R.string.settings_back),
             onBack = onBack,
         )
 
         Spacer(Modifier.height(AALyricsSpacing.Space12))
 
-        SettingsSection(title = null) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(AALyricsSpacing.Space20),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(
-                    text = body,
-                    style = AALyricsTypography.AppTitle,
-                    color = AALyricsColors.TextPrimary,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth(),
-                )
+        Text(
+            text = stringResource(R.string.settings_support_subtext),
+            style = AALyricsTypography.TrackArtist,
+            color = AALyricsColors.TextSecondary,
+            modifier = Modifier.padding(horizontal = AALyricsSpacing.Space4),
+        )
 
-                Spacer(Modifier.height(AALyricsSpacing.Space12))
+        Spacer(Modifier.height(AALyricsSpacing.Space16))
 
-                Text(
-                    text = supportNote,
-                    style = AALyricsTypography.TrackArtist,
-                    color = AALyricsColors.TextSecondary,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth(),
-                )
+        SupportRecipientCard(
+            title = stringResource(R.string.settings_support_fork),
+            body = stringResource(R.string.settings_support_fork_body),
+            buttonDescription = stringResource(R.string.settings_support_fork_button_description),
+            onSupport = onSupportFork,
+            animationEnabled = supportCtaAnimationEnabled,
+        )
 
-                Spacer(Modifier.height(AALyricsSpacing.Space32))
+        Spacer(Modifier.height(AALyricsSpacing.Space16))
 
-                SupportStickerButton(
-                    contentDescription = buttonDescription,
-                    onSupport = onSupport,
-                    animationEnabled = supportCtaAnimationEnabled,
-                )
+        SupportRecipientCard(
+            title = stringResource(R.string.settings_support_aalyrics),
+            body = stringResource(R.string.settings_support_body),
+            buttonDescription = stringResource(R.string.settings_support_button_description),
+            onSupport = onSupportOriginalAuthor,
+            animationEnabled = supportCtaAnimationEnabled,
+        )
+    }
+}
 
-                Spacer(Modifier.height(AALyricsSpacing.Space8))
+@Composable
+private fun SupportRecipientCard(
+    title: String,
+    body: String,
+    buttonDescription: String,
+    onSupport: () -> Unit,
+    animationEnabled: Boolean,
+) {
+    SettingsSection(title = null) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(AALyricsSpacing.Space20),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                text = title,
+                style = AALyricsTypography.TrackTitle,
+                color = AALyricsColors.TextPrimary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
+            )
 
-                Text(
-                    text = stringResource(R.string.settings_support_open_note),
-                    style = AALyricsTypography.Label,
-                    color = AALyricsColors.TextTertiary,
-                    textAlign = TextAlign.Center,
-                )
-            }
+            Spacer(Modifier.height(AALyricsSpacing.Space8))
+
+            Text(
+                text = body,
+                style = AALyricsTypography.TrackArtist,
+                color = AALyricsColors.TextSecondary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
+            )
+
+            Spacer(Modifier.height(AALyricsSpacing.Space20))
+
+            SupportStickerButton(
+                contentDescription = buttonDescription,
+                onSupport = onSupport,
+                animationEnabled = animationEnabled,
+            )
+
+            Spacer(Modifier.height(AALyricsSpacing.Space8))
+
+            Text(
+                text = stringResource(R.string.settings_support_open_note),
+                style = AALyricsTypography.Label,
+                color = AALyricsColors.TextTertiary,
+                textAlign = TextAlign.Center,
+            )
         }
     }
 }

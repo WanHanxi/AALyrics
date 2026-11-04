@@ -5,7 +5,7 @@
 - The owner approved the attribution plan: identify WanHanxi as this fork's maintainer, retain Yuta Miura's original copyright, unify the fork's contact/feedback destinations, and label the existing donations as support for the original author.
 - Follow-up: the owner supplied `https://buymeacoffee.com/wancy` for a separate personal donation entry. Add it alongside the original-author entry in the app, README and GitHub funding configuration.
 - Branch: `fix/personal-fork-attribution`, based on personal `main` `ebf7af2` (published `v1.1.0-beta.1`). Target only `WanHanxi/AALyrics:main`.
-- Complete implementation and validation, push coherent checkpoints, then open a Draft PR and stop. No merge, review request, tag or new release is authorized.
+- Existing personal [Draft PR #5](https://github.com/WanHanxi/AALyrics/pull/5) is open. The owner now requests one Support entry in the Settings list, opening two stacked recipient cards. Update this PR after implementation and validation, then stop; no merge, review request, tag or new release is authorized.
 
 ## Checkpoints
 
@@ -15,7 +15,7 @@
 - [x] Add the owner-supplied personal donation entry with matching policy/docs, Preview coverage and navigation validation.
 - [x] Complete final local verification and branch review after the donation follow-up.
 
-Delivery gate: push this record, require a successful hosted Build on the final branch head, then open a Draft PR against the personal repository and stop. The PR records the hosted run and final delivery status.
+Delivery gate: validate and push this follow-up, require successful hosted CI, update the existing Draft PR description to the final layout, then stop.
 
 ## Decisions and acceptance criteria
 
@@ -32,7 +32,7 @@ Delivery gate: push this record, require a successful hosted Build on the final 
 ## Validation and status
 
 - Baseline: clean personal main, matching remote `ebf7af2863bb39050cbe3fa1c5a3cbfd47b92808`.
-- Final implementation and local validation are complete, including both donation recipients. The published Release and version channel are unchanged. Hosted validation of the final head precedes Draft PR creation.
+- The attribution and donation implementation is complete in Draft PR #5. The combined-support-layout follow-up is now in progress. The published Release and version channel are unchanged.
 
 - Attribution checkpoint: architecture checks and `git diff --check` pass; all Settings/runtime/Preview call sites carry the separate original-project callback. Dedicated footer Previews cover typical, narrow and enlarged-font layouts. Compilation is deferred to the final source checkpoint to avoid redundant local builds.
 
@@ -57,3 +57,12 @@ Delivery gate: push this record, require a successful hosted Build on the final 
 - APK inspection confirms both Buy Me a Coffee URLs, both recipient-specific labels/accessibility descriptions, separate maintainer/original credits, and the personal feedback routes. All six bundled documents exactly match current source. Funding YAML parses with `buy_me_a_coffee: wancy` and the original-author URL as a separate custom link.
 - Both support pages reuse the same native presentation while supplying distinct copy and callbacks. Added personal-support Previews cover typical, narrow and enlarged-font layouts; original-author Previews remain available. Source review traced each callback to its corresponding URL. Visual/on-device verification remains an optional handoff, with no emulator run claimed.
 - Final branch-wide scope review, architecture checks and diff checks pass. The prior 23 routing/provider tests remain applicable to unchanged code; final hosted CI runs the complete suite and Debug build. No remaining implementation work is deferred.
+
+## Combined support screen follow-up
+
+- [x] Replace the two Settings rows/subscreens with one `Support AALyrics` entry and one screen containing two stacked cards: WanHanxi first, original author second.
+- [x] Preserve the two URLs and independent callbacks, shorten repeated card copy, and keep a shared voluntary/external-payment note.
+- [ ] Update combined-screen Previews and current documentation; validate navigation, build/APK content, architecture and the follow-up diff under the same workstation limits.
+- [ ] Push the completed follow-up and update Draft PR #5 after CI; keep it Draft and stop before merge.
+
+Reset contract: only Settings-local navigation changes. The single support child returns to MAIN with existing Back/root-reset handling; no durable preferences, caches or onboarding state are added.

@@ -274,7 +274,6 @@ private fun SettingsScreenContentPreview(
                 onLicenseRequested = {},
                 onHelpFeedbackRequested = {},
                 onSupportAALyricsRequested = {},
-                onSupportForkRequested = {},
                 onAdvancedRequested = {},
                 onOpenGitHub = {},
                 onOpenOriginalProject = {},

@@ -5,7 +5,7 @@
 - Send this fork's bug reports, questions, ideas, discussion and private security reports to `WanHanxi/AALyrics`; identify the fork in LRCLIB request headers.
 - Identify WanHanxi as the personal fork maintainer in Settings, alongside a separate link and copyright credit for the original author, Yuta Miura (`whoxamxl`).
 - Clarify that the existing Buy Me a Coffee links support the original author, and align the bundled Terms of Use and Privacy Policy with the fork's maintenance and donation attribution.
-- Add a separate **Support this fork** destination for WanHanxi alongside **Support the original author**, with both recipients identified in the app and repository donation links.
+- Add one **Support AALyrics** entry in Settings that opens two stacked cards: **Support this fork** for WanHanxi, followed by **Support the original author**. Each card and repository donation link identifies its recipient.
 
 ## [1.1.0-beta.1] - 2026-11-03
 
