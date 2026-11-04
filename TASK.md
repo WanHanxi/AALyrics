@@ -5,7 +5,7 @@
 - Prepare `v1.1.0-beta.1` on `release/1.1.0-beta.1`, based on personal `main` `175e821`.
 - The owner requested TeslaMate-inspired release notes, personal update routing, an independent application ID/signing identity, and release-pipeline verification.
 - Follow-up: the owner explicitly requested making PetitLyrics optional instead of depending on credentials from another project. All four values absent/blank disables the source; a complete configuration enables it; partial configuration fails with field names only.
-- Update the existing personal Draft PR [#4](https://github.com/WanHanxi/AALyrics/pull/4). No merge, ready conversion, review request, tag, or public release is authorized.
+- Continue the existing personal PR [#4](https://github.com/WanHanxi/AALyrics/pull/4), now marked ready for review in GitHub. The owner requested assessment/fix of its signing-helper review and an explanation of Beta versus stable readiness. No merge, new review request, tag, public release or version-channel change is authorized.
 
 ## Checkpoints
 
@@ -14,6 +14,7 @@
 - [x] Align Changelog, Privacy, README, provider/composition and release documentation with the default three-source build.
 - [x] Verify absent/complete/partial configuration, provider/graph tests, architecture and the signed candidate under the workstation resource budget.
 - [x] Review the branch diff, push coherent checkpoints, verify hosted CI and update Draft PR #4; stop before merge/tag.
+- [ ] Fix the valid signing-helper review with real-key regression coverage, run focused validation and CI, and update the existing PR.
 
 ## Decisions and boundaries
 
@@ -48,10 +49,20 @@
 - Optional-source checkpoint `15ce4ea` is pushed. [Hosted Build 41626517577](https://github.com/WanHanxi/AALyrics/actions/runs/41626517577) passed on that exact source in 5m 12s: architecture, Debug APK, unit tests and both Debug artifact uploads. As before, no automatic run was visible after the push; an explicit manual Build dispatch supplied this verification. No publication workflow was triggered.
 - Draft PR #4 now describes the optional provider and the current local/hosted results, with no missing-PetitLyrics publication blocker. The remaining record-only commit changes TASK.md, so it reuses the successful APKs and CI. All task Gradle scopes are inactive/not loaded; no emulator was started. Stop without ready conversion, review request, merge or tag.
 
+## Signing-helper review follow-up
+
+- Review [discussion_r4463403483](https://github.com/WanHanxi/AALyrics/pull/4#discussion_r4463403483) is a valid in-scope P2: `keytool -exportcert` checks the certificate/store password but not the private-key password, so the helper could report success or upload an incorrect `AALYRICS_RELEASE_KEY_PASSWORD`.
+- Reproduced with a temporary JKS whose store and key passwords differ, plus a local `gh` recorder that never contacts GitHub. Before the fix, both dry-run and upload-mode negative cases incorrectly succeeded. Existing real signing and device tests remain evidence that the currently configured key works.
+- The fix signs and discards a local certificate request with the supplied key password before any success message or upload. Add integration coverage for correct distinct passwords, rejection of a wrong key password in both modes, no key mutation, no password logging and exactly four signing-Secret upload calls. Build CI runs these tests after JDK setup.
+- Only the helper, its tests/workflow and documentation change. Reuse the existing tested APK; no application source, persisted state, version or signing material changes.
+- Focused validation passed: all 3 integration tests (including dry-run and upload-mode wrong-password subcases), the real personal key's `--dry-run`, architecture checks and `git diff --check`. No real GitHub Secrets were uploaded or changed. The test fixture uses a temporary JKS and intercepts all `gh` calls locally; the real-key check prints only the public fingerprint/status. No local Gradle or emulator run was needed.
+- Pending: push the focused fix, verify hosted CI and update the PR validation record.
+
 ## Publication handoff
 
 - On 2026-11-03, the owner reported that installing the older signed fixture and then the current signed candidate worked, and functional testing found no problems. Record this as owner-reported real-device installation/upgrade and functional validation; no additional APK/source change or build is needed.
 - PetitLyrics credentials are no longer a publication prerequisite. Only enable the source later with a complete set of authorized credentials and matching release notes.
 - On 2026-11-03, the owner confirmed that the personal `.jks` keystore and `release-signing.json` (including passwords) have been backed up to an independent secure location. GitHub Secrets are not the sole backup.
 - The manual old-to-new installation check does not exercise published GitHub discovery/download. Verify the published APK/checksum assets, Pre-release status and in-app discovery after authorized publication.
-- Merge/tag/publication still require explicit owner authorization. Keep PR #4 as Draft after this follow-up.
+- The owner confirmed enabling fork workflows through GitHub's Actions banner. Verify automatic Build runs on the review-fix push; earlier manual runs alone did not establish automatic triggering.
+- Merge/tag/publication still require explicit owner authorization. Preserve the PR's existing ready-for-review state during this follow-up.

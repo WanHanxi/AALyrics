@@ -33,6 +33,23 @@ def main():
         expected = (repository / ".github/release-signing-certificate.sha256").read_text().strip()
         if hashlib.sha256(cert).hexdigest() != expected:
             raise ValueError("Keystore does not match the pinned personal signing certificate")
+        # Exporting a certificate does not unlock the private key. Sign and discard
+        # a local certificate request to validate its password without changing the key.
+        subprocess.run(
+            [
+                "keytool", "-certreq", "-keystore", str(keystore),
+                "-alias", config["AALYRICS_RELEASE_KEY_ALIAS"],
+                "-storepass:env", "AALYRICS_PRIVATE_STORE_PASSWORD",
+                "-keypass:env", "AALYRICS_PRIVATE_KEY_PASSWORD",
+            ],
+            env=dict(
+                os.environ,
+                AALYRICS_PRIVATE_STORE_PASSWORD=config["AALYRICS_RELEASE_STORE_PASSWORD"],
+                AALYRICS_PRIVATE_KEY_PASSWORD=config["AALYRICS_RELEASE_KEY_PASSWORD"],
+            ),
+            stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+            check=True,
+        )
         values = {
             "AALYRICS_RELEASE_KEYSTORE_BASE64": base64.b64encode(keystore.read_bytes()).decode(),
             **{key: config[key] for key in (

@@ -152,7 +152,7 @@ A public certificate fingerprint identifies a signer; it cannot sign an APK and 
 
 The initial local key and private JSON configuration were stored outside this checkout under the owner's user data directory; their exact paths are recorded in the local handoff, not embedded in source. Back up both to secure storage independently of this workstation before publication. The JSON has the four build-time `AALYRICS_RELEASE_STORE_FILE`, `AALYRICS_RELEASE_STORE_PASSWORD`, `AALYRICS_RELEASE_KEY_ALIAS` and `AALYRICS_RELEASE_KEY_PASSWORD` fields.
 
-With [GitHub CLI](https://cli.github.com/) installed and authenticated to the owner's account, the following helper validates the existing key against the public fingerprint and configures **only** the four personal signing Secrets. It sends secret values through stdin, never command-line arguments or printed output, and always selects `WanHanxi/AALyrics` explicitly:
+With [GitHub CLI](https://cli.github.com/) installed and authenticated to the owner's account, the following helper validates the existing key against the public fingerprint and configures **only** the four personal signing Secrets. Before reporting success or uploading, it also locally signs and discards a certificate request to verify the private-key password; exporting the public certificate alone cannot validate that password. The check does not modify the keystore. It sends secret values through stdin, never command-line arguments or printed output, and always selects `WanHanxi/AALyrics` explicitly:
 
 ```bash
 python3 scripts/configure-signing-secrets.py /path/outside/repo/release-signing.json --dry-run
