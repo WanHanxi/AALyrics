@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  <a href="https://www.buymeacoffee.com/whoxamxi"><img src="https://img.shields.io/badge/Support-Buy_Me_a_Coffee-FFDD00?style=for-the-badge&logo=buymeacoffee&logoColor=000000" height="40" alt="Support AALyrics on Buy Me a Coffee" /></a>
+  <a href="https://www.buymeacoffee.com/whoxamxi"><img src="https://img.shields.io/badge/Support_Original_Author-Buy_Me_a_Coffee-FFDD00?style=for-the-badge&logo=buymeacoffee&logoColor=000000" height="40" alt="Support the original author on Buy Me a Coffee" /></a>
   <a href="https://github.com/WanHanxi/AALyrics/releases"><img src="https://img.shields.io/badge/Download_APK-GitHub_Releases-181717?style=for-the-badge&logo=github&logoColor=white" height="40" alt="Download AALyrics APK from GitHub Releases" /></a>
 </p>
 
@@ -62,7 +62,7 @@ AALyrics observes the active Android media session, matches the current track ag
 - **Phone playback surface** — play/pause, previous/next, seek, relative seek, and Queue support where the active media app exposes them.
 - **Built-in updates** — signed GitHub Release APK discovery, SHA-256 verification, package/signing preflight, and Android PackageInstaller handoff.
 
-This is [WanHanxi’s personal fork](https://github.com/WanHanxi/AALyrics) of [the original AALyrics project](https://github.com/whoxamxl/AALyrics). The planned first personal release is **1.1 Beta 1**; see [release setup and validation](docs/RELEASES.md). Original licensing, notices and support links retain their upstream attribution.
+This personal fork is maintained by [WanHanxi](https://github.com/WanHanxi/AALyrics), based on [the original AALyrics project by Yuta Miura (`whoxamxl`)](https://github.com/whoxamxl/AALyrics). The first personal release is **1.1 Beta 1**; see [release setup and validation](docs/RELEASES.md). The original license and required copyright notice are preserved. The donation links below support the original author.
 
 ## Get AALyrics
 
@@ -128,12 +128,12 @@ For an exact value, tap the number under **LYRICS OFFSET** (or its pencil icon).
 
 The offset is global, saved across songs and app restarts, and shared with Android Auto. It is limited to ±30 seconds and never seeks the music or rewrites source timestamps. Plain lyrics cannot be calibrated. **Settings → Advanced → Reset AALyrics** also clears the saved offset.
 
-## Support AALyrics
+## Support the original author
 
-If AALyrics is useful to you and you want to support continued development, you can contribute through Buy Me a Coffee.
+If you would like to support Yuta Miura (`whoxamxl`), the original AALyrics author, you can contribute through Buy Me a Coffee. These donations go to the original author, not to WanHanxi, the maintainer of this fork.
 
 <p>
-  <a href="https://www.buymeacoffee.com/whoxamxi"><img src="https://img.shields.io/badge/Support-Buy_Me_a_Coffee-FFDD00?style=for-the-badge&logo=buymeacoffee&logoColor=000000" alt="Support AALyrics on Buy Me a Coffee" /></a>
+  <a href="https://www.buymeacoffee.com/whoxamxi"><img src="https://img.shields.io/badge/Support_Original_Author-Buy_Me_a_Coffee-FFDD00?style=for-the-badge&logo=buymeacoffee&logoColor=000000" alt="Support the original author on Buy Me a Coffee" /></a>
 </p>
 
 ## Development

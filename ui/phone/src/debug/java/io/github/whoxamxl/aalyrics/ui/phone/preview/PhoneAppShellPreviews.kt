@@ -308,6 +308,7 @@ internal fun PreviewSettingsDestination(
         onAndroidAutoCompatibilitySetup = {},
         onCheckForUpdates = {},
         onOpenGitHub = {},
+        onOpenOriginalProject = {},
         onHelpFeedback = {},
         onSupportAALyrics = {},
         modifier = Modifier.fillMaxSize(),

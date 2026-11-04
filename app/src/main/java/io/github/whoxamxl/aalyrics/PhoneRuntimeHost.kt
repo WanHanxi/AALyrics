@@ -74,6 +74,7 @@ internal fun PhoneRuntimeHost(
     onResetAALyrics: () -> Unit,
     onOpenInstallSettings: () -> Unit,
     onOpenSourceCode: () -> Unit,
+    onOpenOriginalProject: () -> Unit,
     onOpenHelpFeedback: (HelpFeedbackDestination) -> Unit,
     onOpenSupportAALyrics: () -> Unit,
     performanceWindow: @Composable (Boolean) -> Unit,
@@ -407,6 +408,7 @@ internal fun PhoneRuntimeHost(
                     }
                 },
                 onOpenGitHub = onOpenSourceCode,
+                onOpenOriginalProject = onOpenOriginalProject,
                 onHelpFeedback = onOpenHelpFeedback,
                 onSupportAALyrics = onOpenSupportAALyrics,
                 bottomOverlayInset = bottomOverlayInset,

@@ -1,6 +1,6 @@
 # AALyrics Privacy Policy
 
-**Effective date:** October 31, 2026
+**Effective date:** November 3, 2026
 
 AALyrics is an Android application for displaying synchronized lyrics for music playing on your device. This policy describes the data AALyrics accesses, stores, and sends when you use the app.
 
@@ -91,7 +91,7 @@ Notification Access is granted separately through Android system settings and is
 
 Settings can open external pages such as the AALyrics GitHub repository.
 
-If you choose **Support AALyrics**, the app opens the configured Buy Me a Coffee page in a browser surface. AALyrics does not embed the checkout, receive your payment credentials, process the transaction, or unlock app features based on a contribution.
+If you choose **Support the original author**, the app opens Yuta Miura's (`whoxamxl`) Buy Me a Coffee page in a browser surface. Contributions go to the original author, not to this fork's maintainer. AALyrics does not embed the checkout, receive your payment credentials, process the transaction, or unlock app features based on a contribution.
 
 Once you open an external site, that site's own terms and privacy practices apply.
 

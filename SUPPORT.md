@@ -65,11 +65,11 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) before proposing code changes.
 
 External code contributions are currently governed by the contribution policy stated there.
 
-## Support AALyrics
+## Support the original author
 
 Financial support is optional.
 
-AALyrics currently links to Buy Me a Coffee:
+The Buy Me a Coffee link supports Yuta Miura (`whoxamxl`), the original AALyrics author. Donations go to the original author, not to WanHanxi, the maintainer of this fork:
 
 <https://buymeacoffee.com/whoxamxi>
 

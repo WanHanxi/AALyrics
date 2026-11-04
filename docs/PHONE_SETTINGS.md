@@ -14,7 +14,7 @@ PR #60 integrated the lower Settings information architecture into `main`: `APP`
 
 Settings should expose stable user configuration without turning the Phone UI into an owner of application state.
 
-The production Settings surface remains intentionally focused. Lyrics owns the user-facing playback-source eligibility toggle alongside Plain auto-scroll. Advanced contains the narrow unclassified-source override, one debug presentation preference, the persisted experimental Karaoke feature gate, one Translation storage-management action, and one app-owned reset action. It does not become a general developer-settings surface. Changelog, Privacy Policy, Terms of Use, and License are read-only bundled-document surfaces and do not create networking ownership; License includes the bundled third-party license notices inline as its third section. `Help & Feedback` is a native routing hub for end-user help and feedback destinations. `Support AALyrics` remains a separate voluntary project-support surface; payment interaction remains entirely outside AALyrics.
+The production Settings surface remains intentionally focused. Lyrics owns the user-facing playback-source eligibility toggle alongside Plain auto-scroll. Advanced contains the narrow unclassified-source override, one debug presentation preference, the persisted experimental Karaoke feature gate, one Translation storage-management action, and one app-owned reset action. It does not become a general developer-settings surface. Changelog, Privacy Policy, Terms of Use, and License are read-only bundled-document surfaces and do not create networking ownership; License includes the bundled third-party license notices inline as its third section. `Help & Feedback` is a native routing hub for end-user help and feedback destinations. `Support the original author` remains a separate voluntary funding surface for Yuta Miura, the original author; payment interaction remains entirely outside AALyrics.
 
 Settings subscreens use the shared `SettingsSubscreenHeader` rather than implementing their own header. The standard back affordance is the Material rounded chevron-left used by the current Advanced screen: 32dp icon inside a 48dp touch target, followed by the screen title. This intentionally mirrors the chevron-right affordance used to enter `Advanced`. Text-only `Back` actions and alternate arrow shapes are not used for normal Settings hierarchy navigation. Legal content remains at one Settings depth: License renders its required notice, AALyrics license terms, and third-party licenses inline on one scrollable screen.
 
@@ -42,7 +42,7 @@ Settings
 │  ├─ Terms of Use                            >
 │  ├─ License                                 >
 │  ├─ Help & Feedback                         >
-│  └─ Support AALyrics                        >
+│  └─ Support the original author            >
 └─ Advanced                                  >
 
 Changelog
@@ -69,7 +69,7 @@ Help & Feedback
 ├─ General discussion                         ↗
 └─ Report a security issue                    ↗
 
-Support AALyrics
+Support the original author
 ├─ native AALyrics explanation
 └─ Support on Buy Me a Coffee                 ↗
    └─ external Custom Tab / browser handoff
@@ -91,7 +91,8 @@ Advanced
 AALyrics mark
 AALyrics
 Version: vX.X.X
-© <current year> Yuta Miura (whoxamxl)
+Original project: © <current year> Yuta Miura (whoxamxl)
+Personal fork maintained by WanHanxi
 ```
 Provider preferences, appearance/theme selection, production log export, and other future taxonomy remain out of scope. Debug builds additionally expose the narrow connection-diagnostics export described below. The approved Advanced surface remains narrow: Playback source owns only the unclassified-app escape hatch, Verbose Details controls read-only diagnostic presentation, Karaoke mode is the persisted experimental feature-availability gate, Storage owns explicit Translation-model cleanup, and Reset restores only AALyrics-owned state.
 
@@ -684,7 +685,7 @@ Therefore:
 - `:ui:phone` does not read Android assets directly;
 - there is no Changelog loading/failure/retry lifecycle or network callback;
 - changing `CHANGELOG.md` requires no Phone UI code update;
-- the Settings Changelog row is normal internal navigation, matching Privacy Policy, License, Support AALyrics, and Advanced.
+- the Settings Changelog row is normal internal navigation, matching Privacy Policy, License, Support the original author, and Advanced.
 
 Release entries are maintained newest-first. Before a release tag is created, the tagged version must be added as the newest version heading in `CHANGELOG.md`. The release workflow verifies that relationship before building/publishing the signed APK. See `docs/RELEASES.md`.
 
@@ -708,7 +709,7 @@ https://github.com/WanHanxi/AALyrics
 
 ## About & Support section
 
-`ABOUT & SUPPORT` groups policy/legal information, help routing, and the voluntary project-support entry. It is deliberately separate from `APP`: Version/update, Changelog, and Source code remain application/distribution information. The final row order is Privacy Policy, Terms of Use, License, Help & Feedback, then Support AALyrics. `Help & Feedback` and `Support AALyrics` remain distinct because one routes users seeking help or providing feedback while the other is voluntary funding for continued development.
+`ABOUT & SUPPORT` groups policy/legal information, help routing, and the voluntary project-support entry. It is deliberately separate from `APP`: Version/update, Changelog, and Source code remain application/distribution information. The final row order is Privacy Policy, Terms of Use, License, Help & Feedback, then Support the original author. `Help & Feedback` and `Support the original author` remain distinct because one routes users seeking help or providing feedback while the other funds the original author. Donations do not go to the maintainer of this fork.
 
 ### Privacy Policy
 
@@ -818,17 +819,17 @@ Current destinations are:
 
 Security vulnerabilities are therefore routed to GitHub private vulnerability reporting, never a public Issue or Discussion.
 
-### Support AALyrics
+### Support the original author
 
-A `Support AALyrics >` internal navigation row sits directly below Help & Feedback.
+A `Support the original author >` internal navigation row sits directly below Help & Feedback.
 
-Opening it presents a native second-level Settings surface using `SettingsSubscreenHeader`. The surface may explain that AALyrics is free to use and that voluntary support helps continued development, but it must remain concise and non-coercive.
+Opening it presents a native second-level Settings surface using `SettingsSubscreenHeader`. The surface identifies Yuta Miura (`whoxamxl`) as the original author and WanHanxi as this fork's maintainer, and makes clear that donations go to the original author. The copy remains concise and non-coercive.
 
 The support surface is a compact landing card rather than a generic Settings row. It uses the user-approved Buy Me a Coffee SVG artwork as the single CTA, converted to an Android VectorDrawable so the artwork remains crisp across phone densities. The content order is: concise native AALyrics explanation, muted optional/external-payment note, 32dp breathing room, the centered animated Buy Me a Coffee CTA, then a small `Opens Buy Me a Coffee` affordance label. QR assets are intentionally not used on the in-app phone surface.
 
 The CTA animation is native Compose presentation over the static vector artwork: a subtle pulse scales from 0.98 to 1.02 and back, while a diagonal shimmer sweeps across the clipped button surface. There is intentionally no tilt or positional float. This removes GIF decoding, raster scaling, frame/canvas cropping, and platform-specific animated-drawable fallback behavior from the Phone UI. Tapping the CTA hands off to the configured Buy Me a Coffee page in a secure browser surface, preferably Android Custom Tabs with ordinary external-browser fallback where necessary. The application/runtime boundary owns launching that external destination; `:ui:phone` emits a support-link callback and must not own Android intents, Custom Tabs, or browser APIs.
 
-The canonical support account must stay aligned with repository `.github/FUNDING.yml` (currently Buy Me a Coffee account `whoxamxi`).
+The original author's support account remains Buy Me a Coffee `whoxamxi`, aligned with repository `.github/FUNDING.yml`. Keep the recipient explicit in the Settings entry, landing-page copy, accessible button description, README and policy documents.
 
 AALyrics must not:
 
@@ -994,7 +995,7 @@ Both Storage and Reset explanations use the shared `SettingInfoTooltip`; explana
 
 The Advanced surface remains Settings-owned UI. It does not become a fifth primary destination.
 
-Ordinary child-screen navigation preserves the Settings home scroll position. Entering Advanced, Changelog, Privacy Policy, Terms of Use, License, Help & Feedback, or Support AALyrics and then using Header/System Back returns to the same Settings home viewport the user left.
+Ordinary child-screen navigation preserves the Settings home scroll position. Entering Advanced, Changelog, Privacy Policy, Terms of Use, License, Help & Feedback, or Support the original author and then using Header/System Back returns to the same Settings home viewport the user left.
 
 Reselecting the already-selected Settings bottom-navigation tab is a stronger Settings-root reset. It dismisses any active Settings modal, discards uncommitted dialog-local draft state such as a Target-language selection, leaves any Settings subscreen, returns directly to the main Settings surface, and scrolls the Settings home content back to the top.
 
@@ -1020,18 +1021,20 @@ The Settings destination ends with a centered, always-visible AALyrics branding 
 AALyrics
 
 Version: vX.X.X
-© <current year> Yuta Miura (whoxamxl)
+Original project: © <current year> Yuta Miura (whoxamxl)
+Personal fork maintained by WanHanxi
 ```
 
 The mark is derived from `branding/android/AALyrics_foreground_android.svg` and rendered from a Phone-local VectorDrawable so `:ui:phone` does not depend on `:app` resources.
 
 The installed version comes from presentation state. The current year is also supplied as presentation state so it is not hard-coded into the Composable.
 
-The copyright/username line acts as the GitHub affordance and emits `onOpenGitHub`. Application/runtime wiring should open:
+The two credits are separate, centered links that wrap on narrow screens and with enlarged fonts. Each has a minimum 48dp touch target:
 
-```text
-https://github.com/whoxamxl/AALyrics
-```
+- Original-project credit emits `onOpenOriginalProject` and opens `https://github.com/whoxamxl/AALyrics`.
+- Fork-maintainer credit emits `onOpenGitHub` and opens `https://github.com/WanHanxi/AALyrics`, as does the Source code row.
+
+The repository `LICENSE` and `NOTICE` remain unchanged; the footer identifies maintenance responsibility without transferring or replacing the original copyright.
 
 The Phone UI must not own Android intent/browser launching.
 
@@ -1077,8 +1080,8 @@ Deterministic debug Previews should cover at least:
 - Terms of Use screen at typical, narrow, and enlarged-font configurations;
 - License screen with inline Third-party licenses content at typical, narrow, and enlarged-font configurations;
 - Help & Feedback screen at typical, narrow, and enlarged-font configurations;
-- Support AALyrics screen at typical, narrow, and enlarged-font configurations;
-- branding footer;
+- Support the original author screen at typical, narrow, and enlarged-font configurations;
+- branding footer with separate original-project and fork-maintainer credits at typical, narrow, and narrow/enlarged-font configurations;
 - Advanced navigation row;
 - Lyrics source filtering with Ignore non-audio apps ON (default) and OFF;
 - Advanced screen with Verbose details OFF and ON;

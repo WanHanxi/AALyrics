@@ -1,3 +1,10 @@
+## Unreleased
+
+### Changed
+
+- Identify WanHanxi as the personal fork maintainer in Settings, alongside a separate link and copyright credit for the original author, Yuta Miura (`whoxamxl`).
+- Clarify that the existing Buy Me a Coffee links support the original author, and align the bundled Terms of Use and Privacy Policy with the fork's maintenance and donation attribution.
+
 ## [1.1.0-beta.1] - 2026-11-03
 
 This first personal-fork beta adds a fullscreen lyrics view with album artwork, tools to align lyrics with what you hear, and offline reuse of previously loaded lyrics. Playback connections now have bounded recovery attempts and a clear way to retry when Android leaves the listener disconnected.

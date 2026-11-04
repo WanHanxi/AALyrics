@@ -51,6 +51,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.whoxamxl.aalyrics.ui.designsystem.icon.AALyricsIcons
@@ -641,10 +642,11 @@ internal fun SettingsBrandFooter(
     appName: String,
     versionLabel: String,
     versionName: String,
-    currentYear: Int,
-    copyrightOwner: String,
+    originalProjectCredit: String,
+    forkMaintainerCredit: String,
     logoContentDescription: String,
     onOpenGitHub: () -> Unit,
+    onOpenOriginalProject: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -685,16 +687,33 @@ internal fun SettingsBrandFooter(
         }
 
         Text(
-            text = "© $currentYear $copyrightOwner",
+            text = originalProjectCredit,
             style = AALyricsTypography.TrackArtist,
             color = AALyricsColors.TextSecondary,
+            textAlign = TextAlign.Center,
             modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = AALyricsSpacing.Space48)
+                .clickable(
+                    role = Role.Button,
+                    onClick = onOpenOriginalProject,
+                )
+                .padding(AALyricsSpacing.Space8),
+        )
+
+        Text(
+            text = forkMaintainerCredit,
+            style = AALyricsTypography.TrackArtist,
+            color = AALyricsColors.TextSecondary,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
                 .heightIn(min = AALyricsSpacing.Space48)
                 .clickable(
                     role = Role.Button,
                     onClick = onOpenGitHub,
                 )
-                .padding(horizontal = AALyricsSpacing.Space8),
+                .padding(AALyricsSpacing.Space8),
         )
     }
 }
