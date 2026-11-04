@@ -14,7 +14,7 @@
 - [x] Align Changelog, Privacy, README, provider/composition and release documentation with the default three-source build.
 - [x] Verify absent/complete/partial configuration, provider/graph tests, architecture and the signed candidate under the workstation resource budget.
 - [x] Review the branch diff, push coherent checkpoints, verify hosted CI and update Draft PR #4; stop before merge/tag.
-- [ ] Fix the valid signing-helper review with real-key regression coverage, run focused validation and CI, and update the existing PR.
+- [x] Fix the valid signing-helper review with real-key regression coverage, run focused validation and CI, and update the existing PR.
 
 ## Decisions and boundaries
 
@@ -56,7 +56,8 @@
 - The fix signs and discards a local certificate request with the supplied key password before any success message or upload. Add integration coverage for correct distinct passwords, rejection of a wrong key password in both modes, no key mutation, no password logging and exactly four signing-Secret upload calls. Build CI runs these tests after JDK setup.
 - Only the helper, its tests/workflow and documentation change. Reuse the existing tested APK; no application source, persisted state, version or signing material changes.
 - Focused validation passed: all 3 integration tests (including dry-run and upload-mode wrong-password subcases), the real personal key's `--dry-run`, architecture checks and `git diff --check`. No real GitHub Secrets were uploaded or changed. The test fixture uses a temporary JKS and intercepts all `gh` calls locally; the real-key check prints only the public fingerprint/status. No local Gradle or emulator run was needed.
-- Pending: push the focused fix, verify hosted CI and update the PR validation record.
+- Fix `358fd78` is pushed. Both automatic Builds passed on that source: [PR run 41771025851](https://github.com/WanHanxi/AALyrics/actions/runs/41771025851) and [push run 41771020662](https://github.com/WanHanxi/AALyrics/actions/runs/41771020662). The script regression tests, architecture checks, Debug build, unit tests and artifact uploads passed; PR branch/commit checks passed too. This confirms automatic triggering after the owner enabled fork workflows.
+- Updated the PR description and resolved the addressed review thread after those checks passed. Only this TASK.md validation record follows the checked implementation; retain the existing tested APK. No new review request, merge, tag or public release was made.
 
 ## Publication handoff
 
@@ -64,5 +65,5 @@
 - PetitLyrics credentials are no longer a publication prerequisite. Only enable the source later with a complete set of authorized credentials and matching release notes.
 - On 2026-11-03, the owner confirmed that the personal `.jks` keystore and `release-signing.json` (including passwords) have been backed up to an independent secure location. GitHub Secrets are not the sole backup.
 - The manual old-to-new installation check does not exercise published GitHub discovery/download. Verify the published APK/checksum assets, Pre-release status and in-app discovery after authorized publication.
-- The owner confirmed enabling fork workflows through GitHub's Actions banner. Verify automatic Build runs on the review-fix push; earlier manual runs alone did not establish automatic triggering.
+- The owner confirmed enabling fork workflows through GitHub's Actions banner; automatic push and PR Builds are now verified by the signing-helper follow-up above.
 - Merge/tag/publication still require explicit owner authorization. Preserve the PR's existing ready-for-review state during this follow-up.
