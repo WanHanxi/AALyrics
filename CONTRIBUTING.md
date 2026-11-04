@@ -29,10 +29,10 @@ Use lowercase, descriptive names after the prefix, for example `feature/provider
 
 Debug and release builds intentionally use separate Android application IDs so they can coexist on the same device:
 
-- Debug: `io.github.whoxamxl.aalyrics.debug`
-- Release: `io.github.whoxamxl.aalyrics`
+- Debug: `io.github.wanhanxi.aalyrics.debug`
+- Release: `io.github.wanhanxi.aalyrics`
 
-The Kotlin/Android namespace remains `io.github.whoxamxl.aalyrics`; only the install-time application ID differs. Debug builds are also labeled `AALyrics Debug` in the launcher and Android Auto so they are distinguishable from an installed release build.
+The Kotlin/Android namespace remains `io.github.whoxamxl.aalyrics`; the personal install-time application IDs are independent of upstream. The launcher and Android Auto labels are `AALyrics` and `AALyrics Debug`; the personal and original apps are distinguished by package ID. This is a fresh installation: original-app settings, cached lyrics and permissions are not migrated.
 
 Do not use a normal debug build to validate the production self-update path. Published releases target the release application ID and durable release signing identity; use the dedicated release-signed update-test workflow when production update compatibility must be exercised.
 

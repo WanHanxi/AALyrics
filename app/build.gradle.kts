@@ -10,6 +10,17 @@ val petitLyricsLocal = Properties().apply {
     val source = rootProject.file("secrets.properties.local")
     if (source.isFile) source.inputStream().use { load(it) }
 }
+val petitLyricsConfig = listOf(
+    "PETITLYRICS_USER_ID", "PETITLYRICS_APP_NAME",
+    "PETITLYRICS_PKG_NAME", "PETITLYRICS_CLIENT_APP_ID",
+).associateWith { key ->
+    providers.environmentVariable(key).orNull ?: petitLyricsLocal.getProperty(key, "")
+}
+val missingPetitLyricsKeys = petitLyricsConfig.filterValues { it.isBlank() }.keys
+check(missingPetitLyricsKeys.isEmpty() || missingPetitLyricsKeys.size == petitLyricsConfig.size) {
+    "Incomplete optional PetitLyrics configuration. Leave all four values blank to disable it, " +
+        "or supply all four to enable it. Missing: ${missingPetitLyricsKeys.joinToString()}"
+}
 fun javaStringLiteral(value: String): String = "\"" + value
     .replace("\\", "\\\\").replace("\"", "\\\"")
     .replace("\r", "\\r").replace("\n", "\\n").replace("\t", "\\t") + "\""
@@ -109,17 +120,13 @@ android {
     sourceSets.getByName("main").assets.srcDir(generatedBundledDocumentsAssetsDir)
 
     defaultConfig {
-        applicationId = "io.github.whoxamxl.aalyrics"
+        applicationId = "io.github.wanhanxi.aalyrics"
         minSdk = 26
         targetSdk = 36
         versionCode = configuredVersionCode
         versionName = configuredVersionName
 
-        listOf(
-            "PETITLYRICS_USER_ID", "PETITLYRICS_APP_NAME",
-            "PETITLYRICS_PKG_NAME", "PETITLYRICS_CLIENT_APP_ID",
-        ).forEach { key ->
-            val value = providers.environmentVariable(key).orNull ?: petitLyricsLocal.getProperty(key, "")
+        petitLyricsConfig.forEach { (key, value) ->
             buildConfigField("String", key, javaStringLiteral(value))
         }
     }

@@ -1,13 +1,39 @@
-## [Unreleased] — Fork changes
+## [1.1.0-beta.1] - 2026-11-03
 
-### Added
+This first personal-fork beta adds a fullscreen lyrics view with album artwork, tools to align lyrics with what you hear, and offline reuse of previously loaded lyrics. Playback connections now have bounded recovery attempts and a clear way to retry when Android leaves the listener disconnected.
 
-- Three-tap Sync calibration: listen for three highlighted lyric starts, tap once for each, and save their average offset. Supports cancellation and preserves the existing manual fine-tuning controls.
-- Phone Sync controls to advance or delay lyrics by 50 ms or 500 ms, with a live original/translated lyric preview and Reset.
-- A compact Lyrics Offset card with one row of adjustment controls, an inline Reset action, and adaptive grouping for large fonts.
-- Tap the current lyrics offset to enter an exact signed millisecond value, with a numeric keyboard, sign toggle, validation, and Save/Cancel.
-- A saved global offset (±30 seconds) shared by Phone, Karaoke, verbose Details, and Android Auto. Playback position and provider timestamps remain unchanged.
-- Reset AALyrics also restores the lyrics offset to zero.
+### Installation notes
+
+This is the **WanHanxi personal fork**, based on upstream AALyrics 1.0 Beta 1. It installs as **AALyrics**, alongside the original app, and checks for updates in `WanHanxi/AALyrics`.
+
+The new package has its own signing identity and storage. It does not replace the original app or earlier Debug builds, and their settings and cached lyrics are not copied. Enable Notification access for the new app; Android Auto users should also select **AALyrics** in the launcher settings.
+
+This release uses **LRCLIB, Musixmatch, and SyncLRC**. PetitLyrics is optional and disabled in this build, so songs available only from that source will not be found.
+
+### New features
+
+- **Fullscreen lyrics:** a centered current line and translation, previous/next context, and a softened album-art background. Portrait and landscape layouts support long lyrics, large text and word-synced Karaoke; lines prefer existing spaces when wrapping.
+- **Lyrics calibration:** tap along with three lyric starts to save an average offset, adjust by 50 or 500 ms, or enter an exact signed millisecond value. A live preview helps fine-tune the result. The saved offset is shared by Phone and Android Auto; Reset AALyrics restores it to zero.
+- **Offline lyrics:** previously resolved original lyrics, their timing and provider attribution survive app restarts and can be reused without another provider request. Storage is bounded, and Reset AALyrics preserves the cache.
+
+### Improvements and bug fixes
+
+- Recover missing media-listener connections with a limited retry sequence while Phone or Android Auto needs lyrics. A failed attempt now shows a connection dialog instead of leaving an endless Connecting state.
+- On Android 14 and later, manual Reconnect can reset a stalled listener binding before retrying. Notification access settings remain available when Android still does not reconnect.
+- Separate personal Release and Debug installations from upstream, with independent package IDs and a personal signed-update channel.
+- Make PetitLyrics optional at build time: builds and releases work without its credentials; supplying all four configuration values enables it.
+
+### Development builds
+
+- Debug builds record bounded connection diagnostics and can export a report from Settings > Advanced. Reports remain local unless shared by the user; this recorder/export action is not included in Release builds.
+
+### Known limitations
+
+- This is a Beta release. Device-specific notification-listener behavior can still require toggling Notification access in Android settings.
+- Calibration is global; per-song and automatic calibration are not available.
+- Offline reuse requires a matching song already in this app's cache. Translations are not stored in that cache, and there is no cache-management screen yet.
+- Phone word-synced Karaoke remains experimental, defaults off, and requires genuine word timing from the provider.
+- Android Auto remains focused on line-oriented Now Playing; Phone fullscreen presentation and Karaoke are not available there.
 
 ## [1.0.0-beta.1] - 2026-09-26
 

@@ -17,7 +17,7 @@ The production object graph is:
 :app composition root
         |
         +--> LrcLibProvider
-        +--> PetitLyricsProvider
+        +--> PetitLyricsProvider (only when configured)
         +--> MusixmatchProvider
         +--> SyncLrcProvider
         |
@@ -40,7 +40,7 @@ At the time of PR #25, no UI consumed that state. Later runtime/presentation sli
 - `:app` is the composition root and depends on all four concrete provider modules plus `:provider:selection`.
 - Composition is explicit/manual; no DI framework was added.
 - One process-lifetime application graph and application-owned coroutine scope are used for the coordinator.
-- LRCLIB, PetitLyrics, Musixmatch, and SyncLRC are instantiated behind the existing `LyricsProvider` contract.
+- LRCLIB, Musixmatch, and SyncLRC are instantiated behind the existing `LyricsProvider` contract. PetitLyrics is added only when its optional build configuration is complete.
 - `CrossProviderCandidateSelector` is injected behind the existing `CandidateSelector` port.
 - `LyricsCoordinator` is constructed from providers, selector, application scope and the `LyricsCache` port.
 - Production composition supplies one `FileLyricsCache` from `:cache:files`, rooted at `noBackupFilesDir/lyrics_cache`. Tests may supply an isolated file cache or `LyricsCache.None`; the production graph factory requires an explicit cache. No storage policy or file operations move into the composition root.
@@ -56,7 +56,7 @@ The existing `BuildConfig` injection remains authoritative:
 - `PETITLYRICS_PKG_NAME`
 - `PETITLYRICS_CLIENT_APP_ID`
 
-`PetitLyricsConfig` is built from those values. Secrets remain outside source/logs/tests, and an unconfigured PetitLyrics provider remains a safe no-result source rather than preventing graph construction.
+`PetitLyricsConfig` is built from those values. All four blank disables the source; all four nonblank enables it; partial configuration fails the build with field names only. The graph omits an unconfigured PetitLyrics provider entirely, so it does not participate in requests, diagnostics, or the active-provider cache key. Secrets remain outside source/logs/tests. This introduces no durable preference or reset behavior change. See `docs/providers/PETITLYRICS.md` for configuration sources and precedence.
 
 ## Playback preference wiring
 

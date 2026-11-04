@@ -1,92 +1,69 @@
-# Phone Performance mode: centered lyrics and album background
+# Personal fork 1.1 Beta 1 release preparation
 
-## Draft PR handoff approved (2026-11-03)
+## Scope and authorization
 
-- The owner confirmed the current visual result is acceptable and explicitly requested a PR. The visual-design gate is cleared. Target `WanHanxi/AALyrics:main` from `feature/phone-performance-redesign`, as a Draft PR; stop after creating it. Merge, ready-for-review conversion and review requests remain unauthorized.
-- Final `test` validation passed in 39 seconds: 863 tests across 109 suites, zero failures/errors/skips (Gradle reused unchanged test tasks). Architecture and branch-wide whitespace checks passed. The full 31-file branch diff remains scoped to Phone fullscreen presentation, its host/window integration, shared Karaoke extraction, tests/Previews and aligned documentation.
-- Verified personal `main` is still `2d72cb2` and is an ancestor of the feature branch. Reuse the successful `679e955` Debug APK below: the current source differs only in task documentation and its SHA256 is unchanged. No rebuild or new APK upload is needed.
-- Final tests used the verified 3 GiB memory cap and zero swap, one worker and in-process Kotlin. The task scope is inactive/not loaded. Owner visual feedback is recorded; no exhaustive native lifecycle/device matrix is claimed.
-- The three local `backup/phone-*-build-*` refs preserve exact APK build commits. Each has the same Git tree as its corresponding API-published source commit; no `backup/*` branch is present on the personal remote. Keep these build references until normal post-merge cleanup.
-
-## Completed follow-up: current translation contrast (2026-11-03)
-
-- The owner approved using the same white color for the current fullscreen original and its translation. The smaller translation typography continues to distinguish the two; previous/next context stays gray.
-- Implemented with the existing `TextPrimary` color token. Existing portrait/landscape translated Compose Previews exercise the production change. This adds no state or reset behavior.
-- `:app:assembleDebug` passed in 45 seconds, compiling the existing production Previews. Architecture and whitespace checks passed; no additional unit test was added for this color-only presentation change. The build verified the 3 GiB/zero-swap limits; its scope is inactive and the Gradle JVM configuration is unchanged. Native appearance remains subject to phone verification.
-- APK delivery preference: keep future builds local and report their paths. Do not upload to Google Drive. PR creation is now authorized as recorded above.
-- Local APK: `app/build/outputs/apk/debug/aalyrics-performance-translation-white-679e955.apk` (92,156,103 bytes), version `1.0.0-beta.1-dev+679e955`. SHA256: `127bff29992ad89fb23df7804077d88b5a2dc643938f5a00ae30c9bd3ccbf5f2`. Package and signing certificate match the earlier Debug APKs for an in-place update. No APK upload was performed.
-- Published source `a4cda8b` and built local commit `679e955` share tree `f35ced4be79a54eefbec0a45e92ea2b90d2ae92c`; `backup/phone-translation-color-build-679e955` preserves the exact build revision. Only this documentation follows the successful build; reuse the verified artifact. No PR was opened.
-
-## Completed follow-up: space-preferred wrapping (2026-11-03)
-
-- The owner approved prioritizing existing spaces for fullscreen line breaks after a phone screenshot split `這天` across lines. Work continued on the existing personal topic branch; PR creation was deferred at that checkpoint pending visual feedback.
-- Measure real text width, keep complete space-delimited phrases together when possible, and retain platform wrapping for oversized phrases. Cover original/neighbor/translated text, orientation/font changes and existing explicit newlines.
-- Keep canonical text and UTF-16 Karaoke offsets unchanged; do not alter timing, providers, normal scrolling lyrics, durable state or reset behavior.
-- [x] Implement focused wrapping and regression tests, including the reported Chinese line and WORD offsets.
-- [x] Add native Compose Preview cases for portrait/landscape, large fonts and wrapped WORD sweep; align the fullscreen documentation.
-- [x] Validate Phone tests, architecture/whitespace and the updated Debug APK within the workstation memory budget.
-- [x] Publish the coherent checkpoint and prepare the updated privately uploaded APK for phone verification. No PR yet.
-
-Follow-up validation: `:ui:phone:testDebugUnitTest` passed (85 tests in 12 suites, including 11 new wrapping regressions; zero failures/errors/skips). The run verified `memory.max=3221225472` and `memory.swap.max=0`, using one worker and in-process Kotlin. Production Preview fixtures compile, including the reported Chinese line and a WORD sweep across the replaced separator. Architecture and whitespace checks passed. Native rendering remains a phone-verification handoff rather than a claimed emulator result.
-
-`:app:assembleDebug` passed in a subsequent 48-second run under the same verified limits. Both task scopes are now inactive/not loaded; no emulator was started and the Gradle JVM configuration retains its recorded hash. The locally built commit `ff82058` and published source commit `3c11692` have identical tree `b7fb22cbaf779dc943689aa7a3d9c44f084a23dc`; `backup/phone-space-wrap-build-ff82058` preserves the exact local build commit. The personal topic branch is synchronized with the published source. No PR was opened.
-
-Updated artifact: `app/build/outputs/apk/debug/aalyrics-performance-space-wrap-ff82058.apk`, 92,156,099 bytes, package `io.github.whoxamxl.aalyrics.debug`, version `1.0.0-beta.1-dev+ff82058`, versionCode 1. SHA256: `970bef815906307efc035aed90ba8861cf9e7a64a93336e38370c77bb3b63fd5`. Verified the same Debug signing certificate as the previous handoff, so the APK can update that installation. Uploaded to the owner's private Drive and read back the matching filename/size and unshared status. Only this handoff documentation follows the build; reuse the verified APK.
-
-## Approved scope
-
-- The owner selected the compact centered design and approved implementation with a softly blurred, darkened album-art background on 2026-11-02. Cover portrait and landscape; keep current lyrics and their translation readable at large font scales.
-- Continue the unmerged Phone fullscreen implementation on personal main `2d72cb2`, retaining its notification-listener recovery fixes. Branch `feature/phone-performance-redesign` follows the repository's CI branch-name policy. The original Performance branch and the reserved upstream Sync branch remain untouched.
-- Carry forward fullscreen entry/exit, resumed-only immersive/screen-awake effects, authoritative three-row selection, shared WORD Karaoke and PLAIN fallback. Do not alter providers, timing, Translation execution, playback controls or Android Auto.
-- The owner required visual feedback before PR creation, then accepted the current result and authorized a PR on 2026-11-03. Implementation and final validation are complete; open a Draft PR targeting the personal fork. No merge or review request is authorized.
-
-## Acceptance criteria
-
-- Replace weighted vertical slots with a compact measured group near the visual center. Current text uses 48sp in portrait and 60sp in landscape, with normal system font scaling; neighbors and translation have a quieter hierarchy.
-- Measure wrapped content. Hide the previous row first under pressure, then the next if needed. Keep the entire current original/translation reachable through scrolling when it exceeds the viewport. Never ellipsize or shrink the current lyric.
-- Keep a compact title/artist header and accessible exit button; provider attribution is a quiet footer. Respect safe drawing insets and short windows.
-- Reuse existing playback artwork, crop without distortion, soften/darken it with additional lyric-region contrast, and crossfade artwork changes. Missing artwork returns to the plain dark base without a giant fallback logo.
-- Artwork preparation is bounded, asynchronous and keyed to artwork changes, never playback/Karaoke ticks. No network request, disk cache or durable preference is added. The existing reset clears transient fullscreen visibility; derived artwork is released with the surface.
-- Production Compose Previews cover both orientations, bright/dark/busy/no artwork, translated and WORD lyrics, long lines/large fonts, intro/end, PLAIN and empty states.
+- Prepare `v1.1.0-beta.1` on `release/1.1.0-beta.1`, based on personal `main` `175e821`.
+- The owner requested TeslaMate-inspired release notes, personal update routing, an independent application ID/signing identity, and release-pipeline verification.
+- Follow-up: the owner explicitly requested making PetitLyrics optional instead of depending on credentials from another project. All four values absent/blank disables the source; a complete configuration enables it; partial configuration fails with field names only.
+- Continue the existing personal PR [#4](https://github.com/WanHanxi/AALyrics/pull/4), now marked ready for review in GitHub. The owner requested assessment/fix of its signing-helper review and an explanation of Beta versus stable readiness. No merge, new review request, tag, public release or version-channel change is authorized.
 
 ## Checkpoints
 
-- [x] Inspect approved prototype, existing fullscreen branch, artwork seam and current personal main.
-- [x] Carry existing fullscreen source onto current personal main without dropping connection-recovery changes.
-- [x] Implement measured centered layout, responsive typography and focused geometry tests.
-- [x] Add bounded album-background preparation, contrast/crossfade/fallback and production Previews.
-- [x] Validate tests/build/architecture/whitespace under workstation limits; inspect complete branch and align docs.
-- [x] Prepare visible portrait/landscape previews and an installable Debug APK; record actual device-validation limits.
-- [x] Publish coherent checkpoints to the personal feature branch through the GitHub connector, verifying every tree against the local commit.
-- Publication handoff: implementation checkpoints, preview/APK delivery and owner visual feedback are complete. Publish the final validation/approval record, open the authorized Draft PR targeting `WanHanxi/AALyrics:main`, then stop.
+- [x] Prepare personal update routing, install/signing identity, curated notes and release verification; open Draft PR #4.
+- [x] Make PetitLyrics optional in Gradle configuration, production composition and the Release secret gate; retain mandatory release signing.
+- [x] Align Changelog, Privacy, README, provider/composition and release documentation with the default three-source build.
+- [x] Verify absent/complete/partial configuration, provider/graph tests, architecture and the signed candidate under the workstation resource budget.
+- [x] Review the branch diff, push coherent checkpoints, verify hosted CI and update Draft PR #4; stop before merge/tag.
+- [x] Fix the valid signing-helper review with real-key regression coverage, run focused validation and CI, and update the existing PR.
 
-## Verification budget and handoff
+## Decisions and boundaries
 
-- Inspect available memory before heavy work. Run Gradle/tests/preview work sequentially, with no emulator running during compilation.
-- Gradle: one worker, no parallel/daemon reuse, 1 GiB heap, 512 MiB metaspace, in-process Kotlin; verify a task-specific systemd scope has `memory.max=3221225472` and `memory.swap.max=0` before launching it.
-- Preserve the user's IDE and generated JVM configuration. Reuse successful builds after docs-only changes. Do not retry the API 37 emulator that previously forced a 4 GiB guest allocation under a 3 GiB limit.
-- Physical-device checks remain entry/exit/Back, rotation/cutouts/system bars, background/resume, artwork changes/missing artwork, bright covers, long original/translation at large font scale, WORD sweep, pause/seeks/source loss, and normal Follow restoration.
-- Origin SSH fetch currently fails because its agent cannot sign. HTTPS fetch succeeded and personal main remains `2d72cb2`; publication will be attempted through available authorized credentials after implementation.
+- Version: `1.1.0-beta.1`; accumulated features justify a minor bump without claiming stable readiness.
+- Display names remain `AALyrics` / `AALyrics Debug`. Release package: `io.github.wanhanxi.aalyrics`; Debug adds `.debug`. Kotlin namespaces remain `io.github.whoxamxl.aalyrics`.
+- Default sources: LRCLIB, Musixmatch and SyncLRC. No local PetitLyrics configuration or repository Secrets exist. Do not retrieve/copy third-party credentials or change supplied values.
+- Optionality belongs to build configuration and application wiring. Preserve provider transport/search/parsing, provider order when enabled, selector and timing semantics.
+- Reset contract re-evaluated: no new persisted state or user preference. Reset cannot change build configuration. Active provider IDs already partition cache keys; cache retention and reset behavior stay unchanged.
+- Keep upstream license, notices and donation attribution. Use the existing personal signing key; do not rotate it or commit private material.
+- No emulator is required. Run local Gradle work sequentially with one worker, no parallelism, no persistent daemon, 1 GiB heap/512 MiB metaspace, and verified systemd `MemoryMax=3G` / `MemorySwapMax=0`. Do not change IDE/JVM settings.
 
-## Checkpoint evidence
+## Completed release-preparation evidence (before optional-source follow-up)
 
-- Focused `:ui:phone:testDebugUnitTest :app:testDebugUnitTest` passed in 55 seconds: 74 Phone tests and 402 app tests, zero failures/errors/skips. This compiles the production Compose Previews, but is not a device-rendering result.
-- The test process verified `memory.max=3221225472` and `memory.swap.max=0`. Architecture and whitespace checks passed; the generated Gradle JVM file is unchanged.
-- HTTPS checkpoint push cannot authenticate (`could not read Username` with prompts disabled). SSH signing also failed as recorded above; local coherent commits are preserved. Check connected GitHub publication capability before declaring a final blocker.
+- Personal main/base: `175e8212da71aa988dda6ce8271f2125bba94579`. Draft PR #4 originally opened at `2956650`; no upstream-facing branch was touched.
+- Notes reference: [TeslaMate v4.3.0](https://github.com/teslamate-org/teslamate/releases/tag/v4.3.0), with outcomes first, installation notes, features/fixes, limitations and full change history last.
+- Full local `test :app:assembleRelease` passed: 863 tests across 109 suites, no failures/errors/skips. Architecture checks passed. Local runs verified the 3 GiB / zero-swap limits; no emulator was started.
+- Prior signed candidate: `app/build/outputs/apk/release/aalyrics-personal-1.1.0-beta.1-validation.apk`, version `1.1.0-beta.1`, code `1001`, personal package/certificate, label `AALyrics`; six bundled documents matched then-current source. Its former SHA256 was `f6a4932ba07103ee3dc7e704b11a86df3db49b3370bf36a3b03ebda125c72dd5`. The source and bundled-document changes in this follow-up require rebuilding it.
+- APK negative checks rejected the upstream package, wrong versionCode, wrong certificate pin and stale Changelog. Workflow dry runs verified tag/version/title/code/notes and rejected malformed tags and version mismatches. No tag or Release was created.
+- The owner completed GitHub CLI authentication as `WanHanxi`; the token is in the system keyring. Repository Actions are enabled with the existing `allowed_actions: all` policy.
+- All four `AALYRICS_RELEASE_*` signing Secrets were uploaded from the existing personal key and verified by names only. No PetitLyrics Secrets are configured or required for the default build.
+- [Hosted Build 41613715977](https://github.com/WanHanxi/AALyrics/actions/runs/41613715977) passed on `6c2cabc` in 7m 52s: Debug APK, unit tests, release-signed lower-version fixture and uploads. Manual dispatch was used after earlier pushes showed no runs; no cause is claimed for those absent runs.
+- Downloaded hosted fixture: `1.1.0-alpha.1`, code `1`, package `io.github.wanhanxi.aalyrics`, label `AALyrics`. Its certificate matches the local key and committed pin: `65ab98bb7c208e914c49c229bf040f29ab2570d9af697c9fdf789b3f268e473d`. APK SHA256: `608237e2e2d98167ee4065f20a86282324622806bf0c25e24385c173224b80f5`.
+- No connected Android device was available. The task-started adb server was stopped; no emulator was used. Generated Gradle JVM settings retained SHA256 `6c13aa5ba36690ccfbbb25a8807d01d98c15833e446d7ae82ddc726472cb8ef7`.
 
-## Final validation and scope review
+## Optional-source follow-up validation
 
-- `test :app:assembleDebug` passed in 59 seconds at local source revision `d2b6e65`: 852 tests across 108 suites, zero failures/errors/skips. Production Compose Preview fixtures compiled. No emulator or physical-device rendering result is claimed.
-- Architecture and branch-wide whitespace checks passed. Reviewed the complete branch against personal main `2d72cb2`: the shared Karaoke extraction preserves normal scrolling behavior, recovery code/callbacks remain intact, the fullscreen layout consumes existing authoritative rows, and only Phone presentation/window ownership changes. Providers, durable preferences/caches, Android Auto and reset retention semantics are unchanged.
-- Both Gradle runs verified a 3 GiB memory cap with zero swap. The isolated browser preview used a separate verified 1 GiB cap with zero swap after Gradle finished. All three scopes are inactive/not loaded; no task Java/emulator process remains. No IDE/JVM settings were altered; `gradle/gradle-daemon-jvm.properties` still hashes to `6c13aa5ba36690ccfbbb25a8807d01d98c15833e446d7ae82ddc726472cb8ef7`.
-- The conversation mockup was visually inspected and exercised across 144 combinations of 320/360/760px host widths, dark/white/busy/missing covers, short/long Chinese/English text, translation on/off and 1.0/1.8 font scale. No JavaScript errors or geometry overlap/overflow were found. These are browser-rendered design illustrations, not Android screenshots. Production Compose Previews and the APK are provided for native inspection within the workstation's resource budget.
-- Native device follow-up is limited to the listed rotation/insets, lifecycle, live artwork transition, Karaoke and oversized-text checks. No new runtime feature is deferred. The previous API 37 emulator was not restarted because it exceeded the workstation budget.
+- Configuration matrix passed using only synthetic values: partial configuration (including a whitespace-only missing field) fails with missing field names and no value leakage; all-whitespace values succeed; complete values pass application-graph tests and are preserved exactly. The final build removes all synthetic environment values and uses no local provider file.
+- Full `test :app:assembleRelease` passed in 1m 14s: 865 tests across 109 suites, zero failures/errors/skips. This includes absent/configured production graph coverage and the existing PetitLyrics no-network-on-incomplete-config test. All local Gradle invocations verified the 3 GiB / zero-swap scope and used the mandated one-worker flags.
+- Exercised the actual Release workflow signing gate with synthetic inputs: it accepts missing PetitLyrics configuration and rejects each missing required signing field. The signed build still receives optional provider variables for authoritative Gradle validation.
+- Current signed candidate: `app/build/outputs/apk/release/aalyrics-personal-1.1.0-beta.1-validation.apk`, 84409579 bytes; SHA256 `54b2f67dafd52b37ac89f49a1593ae2bdf4183a2196058be122330c435cf416b`. Package `io.github.wanhanxi.aalyrics`, label `AALyrics`, version `1.1.0-beta.1`, code `1001`, and the pinned personal certificate all pass inspection. The six bundled documents match current source, all four generated Release provider fields are empty, and synthetic configuration is absent from APK code.
+- Architecture and whitespace checks pass. Rechecked the cumulative branch scope and personal remote main, still `175e821`. No provider implementation, reset code, UI flow, signing key or upstream-facing branch was changed by this follow-up. Generated JVM settings retain their recorded hash.
+- Optional-source checkpoint `15ce4ea` is pushed. [Hosted Build 41626517577](https://github.com/WanHanxi/AALyrics/actions/runs/41626517577) passed on that exact source in 5m 12s: architecture, Debug APK, unit tests and both Debug artifact uploads. As before, no automatic run was visible after the push; an explicit manual Build dispatch supplied this verification. No publication workflow was triggered.
+- Draft PR #4 now describes the optional provider and the current local/hosted results, with no missing-PetitLyrics publication blocker. The remaining record-only commit changes TASK.md, so it reuses the successful APKs and CI. All task Gradle scopes are inactive/not loaded; no emulator was started. Stop without ready conversion, review request, merge or tag.
 
-## Publication and APK handoff
+## Signing-helper review follow-up
 
-- The connected GitHub API can write the personal repository. Published the seven coherent local checkpoints as equivalent Git trees on `feature/phone-performance-redesign`; each returned tree SHA was checked before updating that branch with an expected-head lease. No PR was opened during implementation.
-- Published source commit `16e9e10` and locally built `d2b6e65` have the identical tree `2f13d0078ef1850442da497fdf7cf2ad3642843f`. Commit IDs differ because the API generated new commit metadata. The clean local topic now follows the published branch; `backup/phone-performance-build-d2b6e65` retains the exact local build revision. Original Performance and reserved Sync branches remain untouched. Personal main was re-fetched and remains `2d72cb2`.
-- APK: `app/build/outputs/apk/debug/aalyrics-performance-d2b6e65.apk`; package `io.github.whoxamxl.aalyrics.debug`, version `1.0.0-beta.1-dev+d2b6e65`, versionCode 1.
-- APK SHA256: `24918b44a299576b8ecc1b2622091fdb7f5c439b4e7a3fd6a801568dbb6584ab`.
-- Debug signing certificate SHA256: `bbcffafa7296076c0a8c9565798a83c49f4860856e6743d758fa4d5aad1f5703`, matching the earlier Debug handoff for an in-place install.
-- Only documentation follows the successful source build; reuse the verified APK without rebuilding. No remote CI or physical-device success is claimed.
+- Review [discussion_r4463403483](https://github.com/WanHanxi/AALyrics/pull/4#discussion_r4463403483) is a valid in-scope P2: `keytool -exportcert` checks the certificate/store password but not the private-key password, so the helper could report success or upload an incorrect `AALYRICS_RELEASE_KEY_PASSWORD`.
+- Reproduced with a temporary JKS whose store and key passwords differ, plus a local `gh` recorder that never contacts GitHub. Before the fix, both dry-run and upload-mode negative cases incorrectly succeeded. Existing real signing and device tests remain evidence that the currently configured key works.
+- The fix signs and discards a local certificate request with the supplied key password before any success message or upload. Add integration coverage for correct distinct passwords, rejection of a wrong key password in both modes, no key mutation, no password logging and exactly four signing-Secret upload calls. Build CI runs these tests after JDK setup.
+- Only the helper, its tests/workflow and documentation change. Reuse the existing tested APK; no application source, persisted state, version or signing material changes.
+- Focused validation passed: all 3 integration tests (including dry-run and upload-mode wrong-password subcases), the real personal key's `--dry-run`, architecture checks and `git diff --check`. No real GitHub Secrets were uploaded or changed. The test fixture uses a temporary JKS and intercepts all `gh` calls locally; the real-key check prints only the public fingerprint/status. No local Gradle or emulator run was needed.
+- Fix `358fd78` is pushed. Both automatic Builds passed on that source: [PR run 41771025851](https://github.com/WanHanxi/AALyrics/actions/runs/41771025851) and [push run 41771020662](https://github.com/WanHanxi/AALyrics/actions/runs/41771020662). The script regression tests, architecture checks, Debug build, unit tests and artifact uploads passed; PR branch/commit checks passed too. This confirms automatic triggering after the owner enabled fork workflows.
+- Updated the PR description and resolved the addressed review thread after those checks passed. Only this TASK.md validation record follows the checked implementation; retain the existing tested APK. No new review request, merge, tag or public release was made.
+
+## Publication handoff
+
+- On 2026-11-03, the owner reported that installing the older signed fixture and then the current signed candidate worked, and functional testing found no problems. Record this as owner-reported real-device installation/upgrade and functional validation; no additional APK/source change or build is needed.
+- PetitLyrics credentials are no longer a publication prerequisite. Only enable the source later with a complete set of authorized credentials and matching release notes.
+- On 2026-11-03, the owner confirmed that the personal `.jks` keystore and `release-signing.json` (including passwords) have been backed up to an independent secure location. GitHub Secrets are not the sole backup.
+- The manual old-to-new installation check does not exercise published GitHub discovery/download. Verify the published APK/checksum assets, Pre-release status and in-app discovery after authorized publication.
+- The owner confirmed enabling fork workflows through GitHub's Actions banner; automatic push and PR Builds are now verified by the signing-helper follow-up above.
+- Merge/tag/publication still require explicit owner authorization. Preserve the PR's existing ready-for-review state during this follow-up.

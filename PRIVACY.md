@@ -34,9 +34,11 @@ AALyrics does not use Notification Access to build a notification history, and t
 To find lyrics, AALyrics may contact one or more third-party lyrics providers, currently:
 
 - LRCLIB;
-- PetitLyrics;
+- PetitLyrics (only in builds with its optional configuration enabled);
 - Musixmatch;
 - SyncLRC.
+
+Builds without PetitLyrics configuration do not register or contact that source. The personal 1.1 Beta 1 release uses LRCLIB, Musixmatch, and SyncLRC.
 
 Depending on the provider and the metadata available for a track, a request may include the track title, artist, album, duration, and a supported service identifier such as a Spotify track identifier.
 
@@ -117,8 +119,8 @@ The Privacy Policy shipped inside AALyrics is bundled from this repository's `PR
 
 ## Contact
 
-AALyrics is maintained by Yuta Miura (`whoxamxl`).
+The original AALyrics project is maintained by Yuta Miura (`whoxamxl`). This personal fork is maintained by `WanHanxi`.
 
 For privacy-related questions, use the AALyrics GitHub repository. Avoid posting sensitive personal information in a public issue or discussion.
 
-<https://github.com/whoxamxl/AALyrics>
+<https://github.com/WanHanxi/AALyrics>

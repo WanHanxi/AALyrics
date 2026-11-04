@@ -883,22 +883,27 @@ internal class ApplicationGraph(
 internal fun createProductionApplicationGraph(
     applicationScope: CoroutineScope,
     lyricsCache: LyricsCache,
+    petitLyricsConfig: PetitLyricsConfig = PetitLyricsConfig(
+        userId = BuildConfig.PETITLYRICS_USER_ID,
+        appName = BuildConfig.PETITLYRICS_APP_NAME,
+        packageName = BuildConfig.PETITLYRICS_PKG_NAME,
+        clientAppId = BuildConfig.PETITLYRICS_CLIENT_APP_ID,
+    ),
 ): ApplicationGraph {
-    val providers: List<LyricsProvider> = listOf(
-        LrcLibProvider(),
-        PetitLyricsProvider(
-            config = PetitLyricsConfig(
-                userId = BuildConfig.PETITLYRICS_USER_ID,
-                appName = BuildConfig.PETITLYRICS_APP_NAME,
-                packageName = BuildConfig.PETITLYRICS_PKG_NAME,
-                clientAppId = BuildConfig.PETITLYRICS_CLIENT_APP_ID,
-            ),
-            versionCode = BuildConfig.VERSION_CODE,
-            versionName = BuildConfig.VERSION_NAME,
-        ),
-        MusixmatchProvider(),
-        SyncLrcProvider(versionName = BuildConfig.VERSION_NAME),
-    )
+    val providers: List<LyricsProvider> = buildList {
+        add(LrcLibProvider())
+        if (petitLyricsConfig.isConfigured) {
+            add(
+                PetitLyricsProvider(
+                    config = petitLyricsConfig,
+                    versionCode = BuildConfig.VERSION_CODE,
+                    versionName = BuildConfig.VERSION_NAME,
+                ),
+            )
+        }
+        add(MusixmatchProvider())
+        add(SyncLrcProvider(versionName = BuildConfig.VERSION_NAME))
+    }
     val selector: CandidateSelector = CrossProviderCandidateSelector()
     val preferences = CandidateSelectionPreferences(preferredSyncType = LyricsSyncType.WORD)
 

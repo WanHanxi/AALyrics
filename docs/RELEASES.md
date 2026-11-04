@@ -2,7 +2,7 @@
 
 ## Purpose
 
-AALyrics is distributed outside Google Play. GitHub Releases are the durable distribution channel for signed Android APKs.
+This personal fork distributes signed APKs through [WanHanxi/AALyrics Releases](https://github.com/WanHanxi/AALyrics/releases), outside Google Play. The first planned personal milestone is `v1.1.0-beta.1`. Upstream release history in this document and Changelog is retained as provenance; it is not evidence that this fork has already published a release.
 
 A release is a versioned, signed, installable distribution snapshot. It does **not** imply that the application is feature-complete. Early development builds may be published intentionally as GitHub Pre-releases so signing, installation, Android Auto discovery, update compatibility, and real-device behavior can be validated before the product is ready for a stable release.
 
@@ -38,9 +38,9 @@ Development milestones use semantic-version-style prerelease tags:
 
 By default, the Release workflow publishes an accepted tag containing a prerelease suffix with GitHub's **Pre-release** flag. The semantic version suffix remains the canonical product channel even if the GitHub Release label is changed later for repository presentation.
 
-The signed distribution pipeline has been exercised through `v1.0.0-beta.1`. That release remains semantically **AALyrics 1.0 Beta 1** because its tag and Android version are `v1.0.0-beta.1` / `1.0.0-beta.1`.
+The **upstream** signed distribution pipeline was exercised through `v1.0.0-beta.1`. That release remains semantically **AALyrics 1.0 Beta 1** because its tag and Android version are `v1.0.0-beta.1` / `1.0.0-beta.1`.
 
-For the current repository presentation, the published `v1.0.0-beta.1` Release has been manually changed from GitHub's **Pre-release** label to **None**. Because it is the newest normal Release, GitHub currently surfaces it as **Latest** in the repository sidebar and `/releases/latest`. This is a display/discoverability exception only: it does not rename the tag, change update ordering, remove the Beta product designation, or declare stable `1.0.0` readiness.
+In the upstream repository presentation, the published `v1.0.0-beta.1` Release has been manually changed from GitHub's **Pre-release** label to **None**. Because it is the newest normal Release, GitHub currently surfaces it as **Latest** in the repository sidebar and `/releases/latest`. This is a display/discoverability exception only: it does not rename the tag, change update ordering, remove the Beta product designation, or declare stable `1.0.0` readiness.
 
 ### Stable releases
 
@@ -72,7 +72,7 @@ Release tags must point to commits contained in `main`.
 
 Do not move or reuse a tag after a release has been published. If a published build is wrong, fix the problem and create a new version tag.
 
-The tag without the leading `v` becomes Android `versionName`. The Release workflow run number is used as Android `versionCode`, providing increasing update ordering across this workflow's releases.
+The tag without the leading `v` becomes Android `versionName`. The personal Release workflow uses `1000 + github.run_number` as Android `versionCode`. This increases across releases in this workflow and reserves lower positive codes for signed installation-test fixtures before the first publication. Preserve this monotonic scheme when changing workflows; never reset the published code sequence.
 
 ### GitHub Release display title
 
@@ -93,7 +93,7 @@ This distinction is presentation-only. Tag matching, update comparison, Android 
 
 ## Signing identity
 
-All durable AALyrics release APKs must be signed by the same release key.
+All durable **personal** AALyrics release APKs must be signed by the same personal release key. It is independent of the original author's key and the Android Debug key. The expected public certificate fingerprint is pinned in `.github/release-signing-certificate.sha256`; the Release workflow verifies it before publishing.
 
 The release keystore must never be committed to Git. The repository ignores common keystore extensions, but that is only a guardrail; the canonical keystore should remain outside the repository and be backed up securely.
 
@@ -106,7 +106,7 @@ AALYRICS_RELEASE_KEY_ALIAS
 AALYRICS_RELEASE_KEY_PASSWORD
 ```
 
-The existing PetitLyrics production credentials are also required by the Release workflow:
+PetitLyrics is optional. Leave all four of these repository secrets unset to build and publish with LRCLIB, Musixmatch, and SyncLRC only:
 
 ```text
 PETITLYRICS_USER_ID
@@ -115,7 +115,9 @@ PETITLYRICS_PKG_NAME
 PETITLYRICS_CLIENT_APP_ID
 ```
 
-The workflow fails instead of publishing a release when required signing or provider credentials are missing.
+To enable PetitLyrics, supply all four values that you are authorized to use. Local builds may use the ignored root `secrets.properties.local`; environment variables take precedence, including explicitly blank values. All four absent/blank disables the source, all four nonblank enables it, and a partially filled configuration fails Gradle configuration with missing field names only. The app does not register or contact PetitLyrics when it is disabled. See `docs/providers/PETITLYRICS.md`.
+
+Signing secrets remain mandatory. The workflow checks those before building, and Gradle rejects incomplete optional provider configuration before publication. Missing PetitLyrics credentials alone do not block a release.
 
 ### Keystore backup rule
 
@@ -123,9 +125,56 @@ Loss of the release private key or its passwords can prevent future APKs from up
 
 Do not rotate the release key casually. A signing-key change requires an explicit migration decision and must not happen as an incidental CI/configuration change.
 
-## Creating the keystore
+## First personal release setup and verification
 
-Example with the JDK `keytool`:
+The checked-in source/configuration can be prepared and reviewed before publishing. These are separate gates:
+
+1. **Repository setup:** the personal Build and Release workflows are active. Build runs on `main` and `release/**` pushes, PRs and manual dispatch; check a successful run for the reviewed revision. Release-branch/PR Build checks do not receive provider secrets. If a fresh fork shows the Actions enablement banner, enable it before testing; zero recorded runs is not a successful CI check.
+2. **Personal signing:** install the four signing secrets above in this repository. Keep the keystore/password backup outside Git and independently of GitHub Secrets. Never paste private signing data into issues, PRs or logs.
+3. **Optional PetitLyrics:** the personal 1.1 Beta 1 release leaves all four values unset. No upstream or third-party credentials are required or copied. If enabling the source later, configure your own authorized values as a complete set and update the release notes to reflect the enabled sources. Do not replace `PETITLYRICS_PKG_NAME` with the Android application ID; it is a separate provider client identity.
+4. **CI and signed candidate:** run Build on the reviewed branch (manual dispatch may target it after Actions is enabled). The optional `update_test_release_signed` fixture checks signing without publishing. The Release workflow independently tests and verifies the actual tagged artifact before publication.
+5. **Device validation:** install a personal signed fixture and check launch, Notification access, MediaSession detection and Android Auto discovery. For the later update test, use the same key/package with a lower code, then verify source trust, download, Android confirmation, preserved settings and success feedback. APK metadata inspection and JVM tests do not prove these Android flows.
+6. **Approval and publication:** merge the completed personal PR only after owner approval, then tag only after explicit release authorization. Check both APK and checksum assets, curated notes, Pre-release labeling and in-app discovery afterward.
+
+The 1.1 Beta preparation created a personal RSA-4096 signing identity with certificate subject `CN=AALyrics Personal Release, OU=WanHanxi, O=AALyrics`. Its public SHA-256 fingerprint is:
+
+```text
+65ab98bb7c208e914c49c229bf040f29ab2570d9af697c9fdf789b3f268e473d
+```
+
+For comparison, the verified upstream `v1.0.0-beta.1` APK uses package `io.github.whoxamxl.aalyrics` and certificate subject `CN=AALyrics, OU=Development, O=AALyrics, L=Unknown, ST=Unknown, C=JP`, with SHA-256 fingerprint:
+
+```text
+a07037dd3bf95407a63160e26cc0f0f416c49b0c008928c46052a08ccc2cf7f9
+```
+
+A public certificate fingerprint identifies a signer; it cannot sign an APK and does not disclose the author's private key. The original license/notices remain unchanged.
+
+The initial local key and private JSON configuration were stored outside this checkout under the owner's user data directory; their exact paths are recorded in the local handoff, not embedded in source. Back up both to secure storage independently of this workstation before publication. The JSON has the four build-time `AALYRICS_RELEASE_STORE_FILE`, `AALYRICS_RELEASE_STORE_PASSWORD`, `AALYRICS_RELEASE_KEY_ALIAS` and `AALYRICS_RELEASE_KEY_PASSWORD` fields.
+
+With [GitHub CLI](https://cli.github.com/) installed and authenticated to the owner's account, the following helper validates the existing key against the public fingerprint and configures **only** the four personal signing Secrets. Before reporting success or uploading, it also locally signs and discards a certificate request to verify the private-key password; exporting the public certificate alone cannot validate that password. The check does not modify the keystore. It sends secret values through stdin, never command-line arguments or printed output, and always selects `WanHanxi/AALyrics` explicitly:
+
+```bash
+python3 scripts/configure-signing-secrets.py /path/outside/repo/release-signing.json --dry-run
+python3 scripts/configure-signing-secrets.py /path/outside/repo/release-signing.json
+```
+
+This helper does not enable Actions, generate/rotate a key, configure PetitLyrics, or publish a Release. Missing GitHub authentication or administration capability remains an external setup step.
+
+
+To check a locally built signed candidate, inject its canonical version and a positive test version code at build time, then run (adjust the SDK path/code to the candidate):
+
+```bash
+python3 scripts/verify-release-apk.py app/build/outputs/apk/release/app-release.apk \
+  --build-tools "$ANDROID_HOME/build-tools/36.0.0" \
+  --version-name 1.1.0-beta.1 --version-code 1001
+```
+
+This check validates the signature with Android Build Tools, the pinned personal certificate, release package/version, non-debuggable status and exact bundled Changelog. It does not certify provider credentials or native installation success. Keep local verification artifacts distinct from published APKs until all release prerequisites are complete.
+
+## Creating a replacement setup for a new independent channel
+
+The personal key above has already been created; do not run this example to replace it. For a genuinely new independent channel, an example with JDK `keytool` is:
 
 ```bash
 keytool -genkeypair -v -keystore aalyrics-release.jks -storetype JKS -alias aalyrics -keyalg RSA -keysize 4096 -validity 10000
@@ -152,14 +201,16 @@ On Windows PowerShell, convert the keystore to the single-line Base64 value used
 
 After the intended commit is merged into `main`, ensure the release version is the newest entry in repository-root `CHANGELOG.md`, then create and push the version tag.
 
-For the first signed development release:
+For the first personal release, complete the preparation PR and obtain explicit merge/release approval first. Confirm the signing setup and intended optional-provider configuration above, and check that the release date in Changelog is still correct. Then, from a clean checkout:
 
 ```bash
-git checkout main
-git pull
-git tag v0.1.0-alpha.1
-git push origin v0.1.0-alpha.1
+git switch main
+git pull --ff-only origin main
+git tag -a v1.1.0-beta.1 -m "AALyrics 1.1 Beta 1"
+git push origin v1.1.0-beta.1
 ```
+
+Tag publication triggers a public Release automatically; do not use a pushed tag as a dry run.
 
 The Release workflow then:
 
@@ -168,7 +219,7 @@ The Release workflow then:
 3. validates the version tag and resolves `AALYRICS_VERSION_NAME`;
 4. verifies that the newest version heading in `CHANGELOG.md` exactly matches the tag version without the leading `v`;
 5. runs the architecture guard and unit tests;
-6. builds the signed release APK, which bundles that same checked-in changelog;
+6. builds the signed release APK and verifies its package, version, non-debuggable flag, pinned signing certificate and exact bundled changelog;
 7. publishes `AALyrics-vX.Y.Z[-suffix].apk`;
 8. publishes a matching SHA-256 checksum;
 9. marks prerelease-suffixed tags as GitHub Pre-releases by default.
@@ -239,7 +290,9 @@ For milestone releases, the curated section should emphasize externally meaningf
 
 Pre-releases should identify themselves clearly as alpha/beta/RC and should not imply feature completeness. Stable releases may omit a limitations section when there are no material caveats, but the curated-summary-first / generated-notes-last structure still applies.
 
-The current Release workflow intentionally continues to publish with `--generate-notes`. After the workflow has successfully created the signed GitHub Release, its body should be edited to add the curated summary **above** the generated notes while leaving the generated section at the bottom.
+The Release workflow extracts the matching Changelog entry and passes it as `--notes` together with `--generate-notes`. GitHub therefore receives the curated summary first and appends the generated PR ledger. Curate the checked-in entry before tagging; a post-publication manual rewrite is not required.
+
+The personal 1.1 Beta notes follow the useful pattern in [TeslaMate v4.3.0](https://github.com/teslamate-org/teslamate/releases/tag/v4.3.0): explain user-visible outcomes first, call out installation changes, then group features and fixes. Keep Debug-only diagnostics separate from features shipped in the signed Release APK. Do not copy contributor/change counts or claim device validation that has not happened.
 
 ## Verifying a downloaded APK
 
@@ -363,7 +416,7 @@ The final #77 continuation contract is:
 
 The independent download/install stages, retained-artifact recovery, and `DOWNLOADED` state remain testable and authoritative even though the normal accepted-update path is now one-step.
 
-Before any PackageInstaller session is created, application-owned preflight validates the retained APK as an update of the installed AALyrics package. The retained file must still be the canonical verified artifact, archive metadata must be readable, the package name must match `io.github.whoxamxl.aalyrics`, the archive version must be newer than the installed Android package version, and its signing identity must be update-compatible with the installed AALyrics package. SHA-256 verification proves Release-asset integrity; package/version/signing validation separately proves that Android package handoff is appropriate.
+Before any PackageInstaller session is created, application-owned preflight validates the retained APK as an update of the installed AALyrics package. The retained file must still be the canonical verified artifact, archive metadata must be readable, the package name must match the installed personal application (`io.github.wanhanxi.aalyrics` for Release), the archive version must be newer than the installed Android package version, and its signing identity must be update-compatible with the installed AALyrics package. SHA-256 verification proves Release-asset integrity; package/version/signing validation separately proves that Android package handoff is appropriate.
 
 AALyrics targets Android 8.0+ and declares `android.permission.REQUEST_INSTALL_PACKAGES` for this feature. In the corrected #77 flow, it checks `PackageManager.canRequestPackageInstalls()` immediately after the user accepts Update and before APK download. If Android does not currently trust AALyrics as an install source, the runtime enters permission-required state before transfer begins. The same platform state is checked again immediately before installer handoff as a fail-safe.
 
@@ -393,7 +446,9 @@ The Settings `Changelog` entry remains independent of the update-network path. I
 
 ## Installation and updates
 
-Current debug and release builds use separate application IDs and can coexist. Debug builds installed before this split used `io.github.whoxamxl.aalyrics` with the debug signing identity and must be uninstalled before the first release-signed installation.
+Personal Release uses `io.github.wanhanxi.aalyrics` and Debug uses `io.github.wanhanxi.aalyrics.debug`. They can coexist with upstream (`io.github.whoxamxl.aalyrics`) and earlier upstream-identity Debug builds. Kotlin namespaces remain unchanged. The owner keeps the original display names `AALyrics` and `AALyrics Debug`; Android distinguishes the original and personal apps by package ID.
+
+Install the first personal build as a new app. Upstream settings, lyrics cache, downloaded models and Android permissions are not migrated. Enable Notification access for the new app and select it in Android Auto. This identity change adds no persisted preference and does not broaden Reset AALyrics; Android-owned permissions and each package's separate storage remain outside cross-app reset behavior.
 
 After the first release-signed installation, later APKs signed with the same release key and a higher `versionCode` can update it normally.
 
