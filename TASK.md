@@ -32,7 +32,7 @@ Delivery gate: validate and push this follow-up, require successful hosted CI, u
 ## Validation and status
 
 - Baseline: clean personal main, matching remote `ebf7af2863bb39050cbe3fa1c5a3cbfd47b92808`.
-- The attribution and donation implementation is complete in Draft PR #5. The combined-support-layout follow-up is now in progress. The published Release and version channel are unchanged.
+- The attribution and donation implementation is complete in Draft PR #5. The combined-support-layout implementation and local verification are complete; hosted CI and the existing PR description are the final delivery gate. The published Release and version channel are unchanged.
 
 - Attribution checkpoint: architecture checks and `git diff --check` pass; all Settings/runtime/Preview call sites carry the separate original-project callback. Dedicated footer Previews cover typical, narrow and enlarged-font layouts. Compilation is deferred to the final source checkpoint to avoid redundant local builds.
 
@@ -53,7 +53,7 @@ Delivery gate: validate and push this follow-up, require successful hosted CI, u
 
 - Source checkpoint `d393218`: `SettingsNavigationTest` (3 tests) and `:app:assembleDebug` passed in 48 seconds. Existing navigation coverage includes the new support child and returns it to Settings home; no new persistence/reset behavior was introduced.
 - The verified 3 GiB / zero-swap scope peaked at 2,508,328,960 bytes (2.34 GiB), with zero OOM/limit events. The scope ended after verification. No emulator was started and generated JVM settings remain unchanged.
-- Current Debug APK: `app/build/outputs/apk/debug/app-debug.apk`, 92,160,303 bytes; SHA256 `35671be711e27f64a555d73a8524e5de9225e480934bc05489143d130813dad5`. Package `io.github.wanhanxi.aalyrics.debug`, version `1.1.0-beta.1-dev+d393218`, label `AALyrics Debug`.
+- Donation-checkpoint APK (superseded by the combined-layout build): `app/build/outputs/apk/debug/app-debug.apk`, 92,160,303 bytes; SHA256 `35671be711e27f64a555d73a8524e5de9225e480934bc05489143d130813dad5`. Package `io.github.wanhanxi.aalyrics.debug`, version `1.1.0-beta.1-dev+d393218`, label `AALyrics Debug`.
 - APK inspection confirms both Buy Me a Coffee URLs, both recipient-specific labels/accessibility descriptions, separate maintainer/original credits, and the personal feedback routes. All six bundled documents exactly match current source. Funding YAML parses with `buy_me_a_coffee: wancy` and the original-author URL as a separate custom link.
 - Both support pages reuse the same native presentation while supplying distinct copy and callbacks. Added personal-support Previews cover typical, narrow and enlarged-font layouts; original-author Previews remain available. Source review traced each callback to its corresponding URL. Visual/on-device verification remains an optional handoff, with no emulator run claimed.
 - Final branch-wide scope review, architecture checks and diff checks pass. The prior 23 routing/provider tests remain applicable to unchanged code; final hosted CI runs the complete suite and Debug build. No remaining implementation work is deferred.
@@ -62,7 +62,13 @@ Delivery gate: validate and push this follow-up, require successful hosted CI, u
 
 - [x] Replace the two Settings rows/subscreens with one `Support AALyrics` entry and one screen containing two stacked cards: WanHanxi first, original author second.
 - [x] Preserve the two URLs and independent callbacks, shorten repeated card copy, and keep a shared voluntary/external-payment note.
-- [ ] Update combined-screen Previews and current documentation; validate navigation, build/APK content, architecture and the follow-up diff under the same workstation limits.
-- [ ] Push the completed follow-up and update Draft PR #5 after CI; keep it Draft and stop before merge.
+- [x] Update combined-screen Previews and current documentation; validate navigation, build/APK content, architecture and the follow-up diff under the same workstation limits.
+- [x] Prepare the completed follow-up and validation record for delivery through Draft PR #5. Update its description after final CI; keep it Draft and stop before merge.
 
 Reset contract: only Settings-local navigation changes. The single support child returns to MAIN with existing Back/root-reset handling; no durable preferences, caches or onboarding state are added.
+
+- Combined-layout source `a7db081`: Settings navigation tests (3 tests, zero failures/errors/skips) and `:app:assembleDebug` passed in 48 seconds. Architecture checks and both follow-up/branch-wide diff checks pass.
+- Verification enforced `MemoryMax=3221225472` / `MemorySwapMax=0`; peak memory was 2,262,704,128 bytes (2.11 GiB), with zero OOM/limit events. No emulator was started; generated Gradle JVM settings retain their original hash.
+- Current APK: `app/build/outputs/apk/debug/app-debug.apk`, 92,160,099 bytes; SHA256 `391deff04d0fc65a600b8518872a61dc1bcc17d8a856c954cde88fe7f2e10fdd`; package `io.github.wanhanxi.aalyrics.debug`, version `1.1.0-beta.1-dev+a7db081`.
+- APK resource/DEX inspection confirms the shared Support title, both recipient card labels/copy, one support subscreen and both original donation URLs. All six bundled documents match source. Source review confirms exactly one Settings support row and separate callbacks for the upper fork card and lower original-author card.
+- Combined-screen Previews cover typical, narrow, enlarged-font and narrow/enlarged-font layouts, plus animation preview. No emulator/on-device visual test is claimed. No application callback URLs, README/funding configuration, bundled policy text, license or notices changed in this layout follow-up.
