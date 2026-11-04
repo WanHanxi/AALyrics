@@ -52,6 +52,6 @@
 
 - On 2026-11-03, the owner reported that installing the older signed fixture and then the current signed candidate worked, and functional testing found no problems. Record this as owner-reported real-device installation/upgrade and functional validation; no additional APK/source change or build is needed.
 - PetitLyrics credentials are no longer a publication prerequisite. Only enable the source later with a complete set of authorized credentials and matching release notes.
-- Independent backup of the existing keystore and passwords remains unconfirmed; GitHub Secrets are not a replacement for that backup.
+- On 2026-11-03, the owner confirmed that the personal `.jks` keystore and `release-signing.json` (including passwords) have been backed up to an independent secure location. GitHub Secrets are not the sole backup.
 - The manual old-to-new installation check does not exercise published GitHub discovery/download. Verify the published APK/checksum assets, Pre-release status and in-app discovery after authorized publication.
 - Merge/tag/publication still require explicit owner authorization. Keep PR #4 as Draft after this follow-up.
