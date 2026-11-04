@@ -311,6 +311,7 @@ internal fun PreviewSettingsDestination(
         onOpenOriginalProject = {},
         onHelpFeedback = {},
         onSupportAALyrics = {},
+        onSupportFork = {},
         modifier = Modifier.fillMaxSize(),
         bottomOverlayInset = bottomOverlayInset,
     )

@@ -14,6 +14,7 @@
 # thanks_dev: # Replace with a single thanks.dev username
 # custom: # Replace with up to 4 custom sponsorship URLs e.g., ['link1', 'link2']
 
-# Support Yuta Miura (whoxamxl), the original AALyrics author.
-# Donations go to the original author, not to this fork's maintainer.
-buy_me_a_coffee: whoxamxi
+# Support WanHanxi, the maintainer of this personal fork.
+buy_me_a_coffee: wancy
+# Separately support Yuta Miura (whoxamxl), the original AALyrics author.
+custom: ['https://buymeacoffee.com/whoxamxi']

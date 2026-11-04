@@ -65,15 +65,14 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) before proposing code changes.
 
 External code contributions are currently governed by the contribution policy stated there.
 
-## Support the original author
+## Voluntary support
 
-Financial support is optional.
+Financial support is optional. Choose whom you want to support:
 
-The Buy Me a Coffee link supports Yuta Miura (`whoxamxl`), the original AALyrics author. Donations go to the original author, not to WanHanxi, the maintainer of this fork:
+- **Support this fork:** [WanHanxi on Buy Me a Coffee](https://buymeacoffee.com/wancy), for maintenance and development of this personal fork.
+- **Support the original author:** [Yuta Miura (`whoxamxl`) on Buy Me a Coffee](https://buymeacoffee.com/whoxamxi), for the original AALyrics project.
 
-<https://buymeacoffee.com/whoxamxi>
-
-Payments are handled by Buy Me a Coffee. Supporting AALyrics does not unlock features, create an entitlement, guarantee a response time, or provide priority technical support.
+Payments go to the selected recipient and are handled by Buy Me a Coffee. Supporting AALyrics does not unlock features, create an entitlement, guarantee a response time, or provide priority technical support.
 
 ## Response expectations
 

@@ -216,6 +216,7 @@ internal fun SettingsScreenPreview(
                 onOpenOriginalProject = {},
                 onHelpFeedback = {},
                 onSupportAALyrics = {},
+                onSupportFork = {},
                 modifier = Modifier.fillMaxSize(),
             )
         }
@@ -273,6 +274,7 @@ private fun SettingsScreenContentPreview(
                 onLicenseRequested = {},
                 onHelpFeedbackRequested = {},
                 onSupportAALyricsRequested = {},
+                onSupportForkRequested = {},
                 onAdvancedRequested = {},
                 onOpenGitHub = {},
                 onOpenOriginalProject = {},

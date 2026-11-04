@@ -155,6 +155,9 @@ class MainActivity : ComponentActivity() {
                             onOpenSupportAALyrics = {
                                 openCustomTabUrl(SUPPORT_URL)
                             },
+                            onOpenSupportFork = {
+                                openCustomTabUrl(FORK_SUPPORT_URL)
+                            },
                             onOpenUpdateRelease = { versionName ->
                                 openCustomTabUrl(
                                     RELEASE_TAG_URL_PREFIX +
@@ -239,5 +242,6 @@ class MainActivity : ComponentActivity() {
         const val RELEASE_TAG_URL_PREFIX =
             "https://github.com/WanHanxi/AALyrics/releases/tag/"
         const val SUPPORT_URL = "https://buymeacoffee.com/whoxamxi"
+        const val FORK_SUPPORT_URL = "https://buymeacoffee.com/wancy"
     }
 }

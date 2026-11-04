@@ -46,6 +46,7 @@ fun SettingsScreen(
     onOpenGitHub: () -> Unit,
     onOpenOriginalProject: () -> Unit,
     onHelpFeedback: (HelpFeedbackDestination) -> Unit,
+    onSupportFork: () -> Unit,
     onSupportAALyrics: () -> Unit,
     modifier: Modifier = Modifier,
     bottomOverlayInset: Dp = 0.dp,
@@ -124,7 +125,22 @@ fun SettingsScreen(
             bottomOverlayInset = bottomOverlayInset,
         )
 
+        SettingsSubscreen.SUPPORT_FORK -> SupportAALyricsSettingsScreen(
+            title = stringResource(R.string.settings_support_fork),
+            body = stringResource(R.string.settings_support_fork_body),
+            supportNote = stringResource(R.string.settings_support_fork_subtext),
+            buttonDescription = stringResource(R.string.settings_support_fork_button_description),
+            onSupport = onSupportFork,
+            onBack = { activeSubscreen = SettingsSubscreen.MAIN },
+            modifier = modifier,
+            bottomOverlayInset = bottomOverlayInset,
+        )
+
         SettingsSubscreen.SUPPORT_AALYRICS -> SupportAALyricsSettingsScreen(
+            title = stringResource(R.string.settings_support_aalyrics),
+            body = stringResource(R.string.settings_support_body),
+            supportNote = stringResource(R.string.settings_support_subtext),
+            buttonDescription = stringResource(R.string.settings_support_button_description),
             onSupport = onSupportAALyrics,
             onBack = { activeSubscreen = SettingsSubscreen.MAIN },
             modifier = modifier,
@@ -161,6 +177,9 @@ fun SettingsScreen(
             onSupportAALyricsRequested = {
                 activeSubscreen = SettingsSubscreen.SUPPORT_AALYRICS
             },
+            onSupportForkRequested = {
+                activeSubscreen = SettingsSubscreen.SUPPORT_FORK
+            },
             onAdvancedRequested = { activeSubscreen = SettingsSubscreen.ADVANCED },
             onOpenGitHub = onOpenGitHub,
             onOpenOriginalProject = onOpenOriginalProject,
@@ -190,6 +209,7 @@ internal fun SettingsScreenContent(
     onTermsOfUseRequested: () -> Unit,
     onLicenseRequested: () -> Unit,
     onHelpFeedbackRequested: () -> Unit,
+    onSupportForkRequested: () -> Unit,
     onSupportAALyricsRequested: () -> Unit,
     onAdvancedRequested: () -> Unit,
     onOpenGitHub: () -> Unit,
@@ -369,6 +389,14 @@ internal fun SettingsScreenContent(
                 title = stringResource(R.string.settings_help_feedback),
                 value = null,
                 onClick = onHelpFeedbackRequested,
+            )
+
+            SettingsDivider()
+
+            SettingsNavigationRow(
+                title = stringResource(R.string.settings_support_fork),
+                value = null,
+                onClick = onSupportForkRequested,
             )
 
             SettingsDivider()

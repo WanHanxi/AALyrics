@@ -9,6 +9,7 @@ internal enum class SettingsSubscreen {
     TERMS_OF_USE,
     LICENSE,
     HELP_FEEDBACK,
+    SUPPORT_FORK,
     SUPPORT_AALYRICS,
 }
 
@@ -26,6 +27,7 @@ internal fun SettingsSubscreen.backDestination(): SettingsSubscreen =
         SettingsSubscreen.TERMS_OF_USE,
         SettingsSubscreen.LICENSE,
         SettingsSubscreen.HELP_FEEDBACK,
+        SettingsSubscreen.SUPPORT_FORK,
         SettingsSubscreen.SUPPORT_AALYRICS -> SettingsSubscreen.MAIN
     }
 

@@ -47,9 +47,13 @@ import io.github.whoxamxl.aalyrics.ui.phone.R
 
 private const val BMC_BUTTON_ASPECT_RATIO = 545f / 153f
 
-/** Native Settings landing surface for the external AALyrics support destination. */
+/** Native Settings landing surface identifying the selected recipient before external payment. */
 @Composable
 internal fun SupportAALyricsSettingsScreen(
+    title: String,
+    body: String,
+    supportNote: String,
+    buttonDescription: String,
     onSupport: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
@@ -68,7 +72,7 @@ internal fun SupportAALyricsSettingsScreen(
             ),
     ) {
         SettingsSubscreenHeader(
-            title = stringResource(R.string.settings_support_aalyrics),
+            title = title,
             backContentDescription = stringResource(R.string.settings_back),
             onBack = onBack,
         )
@@ -83,7 +87,7 @@ internal fun SupportAALyricsSettingsScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    text = stringResource(R.string.settings_support_body),
+                    text = body,
                     style = AALyricsTypography.AppTitle,
                     color = AALyricsColors.TextPrimary,
                     textAlign = TextAlign.Center,
@@ -93,7 +97,7 @@ internal fun SupportAALyricsSettingsScreen(
                 Spacer(Modifier.height(AALyricsSpacing.Space12))
 
                 Text(
-                    text = stringResource(R.string.settings_support_subtext),
+                    text = supportNote,
                     style = AALyricsTypography.TrackArtist,
                     color = AALyricsColors.TextSecondary,
                     textAlign = TextAlign.Center,
@@ -103,6 +107,7 @@ internal fun SupportAALyricsSettingsScreen(
                 Spacer(Modifier.height(AALyricsSpacing.Space32))
 
                 SupportStickerButton(
+                    contentDescription = buttonDescription,
                     onSupport = onSupport,
                     animationEnabled = supportCtaAnimationEnabled,
                 )
@@ -122,6 +127,7 @@ internal fun SupportAALyricsSettingsScreen(
 
 @Composable
 private fun SupportStickerButton(
+    contentDescription: String,
     onSupport: () -> Unit,
     animationEnabled: Boolean,
 ) {
@@ -176,7 +182,7 @@ private fun SupportStickerButton(
     ) {
         Image(
             painter = painterResource(R.drawable.bmc_button),
-            contentDescription = stringResource(R.string.settings_support_button_description),
+            contentDescription = contentDescription,
             contentScale = ContentScale.Fit,
             modifier = Modifier.fillMaxSize(),
         )
