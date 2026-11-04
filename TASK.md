@@ -50,7 +50,8 @@
 
 ## Publication handoff
 
+- On 2026-11-03, the owner reported that installing the older signed fixture and then the current signed candidate worked, and functional testing found no problems. Record this as owner-reported real-device installation/upgrade and functional validation; no additional APK/source change or build is needed.
 - PetitLyrics credentials are no longer a publication prerequisite. Only enable the source later with a complete set of authorized credentials and matching release notes.
 - Independent backup of the existing keystore and passwords remains unconfirmed; GitHub Secrets are not a replacement for that backup.
-- Native installation/upgrade, Notification access, MediaSession detection and Android Auto discovery still need a real device. APK metadata inspection and JVM tests do not establish these Android behaviors.
+- The manual old-to-new installation check does not exercise published GitHub discovery/download. Verify the published APK/checksum assets, Pre-release status and in-app discovery after authorized publication.
 - Merge/tag/publication still require explicit owner authorization. Keep PR #4 as Draft after this follow-up.
