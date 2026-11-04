@@ -7,25 +7,25 @@ import kotlin.test.assertFalse
 
 class HelpFeedbackRoutingTest {
     @Test
-    fun `Help and Feedback destinations map to canonical GitHub routes`() {
+    fun `Help and Feedback destinations map to personal fork GitHub routes`() {
         assertEquals(
-            "https://github.com/whoxamxl/AALyrics/issues/new",
+            "https://github.com/WanHanxi/AALyrics/issues/new",
             HelpFeedbackDestination.REPORT_BUG.githubUrl(),
         )
         assertEquals(
-            "https://github.com/whoxamxl/AALyrics/discussions/categories/q-a",
+            "https://github.com/WanHanxi/AALyrics/discussions/categories/q-a",
             HelpFeedbackDestination.ASK_QUESTION.githubUrl(),
         )
         assertEquals(
-            "https://github.com/whoxamxl/AALyrics/discussions/categories/ideas",
+            "https://github.com/WanHanxi/AALyrics/discussions/categories/ideas",
             HelpFeedbackDestination.SUGGEST_IDEA.githubUrl(),
         )
         assertEquals(
-            "https://github.com/whoxamxl/AALyrics/discussions/categories/general",
+            "https://github.com/WanHanxi/AALyrics/discussions/categories/general",
             HelpFeedbackDestination.GENERAL_DISCUSSION.githubUrl(),
         )
         assertEquals(
-            "https://github.com/whoxamxl/AALyrics/security/advisories/new",
+            "https://github.com/WanHanxi/AALyrics/security/advisories/new",
             HelpFeedbackDestination.REPORT_SECURITY_ISSUE.githubUrl(),
         )
     }

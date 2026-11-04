@@ -809,13 +809,13 @@ Report a security issue      -> GitHub private vulnerability reporting
 
 Each route is presented as an external-link row. `:ui:phone` emits a semantic `HelpFeedbackDestination` callback only; `:app` maps that action to the repository URL and owns Custom Tabs / browser fallback.
 
-Current destinations are:
+Feedback for this personal fork belongs to `WanHanxi/AALyrics`. Issues, Discussions (Q&A, Ideas and General), and private vulnerability reporting are enabled there. Current destinations are:
 
-- Report a bug -> `https://github.com/whoxamxl/AALyrics/issues/new`
-- Ask a question -> `https://github.com/whoxamxl/AALyrics/discussions/categories/q-a`
-- Suggest an idea -> `https://github.com/whoxamxl/AALyrics/discussions/categories/ideas`
-- General discussion -> `https://github.com/whoxamxl/AALyrics/discussions/categories/general`
-- Report a security issue -> `https://github.com/whoxamxl/AALyrics/security/advisories/new`
+- Report a bug -> `https://github.com/WanHanxi/AALyrics/issues/new`
+- Ask a question -> `https://github.com/WanHanxi/AALyrics/discussions/categories/q-a`
+- Suggest an idea -> `https://github.com/WanHanxi/AALyrics/discussions/categories/ideas`
+- General discussion -> `https://github.com/WanHanxi/AALyrics/discussions/categories/general`
+- Report a security issue -> `https://github.com/WanHanxi/AALyrics/security/advisories/new`
 
 Security vulnerabilities are therefore routed to GitHub private vulnerability reporting, never a public Issue or Discussion.
 

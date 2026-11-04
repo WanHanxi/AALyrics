@@ -35,7 +35,7 @@ class LrcLibProviderTest {
         assertEquals("240", sent.requestUrl!!.queryParameter("duration"))
         assertEquals("Artist", sent.requestUrl!!.queryParameter("artist_name"))
         assertEquals("Album", sent.requestUrl!!.queryParameter("album_name"))
-        assertTrue(sent.getHeader("User-Agent")!!.startsWith("AALyrics"))
+        assertEquals("AALyrics (https://github.com/WanHanxi/AALyrics)", sent.getHeader("User-Agent"))
         assertEquals(1, server.requestCount)
     }
 

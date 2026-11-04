@@ -9,7 +9,7 @@
 ## Checkpoints
 
 - [x] Separate original-project and fork-maintainer credits, preserve the original donation recipient, and align bundled policy/branding documentation and Compose Previews.
-- [ ] Enable and verify the personal repository's feedback channels; move app/documentation feedback routes and the LRCLIB User-Agent to this fork.
+- [x] Enable and verify the personal repository's feedback channels; move app/documentation feedback routes and the LRCLIB User-Agent to this fork.
 - [ ] Run focused routing/provider tests, architecture checks and a Debug build under the workstation resource budget; inspect the resulting APK and review the full diff.
 - [ ] Push final validation evidence, confirm CI, open a Draft PR against the personal repository and stop.
 
@@ -31,3 +31,5 @@
 - In progress. Existing Release APK is from the published baseline; a new Debug APK will validate this unreleased change without changing the release channel.
 
 - Attribution checkpoint: architecture checks and `git diff --check` pass; all Settings/runtime/Preview call sites carry the separate original-project callback. Dedicated footer Previews cover typical, narrow and enlarged-font layouts. Compilation is deferred to the final source checkpoint to avoid redundant local builds.
+
+- Feedback checkpoint: enabled Issues, Discussions and private vulnerability reporting on `WanHanxi/AALyrics`. Read-back confirms all enabled, with `q-a`, `ideas` and `general` category slugs. No sample reports or discussions were posted. App routes, SUPPORT/SECURITY documentation, Settings specification and LRCLIB request identity now target this fork.

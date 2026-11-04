@@ -82,7 +82,7 @@ A newly authorized upstream contribution should start from `upstream/main`, not 
 
 ## Personal application distribution
 
-The personal release channel targets `WanHanxi/AALyrics`. In-app update discovery, release download pages and the Source code row use this repository. Kotlin namespaces and the original license/notices remain unchanged.
+The personal release channel targets `WanHanxi/AALyrics`. In-app update discovery, release download pages, the Source code row and Help & Feedback routes use this repository. Settings credits WanHanxi as the fork maintainer and links the original-project credit separately to `whoxamxl/AALyrics`. Donations remain directed to the original author and are labeled accordingly. Kotlin namespaces and the original license/notices remain unchanged.
 
 - Release application ID: `io.github.wanhanxi.aalyrics`; launcher/Android Auto label: `AALyrics`.
 - Debug application ID: `io.github.wanhanxi.aalyrics.debug`; label: `AALyrics Debug`.

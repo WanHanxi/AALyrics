@@ -1,6 +1,6 @@
 # Support
 
-This page explains where to go when you need help with AALyrics.
+This page covers the personal AALyrics fork maintained by WanHanxi. Use this fork's channels below for help and feedback about this version. The original project is maintained separately by Yuta Miura (`whoxamxl`).
 
 Using the right channel keeps bug reports actionable, questions searchable, and security reports private.
 
@@ -10,7 +10,7 @@ Using the right channel keeps bug reports actionable, questions searchable, and 
 
 Use **GitHub Issues** for reproducible problems with AALyrics:
 
-<https://github.com/whoxamxl/AALyrics/issues>
+<https://github.com/WanHanxi/AALyrics/issues>
 
 Include, where relevant:
 
@@ -29,13 +29,13 @@ Remove access tokens, API credentials, account identifiers, private messages, an
 
 Use **GitHub Discussions → Q&A** for setup, usage, behavior, or "how does this work?" questions:
 
-<https://github.com/whoxamxl/AALyrics/discussions/categories/q-a>
+<https://github.com/WanHanxi/AALyrics/discussions/categories/q-a>
 
 ### Suggest an idea
 
 Use **GitHub Discussions → Ideas** for feature requests and product/design proposals:
 
-<https://github.com/whoxamxl/AALyrics/discussions/categories/ideas>
+<https://github.com/WanHanxi/AALyrics/discussions/categories/ideas>
 
 Describe the problem or use case as well as the proposed solution. An idea being discussed does not mean it is committed to the roadmap.
 
@@ -43,13 +43,13 @@ Describe the problem or use case as well as the proposed solution. An idea being
 
 Use **GitHub Discussions → General** for project discussion that is not a bug, support question, or concrete feature proposal:
 
-<https://github.com/whoxamxl/AALyrics/discussions/categories/general>
+<https://github.com/WanHanxi/AALyrics/discussions/categories/general>
 
 ### Report a security vulnerability
 
 Do **not** report security vulnerabilities in a public Issue or Discussion.
 
-Read [SECURITY.md](SECURITY.md) and use GitHub's private vulnerability reporting feature for this repository.
+Read [SECURITY.md](SECURITY.md) and [report a vulnerability privately to this fork](https://github.com/WanHanxi/AALyrics/security/advisories/new).
 
 ### Privacy questions
 

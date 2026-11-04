@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-Only the latest published release of AALyrics is currently supported with security updates.
+This policy applies to the personal AALyrics fork maintained by WanHanxi. Only this fork's latest published release is currently supported with security updates.
 
 During pre-release development, this includes the latest published alpha, beta, or release candidate.
 
@@ -12,7 +12,7 @@ Older releases may not receive security fixes.
 
 Please do not report security vulnerabilities through public GitHub Issues or Discussions.
 
-Instead, use GitHub's private vulnerability reporting feature for this repository.
+Instead, [report the vulnerability privately to WanHanxi/AALyrics](https://github.com/WanHanxi/AALyrics/security/advisories/new) using GitHub's private vulnerability reporting feature. Reports about this fork are handled by its maintainer, WanHanxi.
 
 When reporting a vulnerability, please include, where possible:
 
