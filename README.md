@@ -14,7 +14,7 @@
 
 <p align="center">
   <a href="https://www.android.com/"><img src="https://img.shields.io/badge/Android-8.0%2B-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android 8.0+" /></a>
-  <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/AALyrics-1.1_Beta-43DFF5?style=for-the-badge" alt="AALyrics 1.1 Beta" /></a>
+  <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/AALyrics-1.1.0-43DFF5?style=for-the-badge" alt="AALyrics 1.1.0" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-PolyForm_Noncommercial-59636E?style=for-the-badge" alt="PolyForm Noncommercial" /></a>
 </p>
 
@@ -63,7 +63,7 @@ AALyrics observes the active Android media session, matches the current track ag
 - **Phone playback surface** — play/pause, previous/next, seek, relative seek, and Queue support where the active media app exposes them.
 - **Built-in updates** — signed GitHub Release APK discovery, SHA-256 verification, package/signing preflight, and Android PackageInstaller handoff.
 
-This personal fork is maintained by [WanHanxi](https://github.com/WanHanxi/AALyrics), based on [the original AALyrics project by Yuta Miura (`whoxamxl`)](https://github.com/whoxamxl/AALyrics). The first personal release is **1.1 Beta 1**; see [release setup and validation](docs/RELEASES.md). The original license and required copyright notice are preserved. The donation links below let you support this fork's maintainer or the original author separately.
+This personal fork is maintained by [WanHanxi](https://github.com/WanHanxi/AALyrics), based on [the original AALyrics project by Yuta Miura (`whoxamxl`)](https://github.com/whoxamxl/AALyrics). The current stable release is **1.1.0**; see [release setup and validation](docs/RELEASES.md). The original license and required copyright notice are preserved. The donation links below let you support this fork's maintainer or the original author separately.
 
 ## Get AALyrics
 
@@ -79,6 +79,8 @@ AALyrics requires **Android 8.0 (API 26) or later** and is distributed outside G
 Each Release also includes a matching `.sha256` file for APK integrity verification.
 
 After the first release-signed installation, later AALyrics releases signed with the same key can update the installed app normally. AALyrics can also discover, verify, and hand off newer releases through its in-app update flow.
+
+**Upgrading from personal 1.1.0-beta.1:** install 1.1.0 over the existing Release app, or use its in-app update check. The package and signing identity are unchanged, so no uninstall is needed and existing settings and cached lyrics are retained.
 
 > [!NOTE]
 > The personal app is labeled **AALyrics** (or **AALyrics Debug**) and can coexist with upstream. Install it as a new app: original-app settings, cached lyrics and Android permissions do not transfer. Enable Notification access and select the new app in Android Auto. Future personal Release builds use the same personal signing key and can update this installation.
@@ -97,17 +99,17 @@ To enable it:
 
 The host receives the active track, artwork, supported playback actions, current synchronized lyric line, and an eligible translated line when available. Android Auto controls the final layout and text truncation.
 
-## AALyrics 1.1 Beta
+## AALyrics 1.1.0
 
-AALyrics has moved beyond the construction-only stage. Its primary purpose — following lyrics for the track currently playing — is functional on Phone and Android Auto.
+AALyrics 1.1.0 is this personal fork's first stable release, providing synchronized lyrics on Phone and Android Auto, fullscreen Phone lyrics, calibration and offline lyrics reuse.
 
-The **1.1 Beta** line means the intended product identity and core experience are established, while some advanced functionality is still evolving:
+Some advanced features retain their existing scope:
 
 - Manual Sync calibration is available in this fork: three-tap calibration, ±50/500 ms, exact millisecond entry, live preview, and a saved global offset shared by Phone and Android Auto. Per-song and automatic calibration remain future work.
 - Phone WORD_SYNC Karaoke remains experimental and opt-in.
 - Android Auto is currently line-oriented Now Playing rather than full Phone feature parity or Karaoke presentation.
 
-These are Beta limitations, not a claim that the app is feature-complete or ready for a stable `1.1.0` release.
+Lyric availability depends on the active media app and providers. Device-specific notification-listener behavior can still require toggling Notification access; see the [Changelog](CHANGELOG.md) for current limitations.
 
 ## Lyrics, Translation & Karaoke
 

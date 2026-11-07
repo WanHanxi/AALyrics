@@ -1,11 +1,24 @@
-## Unreleased
+## [1.1.0] - 2026-11-06
 
-### Changed
+AALyrics 1.1.0 is the first stable release of the WanHanxi personal fork. It carries forward fullscreen Phone lyrics, shared lyrics calibration, offline lyrics reuse and playback-connection recovery from 1.1 Beta 1, with clearer credits, feedback and support options.
 
-- Send this fork's bug reports, questions, ideas, discussion and private security reports to `WanHanxi/AALyrics`; identify the fork in LRCLIB request headers.
-- Identify WanHanxi as the personal fork maintainer in Settings, alongside a separate link and copyright credit for the original author, Yuta Miura (`whoxamxl`).
-- Clarify that the existing Buy Me a Coffee links support the original author, and align the bundled Terms of Use and Privacy Policy with the fork's maintenance and donation attribution.
-- Add one **Support AALyrics** entry in Settings that opens two stacked cards: **Support this fork** for WanHanxi, followed by **Support the original author**. Each card and repository donation link identifies its recipient.
+### Updating and installation
+
+- This release updates the personal **1.1.0-beta.1** installation with the same package and signing identity. Install it over the existing personal Release app to retain settings and cached lyrics.
+- Upstream AALyrics and Debug builds remain separate apps. For a first personal Release installation, enable Notification access and select AALyrics in the Android Auto launcher settings.
+- Lyrics sources are **LRCLIB, Musixmatch and SyncLRC**. PetitLyrics remains optional and disabled in this build.
+
+### Changes since 1.1 Beta 1
+
+- One **Support AALyrics** entry in Settings opens two stacked cards: **Support this fork** for WanHanxi, followed by **Support the original author** for Yuta Miura. Each donation link identifies its recipient; contributions remain voluntary.
+- Settings credits WanHanxi as the fork maintainer alongside the original author, Yuta Miura (`whoxamxl`), with separate repository links. The original license and required copyright notice are preserved.
+- Bug reports, questions, ideas, discussions and private security reports now go to `WanHanxi/AALyrics`. Bundled policies and support documentation reflect the personal fork's maintenance and donation recipients.
+
+### Current limitations
+
+- Device-specific notification-listener behavior can still require toggling Notification access in Android settings.
+- Calibration is global; per-song and automatic calibration are not available. Offline lyrics reuse requires a previously cached matching song and does not cache translations.
+- Phone word-synced Karaoke remains experimental, defaults off and requires genuine word timing. Android Auto retains its line-oriented Now Playing presentation.
 
 ## [1.1.0-beta.1] - 2026-11-03
 

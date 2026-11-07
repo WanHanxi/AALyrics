@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This personal fork distributes signed APKs through [WanHanxi/AALyrics Releases](https://github.com/WanHanxi/AALyrics/releases), outside Google Play. The first planned personal milestone is `v1.1.0-beta.1`. Upstream release history in this document and Changelog is retained as provenance; it is not evidence that this fork has already published a release.
+This personal fork distributes signed APKs through [WanHanxi/AALyrics Releases](https://github.com/WanHanxi/AALyrics/releases), outside Google Play. Its first stable version is `v1.1.0`, following the published personal `v1.1.0-beta.1`. Upstream release history in this document and Changelog is retained as provenance and is separate from this fork's distribution channel.
 
 A release is a versioned, signed, installable distribution snapshot. It does **not** imply that the application is feature-complete. Early development builds may be published intentionally as GitHub Pre-releases so signing, installation, Android Auto discovery, update compatibility, and real-device behavior can be validated before the product is ready for a stable release.
 
@@ -125,13 +125,13 @@ Loss of the release private key or its passwords can prevent future APKs from up
 
 Do not rotate the release key casually. A signing-key change requires an explicit migration decision and must not happen as an incidental CI/configuration change.
 
-## First personal release setup and verification
+## Personal release setup and verification
 
 The checked-in source/configuration can be prepared and reviewed before publishing. These are separate gates:
 
 1. **Repository setup:** the personal Build and Release workflows are active. Build runs on `main` and `release/**` pushes, PRs and manual dispatch; check a successful run for the reviewed revision. Release-branch/PR Build checks do not receive provider secrets. If a fresh fork shows the Actions enablement banner, enable it before testing; zero recorded runs is not a successful CI check.
 2. **Personal signing:** install the four signing secrets above in this repository. Keep the keystore/password backup outside Git and independently of GitHub Secrets. Never paste private signing data into issues, PRs or logs.
-3. **Optional PetitLyrics:** the personal 1.1 Beta 1 release leaves all four values unset. No upstream or third-party credentials are required or copied. If enabling the source later, configure your own authorized values as a complete set and update the release notes to reflect the enabled sources. Do not replace `PETITLYRICS_PKG_NAME` with the Android application ID; it is a separate provider client identity.
+3. **Optional PetitLyrics:** personal 1.1.0, like 1.1 Beta 1, leaves all four values unset. No upstream or third-party credentials are required or copied. If enabling the source later, configure your own authorized values as a complete set and update the release notes to reflect the enabled sources. Do not replace `PETITLYRICS_PKG_NAME` with the Android application ID; it is a separate provider client identity.
 4. **CI and signed candidate:** run Build on the reviewed branch (manual dispatch may target it after Actions is enabled). The optional `update_test_release_signed` fixture checks signing without publishing. The Release workflow independently tests and verifies the actual tagged artifact before publication.
 5. **Device validation:** install a personal signed fixture and check launch, Notification access, MediaSession detection and Android Auto discovery. For the later update test, use the same key/package with a lower code, then verify source trust, download, Android confirmation, preserved settings and success feedback. APK metadata inspection and JVM tests do not prove these Android flows.
 6. **Approval and publication:** merge the completed personal PR only after owner approval, then tag only after explicit release authorization. Check both APK and checksum assets, curated notes, Pre-release labeling and in-app discovery afterward.
@@ -167,7 +167,7 @@ To check a locally built signed candidate, inject its canonical version and a po
 ```bash
 python3 scripts/verify-release-apk.py app/build/outputs/apk/release/app-release.apk \
   --build-tools "$ANDROID_HOME/build-tools/36.0.0" \
-  --version-name 1.1.0-beta.1 --version-code 1001
+  --version-name 1.1.0 --version-code 1002
 ```
 
 This check validates the signature with Android Build Tools, the pinned personal certificate, release package/version, non-debuggable status and exact bundled Changelog. It does not certify provider credentials or native installation success. Keep local verification artifacts distinct from published APKs until all release prerequisites are complete.
@@ -201,13 +201,13 @@ On Windows PowerShell, convert the keystore to the single-line Base64 value used
 
 After the intended commit is merged into `main`, ensure the release version is the newest entry in repository-root `CHANGELOG.md`, then create and push the version tag.
 
-For the first personal release, complete the preparation PR and obtain explicit merge/release approval first. Confirm the signing setup and intended optional-provider configuration above, and check that the release date in Changelog is still correct. Then, from a clean checkout:
+Complete the preparation PR and obtain explicit merge/release approval first. Confirm the existing signing identity and intended optional-provider configuration above, and check that the release date in Changelog is still correct. For 1.1.0, from a clean checkout:
 
 ```bash
 git switch main
 git pull --ff-only origin main
-git tag -a v1.1.0-beta.1 -m "AALyrics 1.1 Beta 1"
-git push origin v1.1.0-beta.1
+git tag -a v1.1.0 -m "AALyrics 1.1.0"
+git push origin v1.1.0
 ```
 
 Tag publication triggers a public Release automatically; do not use a pushed tag as a dry run.
