@@ -1,3 +1,12 @@
+## Unreleased
+
+### Changed
+
+- Send this fork's bug reports, questions, ideas, discussion and private security reports to `WanHanxi/AALyrics`; identify the fork in LRCLIB request headers.
+- Identify WanHanxi as the personal fork maintainer in Settings, alongside a separate link and copyright credit for the original author, Yuta Miura (`whoxamxl`).
+- Clarify that the existing Buy Me a Coffee links support the original author, and align the bundled Terms of Use and Privacy Policy with the fork's maintenance and donation attribution.
+- Add one **Support AALyrics** entry in Settings that opens two stacked cards: **Support this fork** for WanHanxi, followed by **Support the original author**. Each card and repository donation link identifies its recipient.
+
 ## [1.1.0-beta.1] - 2026-11-03
 
 This first personal-fork beta adds a fullscreen lyrics view with album artwork, tools to align lyrics with what you hear, and offline reuse of previously loaded lyrics. Playback connections now have bounded recovery attempts and a clear way to retry when Android leaves the listener disconnected.

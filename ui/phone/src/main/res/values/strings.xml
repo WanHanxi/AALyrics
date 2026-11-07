@@ -137,10 +137,14 @@
     <string name="settings_github_ideas">Ideas</string>
     <string name="settings_github_general">General</string>
     <string name="settings_private_report">Private report</string>
-    <string name="settings_support_aalyrics">Support AALyrics</string>
-    <string name="settings_support_body">AALyrics is free to use.\n\nIf you\'d like to support development, you can do so via Buy Me a Coffee.</string>
-    <string name="settings_support_subtext">Support is optional. Payments are handled externally by Buy Me a Coffee.</string>
-    <string name="settings_support_button_description">Support AALyrics on Buy Me a Coffee</string>
+    <string name="settings_support">Support AALyrics</string>
+    <string name="settings_support_fork">Support this fork</string>
+    <string name="settings_support_fork_body">Support WanHanxi, who maintains and develops this personal fork.</string>
+    <string name="settings_support_fork_button_description">Support WanHanxi, this fork\'s maintainer, on Buy Me a Coffee</string>
+    <string name="settings_support_aalyrics">Support the original author</string>
+    <string name="settings_support_body">Support Yuta Miura (whoxamxl), creator of the original AALyrics project.</string>
+    <string name="settings_support_subtext">Support is optional. Contributions go to the recipient you choose and are handled by Buy Me a Coffee.</string>
+    <string name="settings_support_button_description">Support Yuta Miura, the original author, on Buy Me a Coffee</string>
     <string name="settings_support_fallback_label">Buy Me a Coffee</string>
     <string name="settings_support_open_note">Opens Buy Me a Coffee</string>
     <string name="settings_required_notice">REQUIRED NOTICE</string>
@@ -178,7 +182,8 @@
     <string name="settings_close">Close</string>
 
     <string name="settings_brand_name">AALyrics</string>
-    <string name="settings_brand_copyright_owner">Yuta Miura (whoxamxl)</string>
+    <string name="settings_brand_original_project">Original project: © %1$d Yuta Miura (whoxamxl)</string>
+    <string name="settings_brand_fork_maintainer">Personal fork maintained by WanHanxi</string>
     <string name="settings_brand_logo_description">AALyrics logo</string>
 
     <string name="sync_title">Sync</string>

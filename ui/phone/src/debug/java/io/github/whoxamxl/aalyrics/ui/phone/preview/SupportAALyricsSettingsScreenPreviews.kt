@@ -40,6 +40,13 @@ private fun SupportAALyricsSettingsNarrowPreview() {
     heightDp = 820,
     fontScale = 1.4f,
 )
+@Preview(
+    name = "Narrow · enlarged font",
+    group = "SupportAALyricsSettings",
+    widthDp = 320,
+    heightDp = 820,
+    fontScale = 1.4f,
+)
 @Composable
 private fun SupportAALyricsSettingsLargeFontPreview() {
     SupportAALyricsSettingsPreview(animationEnabled = false)
@@ -56,7 +63,8 @@ private fun SupportAALyricsSettingsPreview(
                 .background(AALyricsColors.BackgroundBase),
         ) {
             SupportAALyricsSettingsScreen(
-                onSupport = {},
+                onSupportFork = {},
+                onSupportOriginalAuthor = {},
                 onBack = {},
                 modifier = Modifier.fillMaxSize(),
                 supportCtaAnimationEnabled = animationEnabled,

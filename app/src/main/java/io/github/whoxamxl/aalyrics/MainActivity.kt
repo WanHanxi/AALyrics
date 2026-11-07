@@ -146,11 +146,17 @@ class MainActivity : ComponentActivity() {
                             onOpenSourceCode = {
                                 openUrl(SOURCE_CODE_URL)
                             },
+                            onOpenOriginalProject = {
+                                openUrl(ORIGINAL_PROJECT_URL)
+                            },
                             onOpenHelpFeedback = { destination ->
                                 openCustomTabUrl(destination.githubUrl())
                             },
                             onOpenSupportAALyrics = {
                                 openCustomTabUrl(SUPPORT_URL)
+                            },
+                            onOpenSupportFork = {
+                                openCustomTabUrl(FORK_SUPPORT_URL)
                             },
                             onOpenUpdateRelease = { versionName ->
                                 openCustomTabUrl(
@@ -232,8 +238,10 @@ class MainActivity : ComponentActivity() {
         const val ENTRY_PREFERENCES_NAME = "app_entry_setup"
         const val ANDROID_AUTO_COMPATIBILITY_KEY = "android_auto_compatibility"
         const val SOURCE_CODE_URL = "https://github.com/WanHanxi/AALyrics"
+        const val ORIGINAL_PROJECT_URL = "https://github.com/whoxamxl/AALyrics"
         const val RELEASE_TAG_URL_PREFIX =
             "https://github.com/WanHanxi/AALyrics/releases/tag/"
         const val SUPPORT_URL = "https://buymeacoffee.com/whoxamxi"
+        const val FORK_SUPPORT_URL = "https://buymeacoffee.com/wancy"
     }
 }

@@ -44,7 +44,9 @@ fun SettingsScreen(
     onAndroidAutoCompatibilitySetup: () -> Unit,
     onCheckForUpdates: () -> Unit,
     onOpenGitHub: () -> Unit,
+    onOpenOriginalProject: () -> Unit,
     onHelpFeedback: (HelpFeedbackDestination) -> Unit,
+    onSupportFork: () -> Unit,
     onSupportAALyrics: () -> Unit,
     modifier: Modifier = Modifier,
     bottomOverlayInset: Dp = 0.dp,
@@ -124,7 +126,8 @@ fun SettingsScreen(
         )
 
         SettingsSubscreen.SUPPORT_AALYRICS -> SupportAALyricsSettingsScreen(
-            onSupport = onSupportAALyrics,
+            onSupportFork = onSupportFork,
+            onSupportOriginalAuthor = onSupportAALyrics,
             onBack = { activeSubscreen = SettingsSubscreen.MAIN },
             modifier = modifier,
             bottomOverlayInset = bottomOverlayInset,
@@ -162,6 +165,7 @@ fun SettingsScreen(
             },
             onAdvancedRequested = { activeSubscreen = SettingsSubscreen.ADVANCED },
             onOpenGitHub = onOpenGitHub,
+            onOpenOriginalProject = onOpenOriginalProject,
             modifier = modifier,
             bottomOverlayInset = bottomOverlayInset,
         )
@@ -191,6 +195,7 @@ internal fun SettingsScreenContent(
     onSupportAALyricsRequested: () -> Unit,
     onAdvancedRequested: () -> Unit,
     onOpenGitHub: () -> Unit,
+    onOpenOriginalProject: () -> Unit,
     modifier: Modifier = Modifier,
     bottomOverlayInset: Dp = 0.dp,
 ) {
@@ -371,7 +376,7 @@ internal fun SettingsScreenContent(
             SettingsDivider()
 
             SettingsNavigationRow(
-                title = stringResource(R.string.settings_support_aalyrics),
+                title = stringResource(R.string.settings_support),
                 value = null,
                 onClick = onSupportAALyricsRequested,
             )
@@ -391,10 +396,14 @@ internal fun SettingsScreenContent(
             appName = stringResource(R.string.settings_brand_name),
             versionLabel = stringResource(R.string.settings_version),
             versionName = state.appVersionName,
-            currentYear = state.currentYear,
-            copyrightOwner = stringResource(R.string.settings_brand_copyright_owner),
+            originalProjectCredit = stringResource(
+                R.string.settings_brand_original_project,
+                state.currentYear,
+            ),
+            forkMaintainerCredit = stringResource(R.string.settings_brand_fork_maintainer),
             logoContentDescription = stringResource(R.string.settings_brand_logo_description),
             onOpenGitHub = onOpenGitHub,
+            onOpenOriginalProject = onOpenOriginalProject,
         )
     }
 

@@ -308,8 +308,10 @@ internal fun PreviewSettingsDestination(
         onAndroidAutoCompatibilitySetup = {},
         onCheckForUpdates = {},
         onOpenGitHub = {},
+        onOpenOriginalProject = {},
         onHelpFeedback = {},
         onSupportAALyrics = {},
+        onSupportFork = {},
         modifier = Modifier.fillMaxSize(),
         bottomOverlayInset = bottomOverlayInset,
     )

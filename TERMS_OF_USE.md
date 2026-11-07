@@ -1,6 +1,6 @@
 # AALyrics Terms of Use
 
-**Effective date:** September 22, 2026
+**Effective date:** November 3, 2026
 
 These Terms of Use govern your use of the AALyrics application and related project-operated surfaces.
 
@@ -78,13 +78,13 @@ You may not use AALyrics to:
 
 Nothing in these Terms requires you to surrender rights that applicable law does not allow to be waived.
 
-## 8. External links and Support AALyrics
+## 8. External links and voluntary support
 
 AALyrics may open external sites such as GitHub or Buy Me a Coffee.
 
 External sites operate under their own terms and privacy practices.
 
-Support for AALyrics is voluntary. Contributions through Buy Me a Coffee are processed by that external service. A contribution does not purchase a license, unlock features, create an entitlement, guarantee support, or give the contributor control over project development.
+Financial support is voluntary. **Support this fork** opens the Buy Me a Coffee page of WanHanxi, this fork's maintainer (`buymeacoffee.com/wancy`). **Support the original author** separately opens Yuta Miura's (`whoxamxl`) page (`buymeacoffee.com/whoxamxi`). Contributions go to the selected recipient and are processed by that external service. A contribution does not purchase a license, unlock features, create an entitlement, guarantee support, or give the contributor control over project development.
 
 ## 9. Updates, changes, and discontinuation
 
@@ -120,7 +120,7 @@ Material changes should be reflected in the repository history and, where approp
 
 ## 13. Contact
 
-AALyrics is maintained by Yuta Miura (`whoxamxl`).
+The original AALyrics project is maintained by Yuta Miura (`whoxamxl`). This personal fork is maintained by `WanHanxi` at <https://github.com/WanHanxi/AALyrics>.
 
 For ordinary questions, bug reports, and project discussion, follow `SUPPORT.md`.
 

@@ -61,7 +61,7 @@ internal class LrcLibTransport(private val client: OkHttpClient, baseUrl: String
     private suspend fun execute(url: HttpUrl, notFoundIsEmpty: Boolean = false): String? =
         suspendCancellableCoroutine { continuation ->
             val request = Request.Builder().url(url)
-                .header("User-Agent", "AALyrics (https://github.com/whoxamxl/AALyrics)").build()
+                .header("User-Agent", "AALyrics (https://github.com/WanHanxi/AALyrics)").build()
             val call = client.newCall(request)
             continuation.invokeOnCancellation { call.cancel() }
             call.enqueue(object : Callback {
