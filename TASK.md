@@ -1,74 +1,25 @@
-# Personal fork attribution and feedback
+# AALyrics 1.1.0 stable release
 
 ## Scope and authorization
 
-- The owner approved the attribution plan: identify WanHanxi as this fork's maintainer, retain Yuta Miura's original copyright, unify the fork's contact/feedback destinations, and label the existing donations as support for the original author.
-- Follow-up: the owner supplied `https://buymeacoffee.com/wancy` for a separate personal donation entry. Add it alongside the original-author entry in the app, README and GitHub funding configuration.
-- Branch: `fix/personal-fork-attribution`, based on personal `main` `ebf7af2` (published `v1.1.0-beta.1`). Target only `WanHanxi/AALyrics:main`.
-- Existing personal [Draft PR #5](https://github.com/WanHanxi/AALyrics/pull/5) is open. The owner now requests one Support entry in the Settings list, opening two stacked recipient cards. Update this PR after implementation and validation, then stop; no merge, review request, tag or new release is authorized.
+- On 2026-11-06, the owner approved merging personal PR #5 and publishing stable **1.1.0**, removing the beta designation.
+- Target only `WanHanxi/AALyrics`. Keep the original license/notices, personal application ID, signing key, provider configuration and reserved upstream contribution branch unchanged.
+- PR #5 merged by squash as `f9d58722defb5e8fa870c6b491c68fcf30d23cae`. Its final head `70c0c781228cb0e9ea17143cb19b703c7345768f` passed hosted Build `41781430055`; merged-tree equality was checked before cleaning its completed branch.
+- Release preparation starts on `release/1.1.0` from the merged personal `main`. Integrate the preparation through a personal PR under the owner's merge/release authorization, then publish the tag only after checks pass.
 
-## Checkpoints
+## Acceptance criteria
 
-- [x] Separate original-project and fork-maintainer credits, preserve the original donation recipient, and align bundled policy/branding documentation and Compose Previews.
-- [x] Enable and verify the personal repository's feedback channels; move app/documentation feedback routes and the LRCLIB User-Agent to this fork.
-- [x] Run focused routing/provider tests, architecture checks and a Debug build under the workstation resource budget; inspect the resulting APK and review the full diff.
-- [x] Add the owner-supplied personal donation entry with matching policy/docs, Preview coverage and navigation validation.
-- [x] Complete final local verification and branch review after the donation follow-up.
+- Curate a newest `CHANGELOG.md` entry for `1.1.0`, dated 2026-11-06 in the owner's timezone, and align current README/release documentation with stable status. Preserve historical beta entries.
+- Publish tag `v1.1.0` on personal `main`. The existing Release workflow supplies Android `versionName=1.1.0`, a monotonically increased `versionCode`, durable personal signing, APK verification and a normal GitHub Release.
+- Preserve package `io.github.wanhanxi.aalyrics` and the pinned certificate so the personal beta can be updated in place. Keep Debug and upstream installs separate.
+- Confirm successful Build and Release CI, the APK and checksum assets, exact artifact version/signature/bundled documents, normal release labeling and update-feed discoverability.
+- Synchronize personal `main` and clean only this task's completed branches after confirmed merges.
 
-Delivery gate: validate and push this follow-up, require successful hosted CI, update the existing Draft PR description to the final layout, then stop.
+## Progress and validation
 
-## Decisions and acceptance criteria
+- PR #5 is merged and personal `main` is synchronized. Its completed topic branch was removed after verifying the merged PR head and tree.
+- Stable changelog, README and release documentation are prepared. App code and workflow behavior need no change: stable tag parsing and beta-to-stable precedence already have unit coverage.
+- Static validation passed: architecture boundaries, whitespace checks, exact preservation of all historical Changelog entries, the stable heading/date and the five-file documentation-only scope. Publication remains gated on successful hosted Build and preparation-PR integration.
+- After integration, publish `v1.1.0`, await Release CI, inspect the downloaded public assets and confirm release/update metadata. The public Release and workflow run retain the publication outcome; the final handoff records artifact verification.
 
-- Keep `LICENSE`, `NOTICE`, original brand assets, Kotlin namespaces, application IDs and signing identity unchanged.
-- Settings keeps the original-project copyright credit with a link to the original repository, and adds a distinct WanHanxi maintainer credit linking to this fork.
-- Donation destinations are separate: `https://buymeacoffee.com/wancy` for WanHanxi and `https://buymeacoffee.com/whoxamxi` for the original author. Identify the selected recipient before any external handoff; preserve the original author's destination.
-- This fork owns bug reports, questions, ideas, general discussion and private security reports. Check actual GitHub feature/category availability before declaring routes ready.
-- GitHub inspection found Issues, Discussions and private vulnerability reporting disabled initially. Configure the required channels for this fork only; do not create sample issues, discussions or security reports.
-- Preserve historical upstream provenance and the already published release notes. Describe this change under Unreleased.
-- Reset contract re-evaluated: no durable settings, caches or onboarding state change. The new support destination is transient Settings navigation and returns to MAIN through the existing Back/root-reset paths.
-- No new UI-text tests are needed. Adapt the existing route expectations and provider request assertion; add dedicated footer Previews for typical, narrow and enlarged-font layouts.
-- Run Gradle sequentially, with no emulator, one worker, no parallelism/daemon, 1 GiB heap, 512 MiB metaspace and in-process Kotlin. Verify a task-specific systemd scope has `MemoryMax=3G` and `MemorySwapMax=0`; do not change IDE or generated JVM settings.
-
-## Validation and status
-
-- Baseline: clean personal main, matching remote `ebf7af2863bb39050cbe3fa1c5a3cbfd47b92808`.
-- The attribution and donation implementation is complete in Draft PR #5. The combined-support-layout implementation and local verification are complete; hosted CI and the existing PR description are the final delivery gate. The published Release and version channel are unchanged.
-
-- Attribution checkpoint: architecture checks and `git diff --check` pass; all Settings/runtime/Preview call sites carry the separate original-project callback. Dedicated footer Previews cover typical, narrow and enlarged-font layouts. Compilation is deferred to the final source checkpoint to avoid redundant local builds.
-
-- Feedback checkpoint: enabled Issues, Discussions and private vulnerability reporting on `WanHanxi/AALyrics`. Read-back confirms all enabled, with `q-a`, `ideas` and `general` category slugs. No sample reports or discussions were posted. App routes, SUPPORT/SECURITY documentation, Settings specification and LRCLIB request identity now target this fork.
-
-- Source checkpoint `36b085b`: focused `HelpFeedbackRoutingTest` (2 tests), `LrcLibProviderTest` (21 tests) and `:app:assembleDebug` passed in one sequential Gradle invocation (54 seconds). Zero failures, errors or skipped tests.
-- The active systemd scope verified `MemoryMax=3221225472` and `MemorySwapMax=0`; peak memory was 2,499,579,904 bytes (2.33 GiB), with zero OOM/limit events. No emulator was started. The scope ended after verification; no task-owned build process is kept running.
-- Initial attribution APK (superseded by the donation follow-up): `app/build/outputs/apk/debug/app-debug.apk`, 92,158,211 bytes, SHA256 `83484fe19d2e96966ed5e1cf86add1858d1e206db8965c6f987dd5fd5803d4e3`. Package `io.github.wanhanxi.aalyrics.debug`, label `AALyrics Debug`, version `1.1.0-beta.1-dev+36b085b`, code 1.
-- Inspected APK resources and DEX: both attribution strings and the explicit original-author donation copy are present; all five feedback links and the LRCLIB User-Agent point to the personal repository. The separate original-project link and original Buy Me a Coffee recipient remain present.
-- All six APK documents exactly match the repository sources. `LICENSE`, `NOTICE`, third-party licenses, brand assets, application IDs and namespaces have no branch changes. Generated Gradle JVM settings retain SHA256 `6c13aa5ba36690ccfbbb25a8807d01d98c15833e446d7ae82ddc726472cb8ef7`.
-- GitHub read-back verified all three feedback features enabled. Public Q&A/Ideas/General category pages return HTTP 200; issue creation and private-report entry points return the expected login redirects. No reports were submitted.
-- Architecture checks and branch-wide `git diff --check` pass. Source/Preview callback wiring and current documentation were reviewed; historical upstream references remain intact.
-- UI validation is compilation/resource inspection plus Compose Preview coverage. No emulator or on-device visual test was run; typical/narrow/enlarged-font footer Previews and the existing Support screen Previews are available for visual review.
-- Initial hosted Build [41778846680](https://github.com/WanHanxi/AALyrics/actions/runs/41778846680) passed on `027ec69`, including full unit tests, Debug build and artifact uploads.
-- The owner-supplied personal support URL returned HTTP 200 with page title `WHX`. No payment was initiated. Final app/documentation changes retain two distinct recipients.
-
-## Final donation follow-up validation
-
-- Source checkpoint `d393218`: `SettingsNavigationTest` (3 tests) and `:app:assembleDebug` passed in 48 seconds. Existing navigation coverage includes the new support child and returns it to Settings home; no new persistence/reset behavior was introduced.
-- The verified 3 GiB / zero-swap scope peaked at 2,508,328,960 bytes (2.34 GiB), with zero OOM/limit events. The scope ended after verification. No emulator was started and generated JVM settings remain unchanged.
-- Donation-checkpoint APK (superseded by the combined-layout build): `app/build/outputs/apk/debug/app-debug.apk`, 92,160,303 bytes; SHA256 `35671be711e27f64a555d73a8524e5de9225e480934bc05489143d130813dad5`. Package `io.github.wanhanxi.aalyrics.debug`, version `1.1.0-beta.1-dev+d393218`, label `AALyrics Debug`.
-- APK inspection confirms both Buy Me a Coffee URLs, both recipient-specific labels/accessibility descriptions, separate maintainer/original credits, and the personal feedback routes. All six bundled documents exactly match current source. Funding YAML parses with `buy_me_a_coffee: wancy` and the original-author URL as a separate custom link.
-- Both support pages reuse the same native presentation while supplying distinct copy and callbacks. Added personal-support Previews cover typical, narrow and enlarged-font layouts; original-author Previews remain available. Source review traced each callback to its corresponding URL. Visual/on-device verification remains an optional handoff, with no emulator run claimed.
-- Final branch-wide scope review, architecture checks and diff checks pass. The prior 23 routing/provider tests remain applicable to unchanged code; final hosted CI runs the complete suite and Debug build. No remaining implementation work is deferred.
-
-## Combined support screen follow-up
-
-- [x] Replace the two Settings rows/subscreens with one `Support AALyrics` entry and one screen containing two stacked cards: WanHanxi first, original author second.
-- [x] Preserve the two URLs and independent callbacks, shorten repeated card copy, and keep a shared voluntary/external-payment note.
-- [x] Update combined-screen Previews and current documentation; validate navigation, build/APK content, architecture and the follow-up diff under the same workstation limits.
-- [x] Prepare the completed follow-up and validation record for delivery through Draft PR #5. Update its description after final CI; keep it Draft and stop before merge.
-
-Reset contract: only Settings-local navigation changes. The single support child returns to MAIN with existing Back/root-reset handling; no durable preferences, caches or onboarding state are added.
-
-- Combined-layout source `a7db081`: Settings navigation tests (3 tests, zero failures/errors/skips) and `:app:assembleDebug` passed in 48 seconds. Architecture checks and both follow-up/branch-wide diff checks pass.
-- Verification enforced `MemoryMax=3221225472` / `MemorySwapMax=0`; peak memory was 2,262,704,128 bytes (2.11 GiB), with zero OOM/limit events. No emulator was started; generated Gradle JVM settings retain their original hash.
-- Current APK: `app/build/outputs/apk/debug/app-debug.apk`, 92,160,099 bytes; SHA256 `391deff04d0fc65a600b8518872a61dc1bcc17d8a856c954cde88fe7f2e10fdd`; package `io.github.wanhanxi.aalyrics.debug`, version `1.1.0-beta.1-dev+a7db081`.
-- APK resource/DEX inspection confirms the shared Support title, both recipient card labels/copy, one support subscreen and both original donation URLs. All six bundled documents match source. Source review confirms exactly one Settings support row and separate callbacks for the upper fork card and lower original-author card.
-- Combined-screen Previews cover typical, narrow, enlarged-font and narrow/enlarged-font layouts, plus animation preview. No emulator/on-device visual test is claimed. No application callback URLs, README/funding configuration, bundled policy text, license or notices changed in this layout follow-up.
+No new persisted app state is introduced, so reset behavior is unchanged. Reuse the successful application checks; do not rebuild locally for documentation alone. Hosted Build and Release run the full unit suite and build their respective artifacts. No new emulator or on-device validation is claimed.

@@ -87,10 +87,10 @@ The personal release channel targets `WanHanxi/AALyrics`. In-app update discover
 - Release application ID: `io.github.wanhanxi.aalyrics`; launcher/Android Auto label: `AALyrics`.
 - Debug application ID: `io.github.wanhanxi.aalyrics.debug`; label: `AALyrics Debug`.
 - Personal releases use their own durable signing key, independent of the original author and Android Debug keys.
-- First personal target: `v1.1.0-beta.1`. Version tags remain independent of upstream's release schedule.
+- Current stable version: `v1.1.0`, following the first personal release `v1.1.0-beta.1`. Version tags remain independent of upstream's release schedule.
 
 The new package can coexist with upstream and earlier Debug installs. It is a fresh installation: app settings/cache and Android permissions are separate, with no automatic migration. Later personal releases must retain this package identity and signing key and increase `versionCode`.
 
-Existing upstream community/support links remain attributed to upstream; this change does not create a personal Issues/Discussions service. Personal Issues and Discussions are currently disabled. Do not report personal-only defects upstream as if they were original-app bugs.
+Personal Issues, Discussions (Q&A, Ideas and General), and private vulnerability reporting are enabled. App feedback routes target this fork. Original-project credits remain attributed to upstream; do not report personal-only defects there as if they were original-app bugs.
 
 Release signing setup, optional PetitLyrics configuration, verification and the no-tag-before-approval procedure are documented in `docs/RELEASES.md`. Repository setup and a successful local build alone do not establish a working hosted release channel.
