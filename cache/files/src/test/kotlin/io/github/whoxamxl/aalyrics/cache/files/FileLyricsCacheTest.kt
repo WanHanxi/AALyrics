@@ -42,12 +42,40 @@ class FileLyricsCacheTest {
         val document = LyricsDocument(
             listOf(TimedLyricLine("First", 1000), TimedLyricLine("Second", 2000)),
             attribution = attribution,
-            suppliedTranslation = SuppliedLyricsTranslation("zh", listOf("测试", null), attribution),
+            suppliedTranslation = SuppliedLyricsTranslation("zh", listOf("测试 — 𠮷 🎵 café", null), attribution),
         )
         val bilingualKey = key.copy(preferences = key.preferences.copy(preferredTranslationLanguage = "zh"))
         FileLyricsCache(directory).put(bilingualKey, document)
         assertEquals(document, FileLyricsCache(directory).get(bilingualKey))
         assertNull(FileLyricsCache(directory).get(key))
+    }
+
+    @Test
+    fun `cached source replacement characters remain usable in literal or escaped form`() = runTest {
+        val attribution = LyricsAttribution("netease", "NetEase", "synthetic-source")
+        val document = LyricsDocument(
+            listOf(TimedLyricLine("Synthetic original", 1000)),
+            attribution = attribution,
+            suppliedTranslation = SuppliedLyricsTranslation("zh", listOf("测试译文"), attribution),
+        )
+        val translatedKey = key.copy(preferences = CandidateSelectionPreferences(preferredTranslationLanguage = "zh"))
+        val cache = FileLyricsCache(directory)
+        cache.put(key, plain)
+        val healthyFiles = entries().toSet()
+        for (corrupted in listOf("损坏\uFFFD\uFFFD译文", "损坏\\ufffd\\ufffd译文")) {
+            cache.put(translatedKey, document)
+            val damagedFile = entries().single { it !in healthyFiles }
+            // Existing source text remains usable even when a few characters are lost upstream.
+            damagedFile.writeText(damagedFile.readText().replace("测试译文", corrupted))
+            val expected = document.copy(suppliedTranslation = SuppliedLyricsTranslation(
+                "zh", listOf("损坏\uFFFD\uFFFD译文"), attribution,
+            ))
+            assertEquals(expected, FileLyricsCache(directory).get(translatedKey))
+            assertTrue(damagedFile.exists())
+            assertEquals(plain, FileLyricsCache(directory).get(key))
+        }
+        cache.put(translatedKey, document)
+        assertEquals(document, FileLyricsCache(directory).get(translatedKey))
     }
 
     @Test

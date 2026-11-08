@@ -57,6 +57,27 @@ class NeteaseProviderTest {
         assertNull(document.suppliedTranslation)
     }
 
+    @Test fun `literal or escaped replacement characters do not discard usable supplied translations`() {
+        for (escaped in listOf(false, true)) withServer { server, provider ->
+            server.json(search(song()))
+            val json = Gson().toJson(lyrics(
+                "[00:01.00]First original\n[00:02.00]Second original",
+                "[00:01.00]正常译文\n[00:02.00]损坏\uFFFD\uFFFD译文",
+            ))
+            server.enqueue(MockResponse().setBody(if (escaped) json.replace("\uFFFD", "\\ufffd") else json))
+            val document = provider.search(request).single().lyrics
+            assertEquals(listOf("First original", "Second original"), document.lines.map { it.text })
+            assertEquals(listOf("正常译文", "损坏\uFFFD\uFFFD译文"), document.suppliedTranslation?.lines)
+        }
+    }
+
+    @Test fun `valid non ASCII text punctuation and supplementary Unicode remain unchanged`() = withServer { server, provider ->
+        server.json(search(song()))
+        val translated = "测试—𠮷 🎵 café"
+        server.json(lyrics("[00:01.00]Unicode test", "[00:01.00]$translated"))
+        assertEquals(listOf(translated), provider.search(request).single().lyrics.suppliedTranslation?.lines)
+    }
+
     @Test fun `version mismatch is rejected before fetching lyrics and title search is bounded`() = withServer { server, provider ->
         server.json(search(song(title = "Synthetic Song (Live)")))
         server.json(search(song()))

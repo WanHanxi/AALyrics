@@ -114,3 +114,5 @@ Persistent machine-generated Translation caching remains prohibited by the polic
 ## NetEase schema transition
 
 Schema and selection policy are version 2. The paired translation, nullable per-row texts, contributors and notices round-trip with the original. Different translation preferences cannot share a winner. Prior version keys are misses; no bulk cache deletion is performed and capacity eviction still owns old-file retention. Reset preserves lyric caches, including supplied translations, just as it preserves original-only entries.
+
+Source translations containing literal replacement characters remain usable cached facts. The bilingual tie-break favoring equally scored translations without these characters does not invalidate existing winners or change cache versions: new retrievals use it, while existing entries remain available offline, including their upstream text defects. It does not silently refresh or rewrite previously cached lyrics.

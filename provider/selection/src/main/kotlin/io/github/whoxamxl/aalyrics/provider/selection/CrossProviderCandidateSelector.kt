@@ -32,7 +32,7 @@ class CrossProviderCandidateSelector : CandidateSelector {
         if (standardBest != null) {
             // A paired translation is preferred only after the existing identity/quality gates.
             // This is a structural-coverage preference, not a score for translation accuracy.
-            val bilingualBest = best(synced.filter { score ->
+            val bilingualBest = best(scored = synced.filter { score ->
                 val document = score.candidate.lyrics
                 val translation = document.suppliedTranslation
                 val usefulIndices = document.lines.indices.filter { index ->
@@ -44,7 +44,7 @@ class CrossProviderCandidateSelector : CandidateSelector {
                     MIN_TRANSLATION_COVERAGE &&
                     score.metadataScore >= standardBest.metadataScore - KARAOKE_METADATA_TOLERANCE &&
                     score.qualityScore >= standardBest.qualityScore - KARAOKE_QUALITY_TOLERANCE
-            })
+            }, preferIntactTranslation = true)
             if (bilingualBest != null) return bilingualBest.candidate
 
             if (preferences.preferredSyncType == LyricsSyncType.WORD) {
@@ -234,12 +234,21 @@ class CrossProviderCandidateSelector : CandidateSelector {
             candidate.lyrics.lines.any { it is TimedLyricLine && it.words.isNotEmpty() }
     }
 
-    private fun best(scored: Collection<CandidateScore>): CandidateScore? {
+    private fun best(
+        scored: Collection<CandidateScore>,
+        preferIntactTranslation: Boolean = false,
+    ): CandidateScore? {
         return scored.maxWithOrNull(
             compareBy<CandidateScore> { it.finalScore }
                 .thenBy { it.metadataScore }
                 .thenBy { it.qualityScore }
                 .thenBy { it.sourceConfidence }
+                // Literal U+FFFD in source translations breaks otherwise equal bilingual ties.
+                // It does not make the artifact unusable or override a stronger recording match.
+                .thenBy { score ->
+                    preferIntactTranslation && score.candidate.lyrics.suppliedTranslation?.lines
+                        ?.none { line -> line?.contains('\uFFFD') == true } == true
+                }
                 .thenBy { stableCandidateKey(it.candidate) },
         )
     }

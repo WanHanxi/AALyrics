@@ -10,6 +10,13 @@ import kotlin.test.assertTrue
 class DomainModelTest {
 
     @Test
+    fun `supplied translations preserve source replacement characters and supplementary Unicode`() {
+        val attribution = LyricsAttribution("test")
+        val supplied = listOf("正常行", "缺字\uFFFD\uFFFD行", "测试 — 𠮷 🎵 café", null)
+        assertEquals(supplied, SuppliedLyricsTranslation("zh", supplied, attribution).lines)
+    }
+
+    @Test
     fun `lyrics sync type is derived from strongest available timing`() {
         val plain = LyricsDocument(
             lines = listOf(PlainLyricLine("plain")),
