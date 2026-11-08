@@ -122,7 +122,7 @@ It must not own MediaSession projection, canonical lyrics mutation, providers, T
 
 ### `:provider:selection`
 
-Production implementation of the `CandidateSelector` port. It owns cross-provider ranking policy including metadata plausibility, payload quality, source confidence, synchronized/plain fallback, recording-version handling, and WORD/karaoke preference behavior.
+Production implementation of the `CandidateSelector` port. It owns cross-provider ranking policy including metadata plausibility, payload quality, source confidence, synchronized/plain fallback, recording-version handling, WORD/karaoke preference behavior, and the gated source-supplied translation preference.
 
 `:core:lyrics` never depends on this implementation; `:app` injects it through the core port.
 
@@ -136,7 +136,7 @@ Pure shared utilities. Matching owns genuinely provider-neutral metadata/version
 
 Each provider owns only its provider-local transport/authentication, query/fallback strategy, DTOs, parsing, provider-local validation, and normalization into `LyricsCandidate`. A provider may report provider-neutral evidence discovered during search, but it must not decide the final winner across providers.
 
-LRCLIB, PetitLyrics, Musixmatch, and SyncLRC are migrated behind the provider contract. Shared policy is defined in `docs/PROVIDER_ARCHITECTURE.md`; concise provider profiles live in `docs/providers/`.
+LRCLIB, PetitLyrics, Musixmatch, and SyncLRC are migrated behind the provider contract; NetEase is independently implemented with same-source Chinese translations. Shared policy is defined in `docs/PROVIDER_ARCHITECTURE.md`; concise provider profiles live in `docs/providers/`.
 
 ### `:translation:api`
 

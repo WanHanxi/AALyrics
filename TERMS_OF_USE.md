@@ -1,6 +1,6 @@
 # AALyrics Terms of Use
 
-**Effective date:** November 3, 2026
+**Effective date:** November 7, 2026
 
 These Terms of Use govern your use of the AALyrics application and related project-operated surfaces.
 
@@ -51,11 +51,11 @@ You should not rely on AALyrics output where an error could create a safety-crit
 
 ## 5. Translation
 
-AALyrics may use Google ML Kit for on-device language identification and translation functionality.
+AALyrics may display existing translations supplied with lyrics by an external provider. Matching translations are preferred over on-device machine translation. Source-provided translations can be incomplete or inaccurate; availability does not certify human authorship or grant content rights.
 
-Automated translation can be inaccurate and is not a substitute for an authoritative original text or a qualified human translation.
+Machine translation fallback is optional and enabled by default. When used, it runs through Google ML Kit on the device after required models are available. Translations can contain errors and should not be relied on as authoritative interpretations.
 
-Use of third-party translation technology is also subject to the applicable third-party terms and attribution requirements.
+AALyrics does not grant a license to third-party original lyrics or translations. The software's license and a provider's ability to return data do not replace platform permission or applicable rightsholder authorization.
 
 ## 6. Android Auto and driving safety
 

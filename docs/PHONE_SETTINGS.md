@@ -27,6 +27,7 @@ Settings
 │  └─ Ignore non-audio apps          [switch]  ⓘ
 ├─ Translation
 │  ├─ Translation                    [switch]
+│  ├─ Machine translation fallback   [switch]  ⓘ
 │  └─ Target language             ⓘ  <value>  >
 ├─ Android Auto
 │  └─ Compatibility setup            <status> >
@@ -220,6 +221,12 @@ This setting gates whether lyrics lookup begins. It does not change MediaSession
 
 Translation configuration already belongs to the Translation capability/application boundary.
 
+### Machine translation fallback
+
+The independent **Machine translation fallback** switch defaults to ON, preserving existing enabled users' behavior. With fallback OFF, matching source translations still display, but absence leaves original-only lyrics and a concise unavailable status. Missing rows inside a supplied translation are never machine-filled. Chinese is selectable without a downloaded model; with fallback OFF every supported target is selectable without a model. Source translations do not trigger Chinese target-model predownload.
+
+Reset AALyrics and Clear translation models restore this preference to ON while turning Translation OFF and restoring target English. The existing caches/models retention policy is unchanged; source-supplied translations are included in the preserved lyric cache.
+
 ### Translation toggle
 
 Presentation:
@@ -242,7 +249,7 @@ The row shows the selected display name and opens a compact picker. Its info aff
 
 Approved tooltip copy:
 
-> Translation requires language models for the source and target languages. When Translation is enabled, AALyrics automatically downloads any required models. The source language is detected from the current lyrics.
+> Existing translations are preferred when available in the target language. Machine translation fallback downloads any required source and target language models. Source-provided translations do not need these models.
 
 This distinction is important: readiness of the selected target alone does not guarantee that a translation route is ready. For example, Japanese → English still requires the Japanese source-language model even though English itself is built in.
 
@@ -267,11 +274,13 @@ The target-language row remains available while Translation is disabled. Changin
 Each language row also exposes Translation-model readiness through one stable trailing action slot:
 
 - English is selectable from the start because AALyrics treats ML Kit English support as built in and requires no remote language-pack download;
-- an unavailable remote model is not selectable and shows an explicit download action;
-- an active download is not selectable and shows an indeterminate loading indicator;
+- when the target requires machine models, an unavailable remote model is not selectable and shows an explicit download action;
+- for such targets an active download is not selectable and shows an indeterminate loading indicator;
 - a ready remote model becomes selectable and shows no status icon unless it is the selected target;
 - the selected ready/built-in target shows the check mark in the same trailing slot;
-- a failed download is not selectable and shows a retry action in the trailing slot.
+- for such targets a failed download is not selectable and shows a retry action in the trailing slot.
+
+Chinese, and all targets while machine fallback is OFF, remain selectable independently of model state. Selecting such a target shows a check without claiming the model is downloaded.
 
 A successful manual download therefore transitions the row from disabled + download/loading UI to an ordinary selectable row. Downloading a model must not implicitly change the selected target.
 
@@ -952,6 +961,7 @@ The info tooltip explains that reset restores AALyrics-owned settings and onboar
 After confirmation, reset restores:
 
 - Translation -> OFF;
+- Machine translation fallback -> ON;
 - Target language -> English;
 - Verbose details -> OFF;
 - Karaoke experimental feature gate -> OFF;

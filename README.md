@@ -55,8 +55,8 @@ AALyrics observes the active Android media session, matches the current track ag
 - **Synchronized lyrics** — plain, line-synced, and genuine word-synced lyrics when the selected provider supplies them.
 - **Android Auto Now Playing** — current lyric line, artwork, translated line when eligible, and the transport controls exposed by the active media app.
 - **Offline lyrics reuse** — previously resolved lyrics are cached locally for track switches and app restarts, subject to storage limits.
-- **Multiple lyrics providers** — LRCLIB, Musixmatch, and SyncLRC with provider-independent candidate selection. PetitLyrics is an optional build-time source, enabled only with complete [configuration](docs/providers/PETITLYRICS.md#configuration-source).
-- **On-device Translation** — translated lyrics remain tied to the canonical lyric document and playback timing.
+- **Multiple lyrics providers** — LRCLIB, NetEase Cloud Music, Musixmatch, and SyncLRC with provider-independent candidate selection. PetitLyrics is an optional build-time source, enabled only with complete [configuration](docs/providers/PETITLYRICS.md#configuration-source).
+- **Paired Chinese translations** — prefer matching NetEase originals and supplied translations; on-device machine translation remains an optional fallback, enabled by default. Source and translation rights remain separate from the app license; see [source rights and references](docs/LYRICS_SOURCE_RIGHTS.md).
 - **Experimental WORD_SYNC Karaoke** — opt-in Phone presentation for genuine word-timed lyrics.
 - **Fullscreen Phone lyrics** — centered lyrics and translations over a softened album-art background, with portrait and landscape support.
 - **Lyrics calibration** — three-tap sync, fine adjustments and exact offset entry shared with Android Auto.

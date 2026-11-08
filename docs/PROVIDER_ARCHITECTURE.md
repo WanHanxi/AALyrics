@@ -53,7 +53,7 @@ A provider may own:
 - provider payload parsing,
 - rejection of malformed or provider-invalid responses,
 - provider-local evidence learned during discovery,
-- normalization into `Track`, `LyricsDocument`, attribution, and `LyricsCandidate`.
+- normalization into `Track`, `LyricsDocument`, attribution, and `LyricsCandidate`, including source-supplied translations paired to the same original document.
 
 A provider must not own:
 
@@ -62,7 +62,7 @@ A provider must not own:
 - application `LyricsState`,
 - playback ownership,
 - phone or Android Auto presentation,
-- translation,
+- machine translation execution,
 - global cache policy,
 - Android `MediaSession` / `MediaController` types.
 
@@ -164,6 +164,7 @@ Provider-specific notes live here:
 - `docs/providers/PETITLYRICS.md`
 - `docs/providers/MUSIXMATCH.md`
 - `docs/providers/SYNCLRC.md`
+- `docs/providers/NETEASE.md`
 
 Each profile records capabilities, current working-fork behavior, provider-local quirks/invariants, AALyrics ownership decisions, regression-sensitive behavior, and migration status. The profile should stay concise; shared rules belong in this document.
 

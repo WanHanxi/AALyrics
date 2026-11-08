@@ -85,47 +85,36 @@ The executable scope and acceptance criteria are recorded in `TASK.md`; the visu
 
 ## Stable ownership rules
 
-Translation is not part of lyrics retrieval or cross-provider candidate ranking.
+Machine Translation execution stays downstream of canonical lyrics. Source-supplied translations are fetched lyrics facts, retained with the original document rather than sent through a text-translation engine.
 
 ```text
-Lyrics Providers
+Lyrics Providers (original + optional same-source translation)
       ↓
-CandidateSelector
+CandidateSelector (metadata/quality first, optional bilingual preference)
       ↓
-Canonical Lyrics
+Canonical LyricsDocument, including paired translation and attribution
       ↓
-Translation capability
-      ↓
-Translation Artifact / status
-      ↓
-presentation projection
+TranslationCoordinator
+      ├─ matching supplied translation → atomic artifact, no language ID or models
+      ├─ machine fallback enabled → existing ML Kit pipeline
+      └─ machine fallback disabled → Unavailable, original lyrics remain visible
 ```
 
 Rules:
 
-- concrete Lyrics Providers do not invoke translation engines;
-- Lyrics Provider selection never depends on Translation availability;
-- `LyricsCoordinator` remains responsible for lyrics lookup/provider orchestration, not Translation execution policy;
-- Translation Providers/engines use their own capability boundary and are not added to `:provider:api`;
-- Phone and Android Auto consume Translation results downstream; they do not invoke concrete translators directly;
-- Translation failure never destroys or replaces valid original lyrics;
-- obsolete Translation work cannot publish after the canonical lyrics, target language, or Translation request has been superseded.
+- concrete Lyrics Providers never invoke translation engines;
+- the user-authorized bilingual preference may affect selection after the existing recording-version and metadata gates; see `docs/providers/NETEASE.md`;
+- normal source scores remain unchanged, and this preference does not claim to grade translation accuracy;
+- `LyricsCoordinator` owns lookup orchestration, not Translation execution;
+- a supplied translation must index exactly the same original document and carry the same provider/source identity; ambiguous or missing rows stay original-only;
+- never fill supplied-translation gaps using another source or ML Kit;
+- Translation Provider engines remain separate from Lyrics Providers;
+- Phone and Android Auto consume matching atomic artifacts downstream;
+- failure never destroys valid original lyrics, and stale content/target/fallback work cannot publish.
 
-A valid result may therefore use different sources:
+The November 2026 NetEase slice intentionally replaces the earlier rule forbidding all translation-aware selection. Translation settings are projected into lookup preferences and included in cache identity. Settings changes replay lookup only while a surface demands lyrics and the playback source remains eligible.
 
-```text
-Lyrics Provider:      LRCLIB
-Translation Provider: Musixmatch
-```
-
-or:
-
-```text
-Lyrics Provider:      Musixmatch
-Translation Provider: ML Kit
-```
-
-Neither relationship gives the Lyrics Provider a ranking advantage.
+`TranslationArtifact.suppliedAttribution` distinguishes existing translations from generated machine output. Its unknown source language is left unknown rather than fabricating a LanguageProfiler result. Canonical fingerprints include supplied text and attribution. Phone displays the source label, and Details retains contributor names and notices. Both Phone and Auto suppress stale machine artifacts immediately when fallback is disabled.
 
 ## Original lyrics remain canonical
 
@@ -362,7 +351,7 @@ Do not put Translation Providers in `:provider:api`.
 
 ### Musixmatch
 
-Musixmatch native Translation remains an approved research/implementation direction, but it must not influence Lyrics Provider ranking.
+Musixmatch native Translation remains a separate research direction. Any future source-supplied translation must meet the same document-identity and gated-preference contract as NetEase; no Musixmatch native Translation is implemented in this slice.
 
 When canonical lyrics come from another Lyrics Provider, Musixmatch source lyrics must be aligned against the canonical source before its Translation can be accepted.
 
@@ -389,7 +378,7 @@ This keeps provenance and regression diagnosis clear.
 
 ## Google ML Kit role
 
-Google ML Kit remains the standard local Translation engine unless a later explicit decision changes it.
+Google ML Kit remains the local machine Translation fallback. A supplied translation matching the target bypasses language identification, model preparation and machine sessions. Chinese target models are prepared lazily only when machine execution is actually needed; other targets retain background preparation while machine fallback is enabled.
 
 The background scaffold implements ML Kit model lifecycle:
 
@@ -412,10 +401,11 @@ ML Kit infrastructure belongs outside pure Translation contracts because it depe
 
 Translation preferences are application/capability state, not a foreground View responsibility.
 
-The background scaffold persists:
+The settings boundary persists:
 
 - Translation enabled/disabled;
-- selected target language.
+- selected target language;
+- machine translation fallback (ON by default, independently switchable).
 
 For application persistence, Translation is **opt-in**: when no persisted user choice exists, `translation_enabled` resolves to disabled. English remains the built-in/default target and may be prepared/selectable without enabling Translation execution. Existing installs with an explicit persisted enabled value keep that user choice.
 
@@ -427,17 +417,17 @@ The Settings presentation may show model readiness and emit explicit manual prep
 
 English is the built-in model language in the current ML Kit adapter. It requires no remote language-pack download and should present as ready without network preparation. ML Kit explicitly treats English as built in rather than a downloadable/deletable remote model. Built-in readiness is capability availability only; it must not be interpreted as Translation being enabled.
 
-Advanced Settings may explicitly clear downloaded Translation models through the abstract `TranslationModelManager` boundary. The concrete ML Kit adapter enumerates engine-managed downloaded `TranslateRemoteModel` instances and deletes them through `RemoteModelManager`; `:ui:phone` does not depend on ML Kit. Before cleanup, application-owned Translation settings return to their safe defaults: Translation OFF and Target language English. The built-in English capability remains available. Cleanup also clears stale non-English model lifecycle presentation after successful deletion.
+Advanced Settings may explicitly clear downloaded Translation models through the abstract `TranslationModelManager` boundary. The concrete ML Kit adapter enumerates engine-managed downloaded `TranslateRemoteModel` instances and deletes them through `RemoteModelManager`; `:ui:phone` does not depend on ML Kit. Before cleanup, application-owned Translation settings return to their safe defaults: Translation OFF, Target language English and machine fallback ON. The built-in English capability remains available. Cleanup also clears stale non-English model lifecycle presentation after successful deletion.
 
 Model cleanup must be race-safe with process-level model preparation. Cleanup start and preparation registration share a lifecycle barrier/generation so a preparation cannot pass the cleanup snapshot in the pre-monitor window and then start a surviving download afterward. Any language with an active download task or monitor when cleanup begins is marked for deletion; if that model finishes after the initial inventory pass, its download-success path deletes it instead of publishing a surviving READY model.
 
 The user-confirmed cleanup runs in the application-owned process scope rather than a foreground Composable scope, so destination changes or Activity recreation do not cancel it. The application owns a small IDLE/RUNNING/FAILED cleanup lifecycle; immediate inventory/deletion failures propagate through that lifecycle so Settings can show an explicit retryable failure rather than silently treating cleanup as complete.
 
-Changing or resetting Translation settings must not refetch lyrics providers merely because Translation configuration changed.
+Changing enabled/target settings updates the paired-translation selection preference and may restart demanded lookup (or resolve from its distinct cache entry). Changing only machine fallback does not refetch lyrics. Reset restores fallback ON, Translation OFF and target English while preserving caches/models.
 
 ## Background target-model preparation
 
-When Translation is enabled, the application may prepare the selected target model independently of foreground UI.
+When Translation and machine fallback are enabled, non-Chinese targets may be prepared independently of foreground UI. Chinese route models are acquired only by machine execution after source lookup completes; a matching supplied translation bypasses this acquisition.
 
 English requires no downloaded ML Kit language pack.
 
@@ -447,7 +437,7 @@ Background model preparation must not publish lyrics, mutate canonical lyrics, o
 
 ## Persistent Translation Cache policy
 
-Persistent Translation Cache is intentionally **not** part of the current implementation path.
+Persistent machine-generated Translation Cache is intentionally **not** part of the current implementation path. Source-supplied translations are explicitly retained as canonical cache facts, as described in `docs/CACHE_ARCHITECTURE.md`.
 
 Policy:
 
@@ -588,12 +578,12 @@ Those exclusions defined Phase 11.2a only. Phase 11.2b subsequently implemented 
 Future Translation implementation must preserve all of the following:
 
 1. Original canonical lyrics are never mutated.
-2. Lyrics Provider selection never depends on Translation availability.
+2. Source-supplied translation preference never bypasses recording-version, metadata or comparable-quality gates.
 3. Translation Provider architecture remains distinct from Lyrics Provider architecture.
-4. Every translated lyric line has exactly one authoritative Core owner.
+4. Every generated translated line has exactly one Core owner; supplied lines have one original document index.
 5. Partial Translation Artifacts are never exposed to presentation.
-6. INCIDENTAL and UNCERTAIN foreign-language text remains original by default.
+6. Machine routing preserves INCIDENTAL and UNCERTAIN foreign-language text by default; supplied text does not depend on language-ID routing.
 7. Lyrics Provider language metadata does not control LanguageProfiler routing.
 8. One completed Translation Artifact uses one Translation Provider unless explicitly changed later.
-9. Persistent Translation Cache is prohibited through stable `v1.0.0` and remains disabled afterward unless explicitly authorized.
+9. Persistent generated Translation Cache remains disabled. Source-supplied translations are explicitly stored with their canonical originals in the NetEase slice.
 10. Optional Translation failure never invalidates usable canonical lyrics.
