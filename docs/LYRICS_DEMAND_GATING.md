@@ -46,7 +46,7 @@ phone process foreground
         OR
 Android Auto projection connected
         OR
-LyricsBrowserService active for the Android Auto host
+LyricsBrowserService active (host binding or automatic projection activation)
         =
 lyrics demand active
 ```
@@ -66,9 +66,14 @@ This slice must not add finished phone lyrics UI merely to generate demand.
 Automotive demand now has two independent application-level signals:
 
 - `CarConnection.CONNECTION_TYPE_PROJECTION` keeps the original projection-wide demand semantics, so provider work may remain ready while Android Auto is connected even if the AALyrics surface is not foreground;
-- active `LyricsBrowserService` lifetime reflects that the Android Auto host is actually bound to the legacy media surface. `onCreate()` adds host-service demand and `onDestroy()` removes only that source.
+- active `LyricsBrowserService` lifetime reflects a host binding or the application's automatic activation binding during projection. `onCreate()` adds host-service demand and `onDestroy()` removes only that source.
 
 The second signal was added by the Android Auto Now Playing completion so process recreation through the media-browser service can recover without reopening the Phone Activity. It remains a demand signal only; the Automotive UI/service does not call providers directly.
+
+The application now also binds that service when real projection and an eligible playing
+track coincide. Automatic activation consumes raw projection/playback, never aggregate
+demand, and releases its binding on disconnect even if host-service demand remains true.
+See [Android Auto automatic activation](ANDROID_AUTO_ACTIVATION.md) for lifecycle and tests.
 
 ## Gate ownership
 

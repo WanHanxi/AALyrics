@@ -99,6 +99,10 @@ To enable it:
 
 The host receives the active track, artwork, supported playback actions, current synchronized lyric line, and an eligible translated line when available. Android Auto controls the final layout and text truncation.
 
+The development branch also automatically prepares the lyrics media session when Android
+Auto is connected and an eligible song is playing. This does not set the default media
+app. See the [activation behavior and phone/car test guide](docs/ANDROID_AUTO_ACTIVATION.md).
+
 ## What's new in 1.2.0
 
 AALyrics 1.2.0 adds optional NetEase Cloud Music originals and Chinese translations. Enable **Settings > Lyrics > NetEase Cloud Music** after reading the source notice, then enable Translation and choose Chinese. NetEase defaults off; ordinary upgrades preserve an existing choice, while Reset AALyrics restores it to off.
