@@ -4,11 +4,13 @@
 
 On 2026-11-07 the owner requested NetEase integration (QQ deferred), preferring a source's paired original and translated lyrics. Machine translation remains enabled as fallback by default, with a user switch to disable it. Personal fork only; finish with a Draft PR, without merge or release.
 
-## Authorized license-page cleanup
+## Authorized legal-document cleanup
 
-The owner approved removing the NetEase implementation-reference section from `THIRD_PARTY_LICENSES.md`, which is also shown on the app's License page. Lyricify and ivLyrics are research references, not incorporated runtime dependencies. Their references and the platform/content rights discussion remain in `docs/LYRICS_SOURCE_RIGHTS.md` and `docs/providers/NETEASE.md`. Any further consolidation of rights wording requires separate approval; no Terms, source notice, runtime behavior or reset changes are included here.
+The owner approved removing the NetEase implementation-reference section from `THIRD_PARTY_LICENSES.md`, which is also shown on the app's License page. Lyricify and ivLyrics are research references, not incorporated runtime dependencies. Their references and the platform/content rights discussion remain in `docs/LYRICS_SOURCE_RIGHTS.md` and `docs/providers/NETEASE.md`.
 
-Validation: `:app:syncBundledDocumentsAssets` passed in a verified 3 GiB / zero-swap scope with the workstation flags; the scope exited. All six generated bundled documents match their repository sources, the removed reference section is absent from the License-page asset, and both repository reference documents retain the research attribution. Whitespace checks passed. The prior successful code build and 906-test validation are reused for this documentation-only change; no APK rebuild or device verification was needed or performed.
+The owner subsequently approved consolidating the existing content-rights statements in Terms of Use section 3, explicitly including translations, and removing the corresponding duplicate wording from section 5. Translation behavior, accuracy and the human-authorship qualification remain in section 5. This preserves the substance of the rights statements; the source notice, Privacy Policy, repository rights records, runtime behavior and reset contract are outside this cleanup.
+
+Validation: `:app:syncBundledDocumentsAssets` passed after each cleanup in verified 3 GiB / zero-swap scopes with the workstation flags; both scopes exited. All six generated bundled documents match their repository sources, the removed reference section is absent from the License-page asset, and both repository reference documents retain the research attribution. Whitespace checks passed. The prior successful code build and 906-test validation are reused for these documentation-only changes; no APK rebuild or device verification was needed or performed.
 
 ## Reported translation corruption follow-up
 
