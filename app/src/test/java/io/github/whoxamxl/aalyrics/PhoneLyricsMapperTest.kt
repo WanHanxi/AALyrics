@@ -39,6 +39,23 @@ class PhoneLyricsMapperTest {
     private val enabledTranslation = TranslationSettings(enabled = true, targetLanguage = "en")
 
     @Test
+    fun `disabled machine fallback hides old machine artifact but permits supplied translation with provider label`() {
+        val playback = PlaybackSnapshot(track = track(), source = PlaybackSource("com.spotify.music"))
+        val lyrics = ready(playback, listOf(TimedLyricLine("Original", 0L)))
+        val machine = translated(lyrics, listOf("Translated" to true)) as TranslationState.Ready
+        val settings = enabledTranslation.copy(machineTranslationFallbackEnabled = false)
+        val hidden = mapPhoneLyricsViewportLines(playback, lyrics, machine, settings)
+        assertNull(hidden.single().translatedText)
+        val supplied = machine.copy(artifact = machine.artifact.copy(
+            suppliedAttribution = LyricsAttribution("netease", "NetEase Cloud Music", "1"),
+        ))
+        val projected = mapPhoneLyricsState(playback, lyrics, true, LyricsViewportInteractionMode.FOLLOW, 0L,
+            translationState = supplied, translationSettings = settings)
+        assertEquals("Translated", projected.viewport.lines.single().translatedText)
+        assertEquals("NetEase Cloud Music", (projected.trackCard.translation as TrackCardTranslationUiState.Ready).providerLabel)
+    }
+
+    @Test
     fun `matching Ready projects only translated lines without changing canonical presentation`() {
         val playback = PlaybackSnapshot(
             track = track(),

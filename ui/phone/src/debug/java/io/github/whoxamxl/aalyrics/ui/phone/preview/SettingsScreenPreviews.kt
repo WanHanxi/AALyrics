@@ -24,6 +24,25 @@ import io.github.whoxamxl.aalyrics.ui.phone.settings.TranslationModelUiState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@Preview(name = "Source translations only", group = "SettingsScreen", widthDp = 360, heightDp = 900)
+@Composable
+private fun SettingsSourceTranslationsOnlyPreview() {
+    SettingsScreenPreview(PhonePreviewFixtures.settingsTranslationOn.copy(machineTranslationFallbackEnabled = false))
+}
+
+@Preview(name = "Chinese without model", group = "SettingsScreen", widthDp = 360, heightDp = 760)
+@Composable
+private fun SettingsChineseWithoutModelPreview() {
+    SettingsScreenContentPreview(
+        initialState = PhonePreviewFixtures.settingsTypical.copy(
+            translationTargets = PhonePreviewFixtures.settingsTypical.translationTargets.map {
+                if (it.id == "zh") it.copy(selectionRequiresModel = false, modelState = TranslationModelUiState.NOT_DOWNLOADED) else it
+            },
+        ),
+        initialPickerVisible = true,
+    )
+}
+
 @Preview(name = "Typical", group = "SettingsScreen", widthDp = 412, heightDp = 760)
 @Composable
 private fun SettingsScreenTypicalPreview() {
@@ -144,6 +163,7 @@ internal fun SettingsScreenPreview(
                 onVerboseDetailsChanged = {
                     state = state.copy(verboseDetailsEnabled = it)
                 },
+                onMachineTranslationFallbackChanged = { state = state.copy(machineTranslationFallbackEnabled = it) },
                 onTranslationEnabledChanged = {
                     state = state.copy(translationEnabled = it)
                 },
@@ -173,6 +193,7 @@ internal fun SettingsScreenPreview(
                     }
                     state = state.copy(
                         translationEnabled = false,
+                        machineTranslationFallbackEnabled = true,
                         translationTarget = clearedTargets.first { it.id == "en" },
                         translationTargets = clearedTargets,
                         translationModelCleanup = TranslationModelCleanupUiState.IDLE,
@@ -192,6 +213,7 @@ internal fun SettingsScreenPreview(
                         automaticallyCheckForUpdates = true,
                         verboseDetailsEnabled = false,
                         translationEnabled = false,
+                        machineTranslationFallbackEnabled = true,
                         translationTarget = english,
                         androidAutoCompatibilityStatus =
                             io.github.whoxamxl.aalyrics.ui.phone.settings.AndroidAutoCompatibilityUiStatus.NOT_REVIEWED,
@@ -253,6 +275,7 @@ private fun SettingsScreenContentPreview(
                 onAutomaticallyCheckForUpdatesChanged = {
                     state = state.copy(automaticallyCheckForUpdates = it)
                 },
+                onMachineTranslationFallbackChanged = { state = state.copy(machineTranslationFallbackEnabled = it) },
                 onTranslationEnabledChanged = {
                     state = state.copy(translationEnabled = it)
                 },

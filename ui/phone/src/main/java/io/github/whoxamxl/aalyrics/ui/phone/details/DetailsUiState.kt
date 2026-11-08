@@ -26,9 +26,11 @@ data class DetailsLyricsUiState(
     val syncType: LyricsSyncType,
     val languageLabel: String? = null,
     val lineCount: Int,
+    val credits: List<String> = emptyList(),
 )
 
 enum class DetailsTranslationRuntimeUiState {
+    UNAVAILABLE,
     DISABLED,
     IDLE,
     TRANSLATING,

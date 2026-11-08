@@ -66,7 +66,7 @@ class TranslationCoordinator(
         }
 
         val target = TranslationLanguages.normalizeTargetLanguage(settings.targetLanguage)
-        val key = RequestKey(canonical.identity, target)
+        val key = RequestKey(canonical.identity, target, settings.machineTranslationFallbackEnabled)
         if (key == activeKey) return
 
         activeJob?.cancel()
@@ -79,7 +79,7 @@ class TranslationCoordinator(
         _state.value = TranslationState.Translating(request)
         activeJob = scope.launch {
             val completion = try {
-                execute(request, canonical)
+                execute(request, canonical, settings.machineTranslationFallbackEnabled)
             } catch (cancellation: CancellationException) {
                 // Supersession/clear remains cancellation. A task-level cancellation
                 // while this request coroutine is still active is a Translation failure.
@@ -117,7 +117,32 @@ class TranslationCoordinator(
     private suspend fun execute(
         request: TranslationRequestIdentity,
         canonical: CanonicalLyrics,
+        machineFallbackEnabled: Boolean,
     ): TranslationState {
+        canonical.document.suppliedTranslation
+            ?.takeIf { it.languageTag == request.targetLanguage }
+            ?.let { translation ->
+                // Supplied text needs neither language identification nor model preparation.
+                // Unknown source language stays unknown; no synthetic confidence/routing claims.
+                val profile = LanguageProfile(null, null, SecondaryActivation.NONE,
+                    canonical.document.lines.indices.map {
+                        ProfiledLyricLine(it, null, 0f, ProfiledLineRole.UNCERTAIN)
+                    })
+                return TranslationState.Ready(TranslationArtifact(
+                    request = request,
+                    providerId = io.github.whoxamxl.aalyrics.translation.api.TranslationProviderId(
+                        translation.attribution.providerId,
+                    ),
+                    profile = profile,
+                    lines = canonical.document.lines.mapIndexed { index, line ->
+                        val translated = translation.lines[index]
+                        TranslationArtifactLine(index, translated ?: line.text, null, translated != null)
+                    },
+                    suppliedAttribution = translation.attribution,
+                ))
+            }
+        if (!machineFallbackEnabled) return TranslationState.Unavailable(request)
+
         val profile = try {
             profiler.profile(canonical.document, request.targetLanguage)
         } catch (cancellation: CancellationException) {
@@ -197,5 +222,6 @@ class TranslationCoordinator(
     private data class RequestKey(
         val canonicalLyrics: CanonicalLyricsIdentity,
         val targetLanguage: String,
+        val machineFallbackEnabled: Boolean,
     )
 }

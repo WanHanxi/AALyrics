@@ -24,7 +24,11 @@ internal class TranslationBackgroundRuntime(
 
         job = applicationScope.launch {
             settingsStore.settings.collectLatest { settings ->
-                if (settings.enabled) {
+                // Chinese may already be supplied with lyrics. Its machine models are
+                // prepared lazily by execution only after that lookup has completed.
+                if (settings.enabled && settings.machineTranslationFallbackEnabled &&
+                    settings.targetLanguage != "zh"
+                ) {
                     // A target can be prepared before source-language profiling exists.
                     // collectLatest may cancel this waiter, but the ML Kit adapter keeps
                     // its process-level shared download monitor alive for reuse.

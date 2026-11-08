@@ -18,12 +18,14 @@ sealed interface TrackCardTranslationUiState {
     data object Enabled : TrackCardTranslationUiState
     data object DownloadingModels : TrackCardTranslationUiState
     data object Translating : TrackCardTranslationUiState
+    data object Unavailable : TrackCardTranslationUiState
     data object NotRequired : TrackCardTranslationUiState
     data object Failed : TrackCardTranslationUiState
 
     data class Ready(
         val sourceLanguageLabel: String,
         val targetLanguageLabel: String,
+        val providerLabel: String? = null,
     ) : TrackCardTranslationUiState {
         init {
             require(sourceLanguageLabel.isNotBlank()) { "Source language label must not be blank" }

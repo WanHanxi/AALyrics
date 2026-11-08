@@ -926,7 +926,7 @@ private fun TargetLanguageRow(
     onSelected: () -> Unit,
     onDownloadRequested: () -> Unit,
 ) {
-    val selectable =
+    val selectable = !option.selectionRequiresModel ||
         option.modelState == TranslationModelUiState.BUILT_IN ||
             option.modelState == TranslationModelUiState.READY
 
@@ -985,6 +985,17 @@ private fun TargetLanguagePrimaryAction(
     retryContentDescription: String,
     onDownloadRequested: () -> Unit,
 ) {
+    if (selected && !option.selectionRequiresModel) {
+        TargetLanguageIconSlot {
+            Icon(
+                imageVector = AALyricsIcons.Check,
+                contentDescription = null,
+                tint = AALyricsColors.AccentCyan,
+                modifier = Modifier.size(AALyricsSpacing.Space24),
+            )
+        }
+        return
+    }
     when (option.modelState) {
         TranslationModelUiState.BUILT_IN,
         TranslationModelUiState.READY -> {

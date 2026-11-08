@@ -60,6 +60,18 @@ class TranslationBackgroundRuntimeTest {
         runtime.stop()
     }
 
+    @Test
+    fun sourceProvidedChineseAndDisabledFallbackDoNotPrepareModels() = runTest {
+        for (settings in listOf(TranslationSettings(true, "zh"), TranslationSettings(true, "ja", false))) {
+            val modelManager = FakeModelManager()
+            val runtime = TranslationBackgroundRuntime(FakeSettingsStore(settings), modelManager, this)
+            runtime.start()
+            runCurrent()
+            assertEquals(emptyList(), modelManager.preparedLanguages)
+            runtime.stop()
+        }
+    }
+
     private class FakeSettingsStore(
         initial: TranslationSettings = TranslationSettings(),
     ) : TranslationSettingsStore {

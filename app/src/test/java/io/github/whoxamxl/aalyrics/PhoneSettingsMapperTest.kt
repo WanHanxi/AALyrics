@@ -33,6 +33,10 @@ class PhoneSettingsMapperTest {
             displayLocale = Locale.ENGLISH,
         )
 
+        assertEquals(true, state.machineTranslationFallbackEnabled)
+        assertEquals(false, state.translationTargets.first { it.id == "zh" }.selectionRequiresModel)
+        assertEquals(TranslationModelUiState.NOT_DOWNLOADED, state.translationTargets.first { it.id == "zh" }.modelState)
+        assertEquals(true, state.translationTargets.first { it.id == "ja" }.selectionRequiresModel)
         assertEquals(false, state.translationEnabled)
         assertEquals("en", state.translationTarget.id)
         assertEquals(TranslationModelUiState.BUILT_IN, state.translationTarget.modelState)

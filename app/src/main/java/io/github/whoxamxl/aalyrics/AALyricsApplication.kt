@@ -15,6 +15,7 @@ import io.github.whoxamxl.aalyrics.core.lyrics.LyricsState
 import io.github.whoxamxl.aalyrics.core.lyrics.PlaybackLyricsController
 import io.github.whoxamxl.aalyrics.core.model.LyricsSyncType
 import io.github.whoxamxl.aalyrics.core.model.PlaybackSnapshot
+import io.github.whoxamxl.aalyrics.provider.netease.NeteaseProvider
 import io.github.whoxamxl.aalyrics.provider.api.LyricsProvider
 import io.github.whoxamxl.aalyrics.provider.lrclib.LrcLibProvider
 import io.github.whoxamxl.aalyrics.provider.musixmatch.MusixmatchProvider
@@ -340,6 +341,10 @@ class AALyricsApplication : Application() {
         translationSettingsStore.setEnabled(enabled)
     }
 
+    fun setMachineTranslationFallbackEnabled(enabled: Boolean) {
+        translationSettingsStore.setMachineTranslationFallbackEnabled(enabled)
+    }
+
     fun setTranslationTargetLanguage(languageTag: String) {
         translationSettingsStore.setTargetLanguage(languageTag)
     }
@@ -546,6 +551,10 @@ class AALyricsApplication : Application() {
             applicationScope,
             lyricsCache = FileLyricsCache(noBackupFilesDir.resolve("lyrics_cache")),
         )
+        graph.updateTranslationPreference(translationSettingsStore.settings.value)
+        applicationScope.launch {
+            translationSettingsStore.settings.collect { graph.updateTranslationPreference(it) }
+        }
         tapSyncCalibration = TapSyncCalibration(
             settings = lyricsTimingSettings,
             readPlayback = { graph.playbackState.value },
@@ -858,8 +867,19 @@ internal class ApplicationGraph(
         lookupLifecycle = coordinator,
         defaultPreferences = selectionPreferences,
     )
+    @Volatile private var currentSelectionPreferences = selectionPreferences
+
+    fun updateTranslationPreference(settings: TranslationSettings) {
+        val updated = selectionPreferences.copy(
+            preferredTranslationLanguage = settings.targetLanguage.takeIf { settings.enabled },
+        )
+        if (updated == currentSelectionPreferences) return
+        currentSelectionPreferences = updated
+        lyricsDemandGate.refreshPreferences()
+    }
+
     val lyricsDemandGate = LyricsDemandGate(
-        downstream = playbackLyricsController::onPlayback,
+        downstream = { playbackLyricsController.onPlayback(it, currentSelectionPreferences) },
         onDemandInactive = playbackLyricsController::suspendForNoDemand,
     )
     val playbackSnapshotSink = PlaybackSnapshotSink { snapshot ->
@@ -892,6 +912,7 @@ internal fun createProductionApplicationGraph(
 ): ApplicationGraph {
     val providers: List<LyricsProvider> = buildList {
         add(LrcLibProvider())
+        add(NeteaseProvider())
         if (petitLyricsConfig.isConfigured) {
             add(
                 PetitLyricsProvider(

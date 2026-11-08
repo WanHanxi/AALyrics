@@ -25,6 +25,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import io.github.whoxamxl.aalyrics.translation.api.TranslationSettings
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
@@ -42,9 +43,9 @@ class ApplicationGraphTest {
 
         assertEquals(
             if (hasCompletePetitLyricsConfig) {
-                listOf("lrclib", "petitlyrics", "musixmatch", "synclrc")
+                listOf("lrclib", "netease", "petitlyrics", "musixmatch", "synclrc")
             } else {
-                listOf("lrclib", "musixmatch", "synclrc")
+                listOf("lrclib", "netease", "musixmatch", "synclrc")
             },
             graph.providers.map { it.descriptor.id.value },
         )
@@ -62,7 +63,7 @@ class ApplicationGraphTest {
         )
 
         assertEquals(
-            listOf("lrclib", "musixmatch", "synclrc"),
+            listOf("lrclib", "netease", "musixmatch", "synclrc"),
             graph.providers.map { it.descriptor.id.value },
         )
     }
@@ -76,7 +77,7 @@ class ApplicationGraphTest {
         )
 
         assertEquals(
-            listOf("lrclib", "petitlyrics", "musixmatch", "synclrc"),
+            listOf("lrclib", "netease", "petitlyrics", "musixmatch", "synclrc"),
             graph.providers.map { it.descriptor.id.value },
         )
         assertTrue(graph.providers.filterIsInstance<PetitLyricsProvider>().single().isConfigured)
@@ -231,6 +232,36 @@ class ApplicationGraphTest {
             snapshot = snapshot,
             sourceEligible = true,
         )
+    }
+
+    @Test
+    fun `translation target preference restarts active lookup but respects demand and source eligibility`() = runTest {
+        val provider = RecordingProvider()
+        val selector = RecordingSelector()
+        val graph = ApplicationGraph(listOf(provider), selector, this, CandidateSelectionPreferences())
+        val playback = PlaybackSnapshot(track = Track("Test", listOf("Artist")))
+        graph.onEligiblePlayback(playback)
+        graph.updateTranslationPreference(TranslationSettings(true, "zh"))
+        advanceUntilIdle()
+        assertEquals(0, provider.requests.size)
+        graph.lyricsDemandGate.setPhoneProcessForeground(true)
+        advanceUntilIdle()
+        assertEquals("zh", selector.preferences.last().preferredTranslationLanguage)
+        graph.updateTranslationPreference(TranslationSettings(true, "zh", false))
+        advanceUntilIdle()
+        assertEquals(1, provider.requests.size)
+        graph.updateTranslationPreference(TranslationSettings(false, "zh"))
+        advanceUntilIdle()
+        assertEquals(null, selector.preferences.last().preferredTranslationLanguage)
+        assertEquals(2, provider.requests.size)
+        graph.lyricsDemandGate.setSourceEligible(false)
+        graph.updateTranslationPreference(TranslationSettings(true, "zh"))
+        advanceUntilIdle()
+        assertEquals(2, provider.requests.size)
+        graph.lyricsDemandGate.setSourceEligible(true)
+        advanceUntilIdle()
+        assertEquals("zh", selector.preferences.last().preferredTranslationLanguage)
+        assertEquals(3, provider.requests.size)
     }
 
     private class RecordingProvider : LyricsProvider {

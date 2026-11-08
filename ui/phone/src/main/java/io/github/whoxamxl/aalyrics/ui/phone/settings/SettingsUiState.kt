@@ -25,6 +25,7 @@ data class SettingsLanguageOptionUiState(
     val displayName: String,
     val modelState: TranslationModelUiState = TranslationModelUiState.NOT_DOWNLOADED,
     val modelFailureReason: String? = null,
+    val selectionRequiresModel: Boolean = true,
 )
 
 /** Presentation lifecycle for checking/downloading an AALyrics GitHub Release update. */
@@ -58,6 +59,7 @@ data class SettingsScreenUiState(
     val verboseDetailsEnabled: Boolean = false,
     val karaokeFeatureEnabled: Boolean = false,
     val translationEnabled: Boolean = false,
+    val machineTranslationFallbackEnabled: Boolean = true,
     val translationTarget: SettingsLanguageOptionUiState,
     val translationTargets: List<SettingsLanguageOptionUiState>,
     val translationModelCleanup: TranslationModelCleanupUiState =

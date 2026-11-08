@@ -36,6 +36,7 @@ fun SettingsScreen(
     onVerboseDetailsChanged: (Boolean) -> Unit,
     onKaraokeFeatureEnabledChanged: (Boolean) -> Unit = {},
     onTranslationEnabledChanged: (Boolean) -> Unit,
+    onMachineTranslationFallbackChanged: (Boolean) -> Unit = {},
     onTranslationTargetSelected: (String) -> Unit,
     onTranslationModelDownloadRequested: (String) -> Unit,
     onClearTranslationModels: () -> Unit,
@@ -145,6 +146,7 @@ fun SettingsScreen(
             onAutomaticallyCheckForUpdatesChanged =
                 onAutomaticallyCheckForUpdatesChanged,
             onTranslationEnabledChanged = onTranslationEnabledChanged,
+            onMachineTranslationFallbackChanged = onMachineTranslationFallbackChanged,
             onTranslationTargetSelected = onTranslationTargetSelected,
             onTranslationModelDownloadRequested = onTranslationModelDownloadRequested,
             onAndroidAutoCompatibilitySetup = onAndroidAutoCompatibilitySetup,
@@ -183,6 +185,7 @@ internal fun SettingsScreenContent(
     onIgnoreNonAudioAppsChanged: (Boolean) -> Unit,
     onAutomaticallyCheckForUpdatesChanged: (Boolean) -> Unit,
     onTranslationEnabledChanged: (Boolean) -> Unit,
+    onMachineTranslationFallbackChanged: (Boolean) -> Unit = {},
     onTranslationTargetSelected: (String) -> Unit,
     onTranslationModelDownloadRequested: (String) -> Unit,
     onAndroidAutoCompatibilitySetup: () -> Unit,
@@ -257,6 +260,16 @@ internal fun SettingsScreenContent(
                 title = stringResource(R.string.settings_translation_enabled),
                 checked = state.translationEnabled,
                 onCheckedChange = onTranslationEnabledChanged,
+            )
+
+            SettingsDivider()
+
+            SettingsSwitchRow(
+                title = stringResource(R.string.settings_machine_translation_fallback),
+                checked = state.machineTranslationFallbackEnabled,
+                onCheckedChange = onMachineTranslationFallbackChanged,
+                infoText = stringResource(R.string.settings_machine_translation_fallback_info),
+                infoContentDescription = stringResource(R.string.settings_machine_translation_fallback),
             )
 
             SettingsDivider()

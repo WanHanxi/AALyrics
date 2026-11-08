@@ -1,6 +1,8 @@
 package io.github.whoxamxl.aalyrics.translation.core
 
 import io.github.whoxamxl.aalyrics.core.model.LyricsDocument
+import io.github.whoxamxl.aalyrics.core.model.LyricsAttribution
+import io.github.whoxamxl.aalyrics.core.model.SuppliedLyricsTranslation
 import io.github.whoxamxl.aalyrics.core.model.PlainLyricLine
 import io.github.whoxamxl.aalyrics.translation.api.IdentifiedLanguage
 import io.github.whoxamxl.aalyrics.translation.api.LanguageIdentifier
@@ -268,6 +270,69 @@ class TranslationCoordinatorTest {
 
         assertIs<TranslationState.NotRequired>(coordinator.state.value)
         assertTrue(!opened)
+    }
+
+    @Test
+    fun `supplied translations bypass language ID and machine provider and preserve gaps`() = runTest {
+        val attribution = LyricsAttribution("netease", sourceId = "1", contributors = listOf("Tester"))
+        val canonical = CanonicalLyrics.create("test", LyricsDocument(
+            listOf(PlainLyricLine("First line"), PlainLyricLine("Second line")),
+            attribution = attribution,
+            suppliedTranslation = SuppliedLyricsTranslation("zh", listOf("测试", null), attribution),
+        ))
+        val coordinator = TranslationCoordinator(
+            LanguageProfiler(LanguageIdentifier { error("Language ID must not run") }),
+            TranslationBlockPlanner(), listOf(provider("unused") { error("Machine must not run") }), this,
+        )
+        coordinator.update(canonical, TranslationSettings(true, "zh", false))
+        advanceUntilIdle()
+        val artifact = assertIs<TranslationState.Ready>(coordinator.state.value).artifact
+        assertEquals("netease", artifact.providerId.value)
+        assertEquals(attribution, artifact.suppliedAttribution)
+        assertEquals(listOf(true, false), artifact.lines.map { it.translated })
+        assertEquals(listOf("测试", "Second line"), artifact.lines.map { it.text })
+        assertNull(artifact.profile.primary)
+        coordinator.update(canonical, TranslationSettings(true, "ja", false))
+        advanceUntilIdle()
+        assertIs<TranslationState.Unavailable>(coordinator.state.value)
+        coordinator.update(canonical, TranslationSettings(false, "zh", false))
+        assertIs<TranslationState.Disabled>(coordinator.state.value)
+    }
+
+    @Test
+    fun `fallback setting changes replace a machine result without changing canonical owner`() = runTest {
+        var opens = 0
+        val coordinator = coordinator(provider("machine") { route ->
+            opens++
+            session { alignedOutput(it, route.targetLanguage) }
+        })
+        val canonical = canonical(3)
+        coordinator.update(canonical, TranslationSettings(true, "zh"))
+        advanceUntilIdle()
+        assertIs<TranslationState.Ready>(coordinator.state.value)
+        val previousOpens = opens
+        coordinator.update(canonical, TranslationSettings(true, "zh", false))
+        advanceUntilIdle()
+        assertIs<TranslationState.Unavailable>(coordinator.state.value)
+        assertEquals(previousOpens, opens)
+        coordinator.update(canonical, TranslationSettings(true, "zh", true))
+        advanceUntilIdle()
+        assertIs<TranslationState.Ready>(coordinator.state.value)
+        assertTrue(opens > previousOpens)
+    }
+
+    @Test
+    fun `changing supplied text or contributor changes canonical fingerprint`() {
+        val attribution = LyricsAttribution("netease", sourceId = "1")
+        val document = LyricsDocument(listOf(PlainLyricLine("Original test")), attribution = attribution,
+            suppliedTranslation = SuppliedLyricsTranslation("zh", listOf("测试"), attribution))
+        val original = CanonicalLyrics.create("same-owner", document).identity
+        for (translation in listOf(
+            document.suppliedTranslation!!.copy(lines = listOf("变更")),
+            document.suppliedTranslation!!.copy(attribution = attribution.copy(contributors = listOf("Tester"))),
+        )) {
+            assertTrue(original != CanonicalLyrics.create("same-owner", document.copy(suppliedTranslation = translation)).identity)
+        }
     }
 
     private fun CoroutineScope.coordinator(

@@ -209,9 +209,19 @@ private fun TranslationStatusRow(
                 color = AALyricsColors.AccentBlue,
             )
 
-            is TrackCardTranslationUiState.Ready -> TranslationReadyStatus(
+            is TrackCardTranslationUiState.Ready -> if (state.providerLabel != null) {
+                TranslationStatusText(
+                    text = "${state.providerLabel} · ${state.targetLanguageLabel}",
+                    color = AALyricsColors.Success,
+                )
+            } else TranslationReadyStatus(
                 sourceLanguageLabel = state.sourceLanguageLabel,
                 targetLanguageLabel = state.targetLanguageLabel,
+            )
+
+            TrackCardTranslationUiState.Unavailable -> TranslationStatusText(
+                text = stringResource(R.string.track_card_translation_unavailable),
+                color = AALyricsColors.TextSecondary,
             )
 
             TrackCardTranslationUiState.NotRequired -> TranslationStatusText(

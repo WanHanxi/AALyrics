@@ -389,6 +389,7 @@ internal fun PhoneRuntimeHost(
                 onVerboseDetailsChanged = application::setVerboseDetailsEnabled,
                 onKaraokeFeatureEnabledChanged = application::setKaraokeFeatureEnabled,
                 onTranslationEnabledChanged = application::setTranslationEnabled,
+                onMachineTranslationFallbackChanged = application::setMachineTranslationFallbackEnabled,
                 onTranslationTargetSelected = application::setTranslationTargetLanguage,
                 onTranslationModelDownloadRequested = application::requestTranslationModel,
                 onClearTranslationModels = application::clearDownloadedTranslationModels,

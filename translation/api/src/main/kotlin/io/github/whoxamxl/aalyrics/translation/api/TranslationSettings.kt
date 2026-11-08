@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.StateFlow
 data class TranslationSettings(
     val enabled: Boolean = true,
     val targetLanguage: String = TranslationLanguages.DEFAULT_TARGET_LANGUAGE,
+    val machineTranslationFallbackEnabled: Boolean = true,
 ) {
     init {
         require(targetLanguage in TranslationLanguages.supportedTargets) {

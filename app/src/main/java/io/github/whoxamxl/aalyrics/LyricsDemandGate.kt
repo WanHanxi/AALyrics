@@ -99,6 +99,11 @@ internal class LyricsDemandGate(
         publishDemandTransition()
     }
 
+    @Synchronized
+    fun refreshPreferences() {
+        if (downstreamActive) downstream(latestSnapshot)
+    }
+
     /** Existing demand semantics: true when Phone or Automotive currently requests lyrics work. */
     @Synchronized
     fun isActive(): Boolean = demandActive

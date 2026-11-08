@@ -40,6 +40,7 @@ internal fun mapPhoneSettingsState(
         val modelState = translationModelStates[languageTag]
         SettingsLanguageOptionUiState(
             id = languageTag,
+            selectionRequiresModel = translationSettings.machineTranslationFallbackEnabled && languageTag != "zh",
             displayName = TranslationLanguages.displayName(languageTag, displayLocale),
             modelState = when {
                 languageTag == "en" -> TranslationModelUiState.BUILT_IN
@@ -66,6 +67,7 @@ internal fun mapPhoneSettingsState(
         verboseDetailsEnabled = verboseDetailsEnabled,
         karaokeFeatureEnabled = karaokeFeatureEnabled,
         translationEnabled = translationSettings.enabled,
+        machineTranslationFallbackEnabled = translationSettings.machineTranslationFallbackEnabled,
         translationTarget = selected,
         translationTargets = targets,
         translationModelCleanup = when (translationModelCleanupState) {
