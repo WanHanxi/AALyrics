@@ -169,6 +169,7 @@ internal fun mapPhoneLyricsViewportLines(
         ?.artifact
         ?.takeIf { artifact ->
             translationSettings.enabled &&
+                (translationSettings.machineTranslationFallbackEnabled || artifact.suppliedAttribution != null) &&
                 artifact.request.targetLanguage == normalizedTargetLanguage &&
                 artifact.request.canonicalLyrics == currentCanonicalIdentity &&
                 artifact.lines.size == document.lines.size
@@ -236,6 +237,7 @@ private fun mapTrackCardTranslationState(
         is TranslationState.Ready -> {
             val artifact = state.artifact
             if (
+                (settings.machineTranslationFallbackEnabled || artifact.suppliedAttribution != null) &&
                 requestMatches(
                     artifact.request.canonicalLyrics,
                     artifact.request.targetLanguage,
@@ -251,10 +253,16 @@ private fun mapTrackCardTranslationState(
                 return TrackCardTranslationUiState.Ready(
                     sourceLanguageLabel = shortLanguageLabel(sourceLanguage),
                     targetLanguageLabel = shortLanguageLabel(artifact.request.targetLanguage),
+                    providerLabel = artifact.suppliedAttribution?.displayName,
                 )
             }
         }
 
+        is TranslationState.Unavailable -> {
+            if (requestMatches(state.request.canonicalLyrics, state.request.targetLanguage)) {
+                return TrackCardTranslationUiState.Unavailable
+            }
+        }
         is TranslationState.NotRequired -> {
             if (
                 requestMatches(

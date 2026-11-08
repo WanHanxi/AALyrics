@@ -1,6 +1,6 @@
 # Third-Party Licenses
 
-**Last reviewed:** September 22, 2026
+**Last reviewed:** November 7, 2026
 
 AALyrics uses third-party open-source software. AALyrics itself is licensed separately under the repository LICENSE and NOTICE.
 

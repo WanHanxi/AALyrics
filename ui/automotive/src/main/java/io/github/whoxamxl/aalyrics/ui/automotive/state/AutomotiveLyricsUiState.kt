@@ -176,7 +176,8 @@ internal object AutomotiveLyricsUiStateMapper {
             is TranslationState.Ready -> {
                 val artifact = state.artifact
                 val translated = artifact.takeIf {
-                    it.request.canonicalLyrics == canonicalIdentity &&
+                    (settings.machineTranslationFallbackEnabled || it.suppliedAttribution != null) &&
+                        it.request.canonicalLyrics == canonicalIdentity &&
                         it.request.targetLanguage == target &&
                         it.lines.size == lineCount
                 }?.lines?.getOrNull(lineIndex)
@@ -186,6 +187,7 @@ internal object AutomotiveLyricsUiStateMapper {
             TranslationState.Disabled,
             TranslationState.Idle,
             is TranslationState.NotRequired,
+            is TranslationState.Unavailable,
             is TranslationState.Failed,
             -> this
         }

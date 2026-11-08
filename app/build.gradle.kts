@@ -169,6 +169,7 @@ dependencies {
     implementation(project(":provider:api"))
     implementation(project(":provider:selection"))
     implementation(project(":provider:lrclib"))
+    implementation(project(":provider:netease"))
     implementation(project(":provider:petitlyrics"))
     implementation(project(":provider:musixmatch"))
     implementation(project(":provider:synclrc"))

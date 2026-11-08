@@ -15,7 +15,7 @@ data class LyricsCacheKey(
  *
  * Implementations own format, identity encoding, invalidation and capacity policy, and must move
  * blocking I/O off the caller's dispatcher. Failures are advisory; cancellation must propagate.
- * A hit must preserve the full document, without Translation, calibration or presentation state.
+ * A hit must preserve the full document, including source-supplied translations, without generated machine Translation, calibration or presentation state.
  */
 interface LyricsCache {
     suspend fun get(key: LyricsCacheKey): LyricsDocument?

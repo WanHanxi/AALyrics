@@ -27,6 +27,8 @@ private val ENGLISH_ORDINAL_TOKEN = Regex("""\d+(?:st|nd|rd|th)""", RegexOption.
 private val JAPANESE_VERSION_CONTEXT = Regex(
     """^\s*(?:(?:\d{4}年?|\d+\s*周年)\s*)?$JAPANESE_VERSION_MARKER(?:\s*[・･/+＆&]\s*$JAPANESE_VERSION_MARKER)*(?:\s*(?:記念|エディション))?\s*$""",
 )
+// NetEase uses these explicit Chinese labels for instrumental recordings.
+private val CHINESE_INSTRUMENTAL_CONTEXT = Regex("^(?:伴奏|纯音乐|純音樂)(?:版)?$")
 private val ALLOWED_ENGLISH_CONTEXT_WORDS = setOf(
     "live",
     "acoustic",
@@ -142,6 +144,7 @@ object RecordingVersionContext {
         if (text.isBlank()) return false
 
         if (JAPANESE_VERSION_CONTEXT.matches(text)) return true
+        if (CHINESE_INSTRUMENTAL_CONTEXT.matches(text)) return true
         if (LIVE_LOCATION_CONTEXT.matches(text)) return true
         if (!ENGLISH_VERSION_TOKEN.containsMatchIn(text)) return false
 

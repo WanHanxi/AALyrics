@@ -4,6 +4,7 @@ import io.github.whoxamxl.aalyrics.core.lyrics.CandidateSelectionPreferences
 import io.github.whoxamxl.aalyrics.core.lyrics.LyricsCacheKey
 import io.github.whoxamxl.aalyrics.core.model.LyricsAttribution
 import io.github.whoxamxl.aalyrics.core.model.LyricsDocument
+import io.github.whoxamxl.aalyrics.core.model.SuppliedLyricsTranslation
 import io.github.whoxamxl.aalyrics.core.model.LyricsSyncType
 import io.github.whoxamxl.aalyrics.core.model.PlainLyricLine
 import io.github.whoxamxl.aalyrics.core.model.TimedLyricLine
@@ -34,6 +35,48 @@ class FileLyricsCacheTest {
 
     @AfterTest
     fun cleanUp() { directory.deleteRecursively() }
+
+    @Test
+    fun `source translations credits and gaps survive disk cache but preference separates winners`() = runTest {
+        val attribution = LyricsAttribution("test", "Source", "1", listOf("Contributor"), listOf("Credit"))
+        val document = LyricsDocument(
+            listOf(TimedLyricLine("First", 1000), TimedLyricLine("Second", 2000)),
+            attribution = attribution,
+            suppliedTranslation = SuppliedLyricsTranslation("zh", listOf("测试 — 𠮷 🎵 café", null), attribution),
+        )
+        val bilingualKey = key.copy(preferences = key.preferences.copy(preferredTranslationLanguage = "zh"))
+        FileLyricsCache(directory).put(bilingualKey, document)
+        assertEquals(document, FileLyricsCache(directory).get(bilingualKey))
+        assertNull(FileLyricsCache(directory).get(key))
+    }
+
+    @Test
+    fun `cached source replacement characters remain usable in literal or escaped form`() = runTest {
+        val attribution = LyricsAttribution("netease", "NetEase", "synthetic-source")
+        val document = LyricsDocument(
+            listOf(TimedLyricLine("Synthetic original", 1000)),
+            attribution = attribution,
+            suppliedTranslation = SuppliedLyricsTranslation("zh", listOf("测试译文"), attribution),
+        )
+        val translatedKey = key.copy(preferences = CandidateSelectionPreferences(preferredTranslationLanguage = "zh"))
+        val cache = FileLyricsCache(directory)
+        cache.put(key, plain)
+        val healthyFiles = entries().toSet()
+        for (corrupted in listOf("损坏\uFFFD\uFFFD译文", "损坏\\ufffd\\ufffd译文")) {
+            cache.put(translatedKey, document)
+            val damagedFile = entries().single { it !in healthyFiles }
+            // Existing source text remains usable even when a few characters are lost upstream.
+            damagedFile.writeText(damagedFile.readText().replace("测试译文", corrupted))
+            val expected = document.copy(suppliedTranslation = SuppliedLyricsTranslation(
+                "zh", listOf("损坏\uFFFD\uFFFD译文"), attribution,
+            ))
+            assertEquals(expected, FileLyricsCache(directory).get(translatedKey))
+            assertTrue(damagedFile.exists())
+            assertEquals(plain, FileLyricsCache(directory).get(key))
+        }
+        cache.put(translatedKey, document)
+        assertEquals(document, FileLyricsCache(directory).get(translatedKey))
+    }
 
     @Test
     fun `new adapter restores exact plain line word and mixed canonical documents`() = runTest {
@@ -112,7 +155,7 @@ class FileLyricsCacheTest {
         val cache = FileLyricsCache(directory)
         for (damage in listOf<(String) -> String>(
             { "{broken" },
-            { it.replaceFirst("\"schema\":1", "\"schema\":999") },
+            { it.replaceFirst(Regex("\"schema\":\\d+"), "\"schema\":999") },
             { it.replaceFirst("\"text\":", "\"missingText\":") },
         )) {
             cache.put(key, plain)

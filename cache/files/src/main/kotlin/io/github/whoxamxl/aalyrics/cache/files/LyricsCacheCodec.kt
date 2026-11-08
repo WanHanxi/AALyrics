@@ -8,6 +8,7 @@ import io.github.whoxamxl.aalyrics.core.lyrics.LyricsCacheKey
 import io.github.whoxamxl.aalyrics.core.model.LyricLine
 import io.github.whoxamxl.aalyrics.core.model.LyricsAttribution
 import io.github.whoxamxl.aalyrics.core.model.LyricsDocument
+import io.github.whoxamxl.aalyrics.core.model.SuppliedLyricsTranslation
 import io.github.whoxamxl.aalyrics.core.model.PlainLyricLine
 import io.github.whoxamxl.aalyrics.core.model.TimedLyricLine
 import io.github.whoxamxl.aalyrics.core.model.TimedWord
@@ -15,9 +16,9 @@ import java.util.Locale
 
 /** Explicit wire format: decoding always invokes the validated domain constructors. */
 internal object LyricsCacheCodec {
-    private const val SCHEMA_VERSION = 1
+    private const val SCHEMA_VERSION = 2
     // Bump when retrieval/selection changes make previously selected winners unsuitable.
-    private const val SELECTION_POLICY_VERSION = 1
+    private const val SELECTION_POLICY_VERSION = 2
 
     fun identity(key: LyricsCacheKey): String = JsonObject().apply {
         addProperty("schema", SCHEMA_VERSION)
@@ -38,6 +39,7 @@ internal object LyricsCacheCodec {
             addProperty("durationMs", key.track.durationMs)
         }
         addProperty("preferredSyncType", key.preferences.preferredSyncType?.name)
+        addProperty("preferredTranslationLanguage", key.preferences.preferredTranslationLanguage)
         add("providers", JsonArray().apply { key.providerIds.sorted().forEach { add(it) } })
     }.toString()
 
@@ -45,11 +47,12 @@ internal object LyricsCacheCodec {
         addProperty("schema", SCHEMA_VERSION)
         addProperty("key", identity)
         addProperty("languageTag", document.languageTag)
-        add("attribution", document.attribution?.let { attribution ->
+        add("attribution", document.attribution?.let(::encodeAttribution) ?: JsonNull.INSTANCE)
+        add("suppliedTranslation", document.suppliedTranslation?.let { translation ->
             JsonObject().apply {
-                addProperty("providerId", attribution.providerId)
-                addProperty("displayName", attribution.displayName)
-                addProperty("sourceId", attribution.sourceId)
+                addProperty("languageTag", translation.languageTag)
+                add("attribution", encodeAttribution(translation.attribution))
+                add("lines", JsonArray().apply { translation.lines.forEach { add(it) } })
             }
         } ?: JsonNull.INSTANCE)
         add("lines", JsonArray().apply { document.lines.forEach { add(encodeLine(it)) } })
@@ -60,14 +63,40 @@ internal object LyricsCacheCodec {
         require(root.requiredLong("schema") == SCHEMA_VERSION.toLong())
         require(root.requiredString("key") == identity)
         val attribution = root.get("attribution")?.takeUnless { it.isJsonNull }?.asJsonObject?.let {
-            LyricsAttribution(it.requiredString("providerId"), it.requiredString("displayName"), it.optionalString("sourceId"))
+            decodeAttribution(it)
         }
         return LyricsDocument(
             lines = root.getAsJsonArray("lines").map { decodeLine(it.asJsonObject) },
             languageTag = root.optionalString("languageTag"),
             attribution = attribution,
+            suppliedTranslation = root.get("suppliedTranslation")?.takeUnless { it.isJsonNull }?.asJsonObject?.let {
+                SuppliedLyricsTranslation(
+                    languageTag = it.requiredString("languageTag"),
+                    lines = it.getAsJsonArray("lines").map { line ->
+                        if (line.isJsonNull) null else {
+                            require(line.isJsonPrimitive && line.asJsonPrimitive.isString)
+                            line.asString
+                        }
+                    },
+                    attribution = decodeAttribution(it.getAsJsonObject("attribution")),
+                )
+            },
         ).also { require(it.lines.any { line -> line.text.isNotBlank() }) }
     }
+
+    private fun encodeAttribution(attribution: LyricsAttribution): JsonObject = JsonObject().apply {
+        addProperty("providerId", attribution.providerId)
+        addProperty("displayName", attribution.displayName)
+        addProperty("sourceId", attribution.sourceId)
+        add("contributors", JsonArray().apply { attribution.contributors.forEach { add(it) } })
+        add("notices", JsonArray().apply { attribution.notices.forEach { add(it) } })
+    }
+
+    private fun decodeAttribution(value: JsonObject): LyricsAttribution = LyricsAttribution(
+        value.requiredString("providerId"), value.requiredString("displayName"), value.optionalString("sourceId"),
+        value.getAsJsonArray("contributors").map { it.asString },
+        value.getAsJsonArray("notices").map { it.asString },
+    )
 
     private fun encodeLine(line: LyricLine): JsonObject = JsonObject().apply {
         addProperty("text", line.text)

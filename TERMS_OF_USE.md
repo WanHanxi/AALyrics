@@ -1,6 +1,6 @@
 # AALyrics Terms of Use
 
-**Effective date:** November 3, 2026
+**Effective date:** November 7, 2026
 
 These Terms of Use govern your use of the AALyrics application and related project-operated surfaces.
 
@@ -28,7 +28,9 @@ AALyrics may change as Android, Android Auto, media applications, lyrics provide
 
 AALyrics may communicate with third-party services including lyrics providers and other external services.
 
-Third-party lyrics, metadata, artwork, trademarks, service names, and other content remain the property of their respective owners and rightsholders. AALyrics does not grant you ownership of, or an independent license to, third-party content.
+NetEase Cloud Music is an optional, unofficial third-party integration, off by default. The first enablement in Settings shows a notice about requests, local caching and third-party content. You can turn it off at any time. Ordinary updates preserve your choice; Reset AALyrics turns it off and clears the notice acknowledgement.
+
+Third-party lyrics, translations, metadata, artwork, trademarks, service names, and other content remain the property of their respective owners and rightsholders. AALyrics does not grant you ownership of, or an independent license to, third-party content. The software's license and a provider's ability to return data do not replace platform permission or applicable rightsholder authorization.
 
 Your access to or use of third-party services may also be governed by the provider's own terms, policies, technical restrictions, and availability.
 
@@ -51,11 +53,9 @@ You should not rely on AALyrics output where an error could create a safety-crit
 
 ## 5. Translation
 
-AALyrics may use Google ML Kit for on-device language identification and translation functionality.
+AALyrics may display existing translations supplied with lyrics by an external provider. Matching translations are preferred over on-device machine translation. Source-provided translations can be incomplete or inaccurate; availability does not certify human authorship.
 
-Automated translation can be inaccurate and is not a substitute for an authoritative original text or a qualified human translation.
-
-Use of third-party translation technology is also subject to the applicable third-party terms and attribution requirements.
+Machine translation fallback is optional and enabled by default. When used, it runs through Google ML Kit on the device after required models are available. Translations can contain errors and should not be relied on as authoritative interpretations.
 
 ## 6. Android Auto and driving safety
 

@@ -137,6 +137,13 @@ fun DetailsScreen(
                         value = it,
                     )
                 }
+                if (lyrics.credits.isNotEmpty()) {
+                    DetailsDivider()
+                    DetailsValueRow(
+                        label = stringResource(R.string.details_lyrics_credits),
+                        value = lyrics.credits.joinToString("\n"),
+                    )
+                }
                 DetailsDivider()
                 val verboseProgress = state.verboseProgress
                 DetailsValueRow(
@@ -473,6 +480,8 @@ private fun syncTypeLabel(syncType: LyricsSyncType): String = when (syncType) {
 private fun translationRuntimeStateLabel(
     state: DetailsTranslationRuntimeUiState,
 ): String = when (state) {
+    DetailsTranslationRuntimeUiState.UNAVAILABLE ->
+        stringResource(R.string.track_card_translation_unavailable)
     DetailsTranslationRuntimeUiState.DISABLED ->
         stringResource(R.string.details_translation_runtime_disabled)
     DetailsTranslationRuntimeUiState.IDLE ->

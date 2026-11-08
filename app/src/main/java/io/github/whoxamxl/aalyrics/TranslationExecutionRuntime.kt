@@ -54,7 +54,7 @@ internal fun translationRetryModelLanguages(
     settings: TranslationSettings,
     currentCanonicalIdentity: CanonicalLyricsIdentity?,
 ): Set<String> {
-    if (!settings.enabled) return emptySet()
+    if (!settings.enabled || !settings.machineTranslationFallbackEnabled) return emptySet()
 
     val targetLanguage = TranslationLanguages.normalizeTargetLanguage(settings.targetLanguage)
     val languages = linkedSetOf(targetLanguage)

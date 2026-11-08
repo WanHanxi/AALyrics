@@ -54,11 +54,26 @@ data class LyricsAttribution(
     val providerId: String,
     val displayName: String = providerId,
     val sourceId: String? = null,
+    val contributors: List<String> = emptyList(),
+    val notices: List<String> = emptyList(),
 ) {
     init {
         require(providerId.isNotBlank()) { "Provider id must not be blank" }
         require(displayName.isNotBlank()) { "Provider display name must not be blank" }
         require(sourceId == null || sourceId.isNotBlank()) { "Source id must be null or non-blank" }
+    }
+}
+
+/** A source-supplied translation, indexed against this document's unchanged original rows. */
+data class SuppliedLyricsTranslation(
+    val languageTag: String,
+    val lines: List<String?>,
+    val attribution: LyricsAttribution,
+) {
+    init {
+        require(languageTag.isNotBlank())
+        require(lines.all { it == null || it.isNotBlank() })
+        require(lines.any { it != null })
     }
 }
 
@@ -73,8 +88,16 @@ data class LyricsDocument(
     val lines: List<LyricLine>,
     val languageTag: String? = null,
     val attribution: LyricsAttribution? = null,
+    val suppliedTranslation: SuppliedLyricsTranslation? = null,
 ) {
     init {
+        suppliedTranslation?.let { translation ->
+            require(translation.lines.size == lines.size) { "Translation must index every original row" }
+            require(attribution != null && translation.attribution.providerId == attribution.providerId &&
+                translation.attribution.sourceId == attribution.sourceId) {
+                "Supplied translation must belong to the same provider and source document"
+            }
+        }
         require(languageTag == null || languageTag.isNotBlank()) {
             "Language tag must be null or non-blank"
         }

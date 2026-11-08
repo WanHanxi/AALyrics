@@ -12,6 +12,24 @@ import io.github.whoxamxl.aalyrics.ui.designsystem.theme.AALyricsTheme
 import io.github.whoxamxl.aalyrics.ui.phone.lyrics.TrackCard
 import io.github.whoxamxl.aalyrics.ui.phone.lyrics.TrackCardUiState
 
+@Preview(name = "NetEase translation", group = "TrackCard", widthDp = 360)
+@Composable
+private fun TrackCardNeteaseTranslationPreview() {
+    TrackCardPreview(state = PhonePreviewFixtures.trackCardReady.copy(
+        translation = io.github.whoxamxl.aalyrics.ui.phone.lyrics.TrackCardTranslationUiState.Ready(
+            "AUTO", "ZH", "NetEase Cloud Music",
+        ),
+    ))
+}
+
+@Preview(name = "Source translation unavailable", group = "TrackCard", widthDp = 360)
+@Composable
+private fun TrackCardSourceTranslationUnavailablePreview() {
+    TrackCardPreview(state = PhonePreviewFixtures.trackCardReady.copy(
+        translation = io.github.whoxamxl.aalyrics.ui.phone.lyrics.TrackCardTranslationUiState.Unavailable,
+    ))
+}
+
 @Preview(name = "Translation off · slot reserved", group = "TrackCard · Translation", widthDp = 412, showBackground = true)
 @Composable
 private fun TrackCardReadyPreview() {

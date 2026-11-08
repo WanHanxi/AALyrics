@@ -22,6 +22,7 @@ internal fun mapPhoneSettingsState(
     allowUnclassifiedApps: Boolean,
     automaticallyCheckForUpdates: Boolean = true,
     karaokeFeatureEnabled: Boolean = false,
+    lyricsSourceSettings: LyricsSourceSettings = LyricsSourceSettings(),
     androidAutoStatus: AndroidAutoCompatibilityUiStatus,
     appVersionName: String,
     currentYear: Int,
@@ -40,6 +41,8 @@ internal fun mapPhoneSettingsState(
         val modelState = translationModelStates[languageTag]
         SettingsLanguageOptionUiState(
             id = languageTag,
+            selectionRequiresModel = translationSettings.machineTranslationFallbackEnabled &&
+                !(lyricsSourceSettings.neteaseEnabled && languageTag == "zh"),
             displayName = TranslationLanguages.displayName(languageTag, displayLocale),
             modelState = when {
                 languageTag == "en" -> TranslationModelUiState.BUILT_IN
@@ -65,7 +68,10 @@ internal fun mapPhoneSettingsState(
         automaticallyCheckForUpdates = automaticallyCheckForUpdates,
         verboseDetailsEnabled = verboseDetailsEnabled,
         karaokeFeatureEnabled = karaokeFeatureEnabled,
+        neteaseEnabled = lyricsSourceSettings.neteaseEnabled,
+        neteaseNoticeAcknowledged = lyricsSourceSettings.neteaseNoticeAcknowledged,
         translationEnabled = translationSettings.enabled,
+        machineTranslationFallbackEnabled = translationSettings.machineTranslationFallbackEnabled,
         translationTarget = selected,
         translationTargets = targets,
         translationModelCleanup = when (translationModelCleanupState) {

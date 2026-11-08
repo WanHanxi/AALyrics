@@ -1,6 +1,6 @@
 # AALyrics Privacy Policy
 
-**Effective date:** November 3, 2026
+**Effective date:** November 7, 2026
 
 AALyrics is an Android application for displaying synchronized lyrics for music playing on your device. This policy describes the data AALyrics accesses, stores, and sends when you use the app.
 
@@ -34,11 +34,12 @@ AALyrics does not use Notification Access to build a notification history, and t
 To find lyrics, AALyrics may contact one or more third-party lyrics providers, currently:
 
 - LRCLIB;
+- NetEase Cloud Music (only after you enable it in Settings > Lyrics);
 - PetitLyrics (only in builds with its optional configuration enabled);
 - Musixmatch;
 - SyncLRC.
 
-Builds without PetitLyrics configuration do not register or contact that source. The personal 1.1 Beta 1 release uses LRCLIB, Musixmatch, and SyncLRC.
+Builds without PetitLyrics configuration do not register or contact that source. NetEase is off by default and shows a third-party source notice before first enablement. Its requests are anonymous and do not use a user account or cookies. Turning it off stops its lookups and excludes its retained results from display, including cached original lyrics and translations.
 
 Depending on the provider and the metadata available for a track, a request may include the track title, artist, album, duration, and a supported service identifier such as a Spotify track identifier.
 
@@ -48,7 +49,7 @@ AALyrics receives lyrics and associated match metadata from those providers and 
 
 ## Translation
 
-Translation and language identification are implemented with Google ML Kit and run on the device after the required models are available.
+When NetEase is enabled, existing Chinese translations may be retrieved together with its original lyrics. Matching supplied translations display without invoking Google ML Kit. Machine translation fallback and language identification use Google ML Kit on the device after the required models are available; fallback defaults to enabled and can be turned off in Translation settings.
 
 When you request an additional translation model, ML Kit may contact Google services to download and manage that model. AALyrics does not intentionally send the lyrics text to Google for server-side translation.
 
@@ -68,14 +69,16 @@ AALyrics stores a small amount of app-owned configuration locally, including set
 
 - whether Translation is enabled;
 - the selected Translation target language;
+- whether machine translation fallback is enabled;
+- whether NetEase is enabled and whether its source notice has been acknowledged;
 - whether Verbose details is enabled;
 - the Android Auto compatibility acknowledgement;
 - whether automatic update checking is enabled;
 - the timestamp used to enforce the low-frequency automatic update-check cadence.
 
-AALyrics keeps a bounded offline lyrics cache in app-private storage. Entries contain selected original lyrics, line/word timing, language and source attribution, plus the request metadata and catalog identifiers needed to distinguish recordings and selection preferences. Retained entries can identify previously requested songs; the cache does not record a chronological playback history. It stores up to 256 entries and 32 MiB, with a 1 MiB limit per entry and least-recently-used eviction.
+AALyrics keeps a bounded offline lyrics cache in app-private storage. Entries contain selected original lyrics, paired source-supplied translations when available, line/word timing, language, contributor credits and source attribution, plus the request metadata and catalog identifiers needed to distinguish recordings and selection preferences. Retained entries can identify previously requested songs; the cache does not record a chronological playback history. It stores up to 256 entries and 32 MiB, with a 1 MiB limit per entry and least-recently-used eviction.
 
-Cached lyrics survive app restarts and ordinary updates. The cache is stored in Android no-backup storage and is not included in device backup. Translated output, playback position, artwork and presentation state are not persisted in this cache.
+Cached lyrics survive app restarts and ordinary updates. The cache is stored in Android no-backup storage and is not included in device backup. Machine-generated translated output, playback position, artwork and presentation state are not persisted in this cache.
 
 Debug builds additionally save a bounded local connection-diagnostics record to investigate playback detection problems. It contains timestamps, app/build and device/OS details, media app package names, connection/playback states, recovery attempts, relevant system-access facts and exception types. On Android 11 or later, it also records up to three recent exits of AALyrics processes reported by Android: process ID, exit time, reason/status codes and process importance. It does not collect exit descriptions or traces, song titles, lyrics, media identifiers, notification contents or exception messages. The records are excluded from Android backup and are not uploaded automatically. You can save a report to a destination you choose through **Settings > Advanced > Debug > Export connection diagnostics** and share that file yourself. Release builds do not record these diagnostics or display that action.
 
@@ -105,7 +108,7 @@ AALyrics does not send data to advertising or analytics services. Track metadata
 
 App settings remain on the device until they are changed, reset, cleared by Android, or the app is uninstalled, subject to Android backup/restore behavior.
 
-Reset AALyrics preserves cached lyrics so they remain available offline. Cache entries remain until capacity eviction, Android Clear storage or uninstall; they do not expire solely because of age.
+Ordinary updates preserve the saved NetEase choice and notice acknowledgement. Reset AALyrics turns NetEase off and clears that acknowledgement. Reset preserves cached lyrics; NetEase cache entries are retained but cannot be used until the source is explicitly enabled again. Cache entries remain until capacity eviction, Android Clear storage or uninstall; they do not expire solely because of age.
 
 Downloaded Translation models remain managed by ML Kit until they are removed through AALyrics, removed by the system/provider, or the app/device data is cleared.
 

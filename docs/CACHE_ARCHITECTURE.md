@@ -44,13 +44,13 @@ canonical cacheable material
 selection / translation / calibration / karaoke projections
 ```
 
-Translation, user timing calibration, active karaoke position, and surface-specific UI state must not be silently folded into one opaque lyrics cache entry.
+Generated machine Translation, user timing calibration, active karaoke position, and surface-specific UI state must not be silently folded into one opaque lyrics cache entry.
 
 Where useful, those capabilities may later define their own associated cached artifacts keyed to canonical lyrics identity, but that is a later implementation decision.
 
 ## Translation cache policy
 
-Persistent Translation Cache is explicitly outside the current implementation path.
+Persistent generated Translation Cache is explicitly outside the current implementation path. The November 2026 NetEase slice explicitly persists source-supplied translations and their attribution alongside the paired original document; those are fetched source facts, not a cache of machine-generated artifacts.
 
 - Through stable `v1.0.0`, persistent Translation Cache must not be introduced.
 - After `v1.0.0`, it remains disabled unless explicitly authorized.
@@ -86,11 +86,13 @@ The encoded key includes:
 
 - when present, all stable catalog references sorted by namespace/value, with opaque values preserved;
 - otherwise normalized title, ordered artist names, album and album artist (trimmed and lowercased with `Locale.ROOT`), plus exact optional duration in milliseconds;
-- the preferred synchronization type, including the distinct unset preference;
+- the preferred synchronization type and optional translation target language, including distinct unset preferences;
 - the sorted active lyrics-provider IDs;
 - a cache format/selection-policy version.
 
-Stable catalog references identify the recording, consistent with `PlaybackSnapshot.trackIdentity` and the existing corrected-metadata playback tests. With identical references, a later title correction or known duration reuses the document. Different references, selection preferences or provider sets miss; reference/provider set order does not matter. Without references the metadata fallback is conservative: album/version/duration changes miss rather than fuzzy-match another recording, and unknown/known duration remain distinct. Adding or removing catalog identity also misses; there is no weaker-key alias fallback. Playback position, transient player session identity, calibration and Translation settings are not inputs. Provider or selector changes that invalidate previous winners must bump the cache policy version.
+Stable catalog references identify the recording, consistent with `PlaybackSnapshot.trackIdentity` and the existing corrected-metadata playback tests. With identical references, a later title correction or known duration reuses the document. Different references, selection preferences or provider sets miss; reference/provider set order does not matter. Without references the metadata fallback is conservative: album/version/duration changes miss rather than fuzzy-match another recording, and unknown/known duration remain distinct. Adding or removing catalog identity also misses; there is no weaker-key alias fallback. Playback position, transient player session identity, calibration and the machine-fallback switch are not inputs. The enabled target-language preference is an input because it can change the winning original. Provider or selector changes that invalidate previous winners must bump the cache policy version.
+
+Active provider IDs mean the enabled subset, not every registered adapter. NetEase is excluded by default. Disabling it cancels the current lookup and clears retained state; the subsequent lookup uses a key without NetEase and cannot read a NetEase-enabled winner. Reset also disables it and clears acknowledgement. Existing cache files survive both actions and may be reused after explicit re-enablement; no schema change or bulk deletion is needed for this gate.
 
 Only documents containing nonblank lyric text are stored. Both full and partially successful provider runs may supply usable cached lyrics. NotFound, failures and blank/empty documents are never cached. Schema/key mismatches, malformed data and invalid model invariants invalidate an entry and fall through to normal retrieval. There is no time-based expiry or automatic revalidation in this slice; selection preference changes use a distinct entry instead of overwriting another variant.
 
@@ -107,4 +109,10 @@ Only documents containing nonblank lyric text are stored. Both full and partiall
 
 Validate exact canonical PLAIN/LINE/WORD round trips; A → B → A while offline and application-graph recreation; provider-call avoidance on hit; recording/preference/provider-set separation; corruption/version mismatch; capacity/oversize behavior; non-fatal I/O failures; cancellation/stale reads and writes; and unchanged provider failure isolation and demand gating.
 
-Persistent Translation caching remains prohibited by the policy above. Prefetching, expiry/background refresh, cache management UI, cross-version migration, and provider ranking changes are not part of this slice. Follow-up work must preserve the identity, lifecycle, storage and reset boundaries here.
+Persistent machine-generated Translation caching remains prohibited by the policy above. Prefetching, expiry/background refresh, cache management UI, cross-version migration, and provider ranking changes are not part of this slice. Follow-up work must preserve the identity, lifecycle, storage and reset boundaries here.
+
+## NetEase schema transition
+
+Schema and selection policy are version 2. The paired translation, nullable per-row texts, contributors and notices round-trip with the original. Different translation preferences cannot share a winner. Prior version keys are misses; no bulk cache deletion is performed and capacity eviction still owns old-file retention. Reset preserves lyric caches, including supplied translations, just as it preserves original-only entries.
+
+Source translations containing literal replacement characters remain usable cached facts. The bilingual tie-break favoring equally scored translations without these characters does not invalidate existing winners or change cache versions: new retrievals use it, while existing entries remain available offline, including their upstream text defects. It does not silently refresh or rewrite previously cached lyrics.

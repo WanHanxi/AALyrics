@@ -353,6 +353,13 @@ class AutomotiveLyricsUiStateMapperTest {
         ).lyrics.secondaryText
 
         assertEquals("Translated", secondary())
+        val fallbackOff = TranslationSettings(enabled = true, machineTranslationFallbackEnabled = false)
+        assertEquals(null, secondary(settings = fallbackOff))
+        val supplied = readyTranslation().let { it.copy(artifact = it.artifact.copy(
+            suppliedAttribution = io.github.whoxamxl.aalyrics.core.model.LyricsAttribution("netease", sourceId = "1"),
+        )) }
+        assertEquals("Translated", secondary(settings = fallbackOff, state = supplied))
+        assertEquals(null, secondary(state = TranslationState.Unavailable(request)))
         assertEquals(null, secondary(settings = TranslationSettings(enabled = false)))
         assertEquals(null, secondary(state = readyTranslation(
             requestIdentity = request.copy(canonicalLyrics = identity.copy(ownerId = "old")),

@@ -112,7 +112,7 @@ See `docs/CACHE_ARCHITECTURE.md`.
 
 Translation is a derived lyrics capability. It consumes canonical lyrics, preserves original content, and produces translation artifacts/status associated with the exact canonical lyrics version and translation configuration.
 
-Lyrics Provider selection and Translation Provider selection are independent. Translation engines/providers must use a Translation-specific boundary rather than `:provider:api`, and Translation availability must never influence the canonical Lyrics winner.
+Machine Translation engines use a separate boundary rather than `:provider:api`. Source-supplied translations may travel with their paired original and influence candidate preference after metadata/version/quality gates, as authorized in the NetEase slice. Selection never invokes a Translation engine.
 
 Translation failure is not lyrics lookup failure.
 

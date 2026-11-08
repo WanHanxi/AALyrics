@@ -100,6 +100,7 @@ internal fun PhoneRuntimeHost(
     val playbackArtwork by application.playbackArtworkState.collectAsStateWithLifecycle()
     val queueArtworkBitmaps by application.queueArtworkBitmapsState.collectAsStateWithLifecycle()
     val translationSettings by application.translationSettings.collectAsStateWithLifecycle()
+    val lyricsSourceSettings by application.lyricsSourceSettings.collectAsStateWithLifecycle()
     val translationModelStates by application.translationModelStates.collectAsStateWithLifecycle()
     val translationModelCleanupState by
         application.translationModelCleanupState.collectAsStateWithLifecycle()
@@ -238,6 +239,7 @@ internal fun PhoneRuntimeHost(
     }
 
     val settingsState = mapPhoneSettingsState(
+        lyricsSourceSettings = lyricsSourceSettings,
         translationSettings = translationSettings,
         translationModelStates = translationModelStates,
         verboseDetailsEnabled = verboseDetailsEnabled,
@@ -389,6 +391,9 @@ internal fun PhoneRuntimeHost(
                 onVerboseDetailsChanged = application::setVerboseDetailsEnabled,
                 onKaraokeFeatureEnabledChanged = application::setKaraokeFeatureEnabled,
                 onTranslationEnabledChanged = application::setTranslationEnabled,
+                onMachineTranslationFallbackChanged = application::setMachineTranslationFallbackEnabled,
+                onNeteaseEnabledChanged = application::setNeteaseEnabled,
+                onNeteaseNoticeAccepted = application::acknowledgeAndEnableNetease,
                 onTranslationTargetSelected = application::setTranslationTargetLanguage,
                 onTranslationModelDownloadRequested = application::requestTranslationModel,
                 onClearTranslationModels = application::clearDownloadedTranslationModels,

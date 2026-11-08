@@ -76,6 +76,7 @@ class LyricsCoordinator(
         track: Track,
         preferences: CandidateSelectionPreferences,
         playbackIdentity: PlaybackTrackIdentity?,
+        enabledProviderIds: Set<String>?,
     ): LyricsLookup {
         val lookup = LyricsLookup(
             id = LyricsLookupId(lookupIds.getAndIncrement()),
@@ -88,12 +89,18 @@ class LyricsCoordinator(
             ),
         )
 
+        val lookupProviders = providers.filter {
+            enabledProviderIds == null || it.descriptor.id.value in enabledProviderIds
+        }
+        val cacheKey = LyricsCacheKey(
+            track, preferences, lookupProviders.map { it.descriptor.id.value }.toSet(),
+        )
+
         activeJob?.cancel()
         _state.update { current -> current.reduce(LyricsStateEvent.Started(lookup)) }
         _diagnostics.value = LyricsLookupDiagnostics(lookupId = lookup.id)
 
         activeJob = scope.launch {
-            val cacheKey = LyricsCacheKey(track, preferences, providers.map { it.descriptor.id.value }.toSet())
             val cached = cacheOperation { cache.get(cacheKey) }
                 ?.takeIf { lyrics -> lyrics.lines.any { it.text.isNotBlank() } }
             coroutineContext.ensureActive()
@@ -113,6 +120,7 @@ class LyricsCoordinator(
                         track = track,
                         preferredSyncType = preferences.preferredSyncType,
                     ),
+                    lookupProviders,
                 )
 
                 val failures = attempts.filterIsInstance<ProviderAttempt.Failed>()
@@ -241,8 +249,11 @@ class LyricsCoordinator(
         null
     }
 
-    private suspend fun searchProviders(request: LyricsRequest): List<ProviderAttempt> = supervisorScope {
-        providers.map { provider ->
+    private suspend fun searchProviders(
+        request: LyricsRequest,
+        lookupProviders: List<LyricsProvider>,
+    ): List<ProviderAttempt> = supervisorScope {
+        lookupProviders.map { provider ->
             async {
                 try {
                     ProviderAttempt.Succeeded(provider.search(request))

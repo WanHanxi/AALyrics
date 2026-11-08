@@ -1,6 +1,7 @@
 package io.github.whoxamxl.aalyrics.translation.core
 
 import io.github.whoxamxl.aalyrics.core.model.LyricsDocument
+import io.github.whoxamxl.aalyrics.core.model.LyricsAttribution
 import io.github.whoxamxl.aalyrics.core.model.PlainLyricLine
 import io.github.whoxamxl.aalyrics.core.model.TimedLyricLine
 import io.github.whoxamxl.aalyrics.translation.api.TranslationProviderId
@@ -164,6 +165,7 @@ data class TranslationArtifact(
     val providerId: TranslationProviderId,
     val profile: LanguageProfile,
     val lines: List<TranslationArtifactLine>,
+    val suppliedAttribution: LyricsAttribution? = null,
 ) {
     init {
         require(lines.map { it.canonicalLineIndex } == lines.indices.toList()) {
@@ -193,6 +195,9 @@ sealed interface TranslationState {
         val profile: LanguageProfile,
     ) : TranslationState
 
+    /** No source translation exists and the user disabled machine fallback. */
+    data class Unavailable(val request: TranslationRequestIdentity) : TranslationState
+
     data class Ready(
         val artifact: TranslationArtifact,
     ) : TranslationState
@@ -221,6 +226,18 @@ private fun LyricsDocument.fingerprint(): String {
     put(attribution?.providerId)
     put(attribution?.displayName)
     put(attribution?.sourceId)
+    attribution?.contributors?.forEach(::put)
+    attribution?.notices?.forEach(::put)
+    suppliedTranslation?.let { translation ->
+        put("supplied-translation")
+        put(translation.languageTag)
+        put(translation.attribution.providerId)
+        put(translation.attribution.sourceId)
+        put(translation.attribution.displayName)
+        translation.attribution.contributors.forEach(::put)
+        translation.attribution.notices.forEach(::put)
+        translation.lines.forEach(::put)
+    }
     lines.forEach { line ->
         when (line) {
             is PlainLyricLine -> put("plain")

@@ -53,7 +53,7 @@ A provider may own:
 - provider payload parsing,
 - rejection of malformed or provider-invalid responses,
 - provider-local evidence learned during discovery,
-- normalization into `Track`, `LyricsDocument`, attribution, and `LyricsCandidate`.
+- normalization into `Track`, `LyricsDocument`, attribution, and `LyricsCandidate`, including source-supplied translations paired to the same original document.
 
 A provider must not own:
 
@@ -62,7 +62,7 @@ A provider must not own:
 - application `LyricsState`,
 - playback ownership,
 - phone or Android Auto presentation,
-- translation,
+- machine translation execution,
 - global cache policy,
 - Android `MediaSession` / `MediaController` types.
 
@@ -108,6 +108,8 @@ The second belongs to `:provider:selection` behind the `CandidateSelector` port.
 Generic title/artist/duration/recording-version semantics should not be copied independently into every provider. If multiple provider adapters genuinely need the same pure matching semantics, extract a neutral pure utility boundary that both provider adapters and `:provider:selection` may use. Do not make concrete providers depend on the production selector merely to reuse helper functions.
 
 ## Result and failure semantics
+
+Provider enablement is an application-owned hard request gate, separate from ranking preferences. Each lookup receives an immutable enabled-provider set; `LyricsCoordinator` filters its configured adapters before fan-out and uses that effective set in the selected-winner cache key. `PlaybackLyricsController` includes the set in lookup ownership. A source-setting change clears retained state and cancels obsolete work, then refreshes only eligible, demanded playback. NetEase defaults OFF and requires explicit acknowledgement; the existing providers retain their prior behavior.
 
 Concrete providers follow the shared contract consistently:
 
@@ -164,6 +166,7 @@ Provider-specific notes live here:
 - `docs/providers/PETITLYRICS.md`
 - `docs/providers/MUSIXMATCH.md`
 - `docs/providers/SYNCLRC.md`
+- `docs/providers/NETEASE.md`
 
 Each profile records capabilities, current working-fork behavior, provider-local quirks/invariants, AALyrics ownership decisions, regression-sensitive behavior, and migration status. The profile should stay concise; shared rules belong in this document.
 

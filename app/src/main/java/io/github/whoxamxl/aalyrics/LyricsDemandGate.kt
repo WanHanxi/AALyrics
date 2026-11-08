@@ -99,6 +99,13 @@ internal class LyricsDemandGate(
         publishDemandTransition()
     }
 
+    @Synchronized
+    fun refreshPreferences(clearRetainedLyrics: Boolean = false) {
+        // A disabled provider must not remain visible even while demand is suspended.
+        if (clearRetainedLyrics) downstream(PlaybackSnapshot())
+        if (downstreamActive) downstream(latestSnapshot)
+    }
+
     /** Existing demand semantics: true when Phone or Automotive currently requests lyrics work. */
     @Synchronized
     fun isActive(): Boolean = demandActive

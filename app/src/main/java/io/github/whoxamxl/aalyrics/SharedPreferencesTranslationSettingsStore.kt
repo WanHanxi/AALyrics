@@ -2,7 +2,6 @@ package io.github.whoxamxl.aalyrics
 
 import android.content.Context
 import android.content.SharedPreferences
-import io.github.whoxamxl.aalyrics.translation.api.TranslationLanguages
 import io.github.whoxamxl.aalyrics.translation.api.TranslationSettings
 import io.github.whoxamxl.aalyrics.translation.api.TranslationSettingsStore
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,12 +17,26 @@ internal class SharedPreferencesTranslationSettingsStore(
         Context.MODE_PRIVATE,
     )
 
-    private val _settings = MutableStateFlow(readSettings())
+    private val persistence = TranslationSettingsPersistence(
+        readBoolean = preferences::getBoolean,
+        readString = preferences::getString,
+        writeValues = { values ->
+            preferences.edit().apply {
+                values.forEach { (key, value) ->
+                    when (value) {
+                        is Boolean -> putBoolean(key, value)
+                        is String -> putString(key, value)
+                    }
+                }
+            }.apply()
+        },
+    )
+    private val _settings = MutableStateFlow(persistence.read())
     override val settings: StateFlow<TranslationSettings> = _settings.asStateFlow()
 
     private val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-        if (key == ENABLED_KEY || key == TARGET_LANGUAGE_KEY) {
-            _settings.value = readSettings()
+        if (key in TranslationSettingsPersistence.KEYS) {
+            _settings.value = persistence.read()
         }
     }
 
@@ -31,45 +44,17 @@ internal class SharedPreferencesTranslationSettingsStore(
         preferences.registerOnSharedPreferenceChangeListener(listener)
     }
 
-    override fun setEnabled(enabled: Boolean) {
-        preferences.edit().putBoolean(ENABLED_KEY, enabled).apply()
-    }
-
-    override fun setTargetLanguage(languageTag: String) {
-        val normalized = TranslationLanguages.normalizeTargetLanguage(languageTag)
-        preferences.edit().putString(TARGET_LANGUAGE_KEY, normalized).apply()
-    }
-
-    fun resetToDefaults() {
-        preferences.edit()
-            .putBoolean(ENABLED_KEY, DEFAULT_ENABLED)
-            .putString(
-                TARGET_LANGUAGE_KEY,
-                TranslationLanguages.DEFAULT_TARGET_LANGUAGE,
-            )
-            .apply()
-    }
+    override fun setEnabled(enabled: Boolean) = persistence.setEnabled(enabled)
+    override fun setTargetLanguage(languageTag: String) = persistence.setTargetLanguage(languageTag)
+    fun setMachineTranslationFallbackEnabled(enabled: Boolean) =
+        persistence.setMachineTranslationFallbackEnabled(enabled)
+    fun resetToDefaults() = persistence.resetToDefaults()
 
     override fun close() {
         preferences.unregisterOnSharedPreferenceChangeListener(listener)
     }
 
-    private fun readSettings(): TranslationSettings = TranslationSettings(
-        enabled = preferences.getBoolean(ENABLED_KEY, DEFAULT_ENABLED),
-        targetLanguage = TranslationLanguages.normalizeTargetLanguage(
-            preferences.getString(
-                TARGET_LANGUAGE_KEY,
-                TranslationLanguages.DEFAULT_TARGET_LANGUAGE,
-            ),
-        ),
-    )
-
     private companion object {
-        private const val PREFERENCES_NAME = "aalyrics_preferences"
-
-        // Preserve the mature fork's stable key semantics without preserving its View ownership.
-        private const val ENABLED_KEY = "translation_enabled"
-        private const val TARGET_LANGUAGE_KEY = "translation_target_language"
-        private const val DEFAULT_ENABLED = false
+        const val PREFERENCES_NAME = "aalyrics_preferences"
     }
 }

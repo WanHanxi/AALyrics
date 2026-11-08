@@ -24,9 +24,11 @@ Initial structure:
 Settings
 ├─ Lyrics
 │  ├─ Plain lyrics auto-scroll       [switch]  ⓘ
-│  └─ Ignore non-audio apps          [switch]  ⓘ
+│  ├─ Ignore non-audio apps          [switch]  ⓘ
+│  └─ NetEase Cloud Music            [switch]  ⓘ
 ├─ Translation
 │  ├─ Translation                    [switch]
+│  ├─ Machine translation fallback   [switch]  ⓘ
 │  └─ Target language             ⓘ  <value>  >
 ├─ Android Auto
 │  └─ Compatibility setup            <status> >
@@ -216,9 +218,25 @@ Behavior:
 
 This setting gates whether lyrics lookup begins. It does not change MediaSession discovery/selection, playback transport, source-app launching, or provider ranking.
 
+### NetEase Cloud Music
+
+An independent lyrics-source switch in **Settings > Lyrics**, OFF by default. The first enable request opens a neutral notice describing track-metadata requests, possible local caching, the unofficial integration, and third-party rights/source terms. **Cancel**, Back and outside dismissal leave the source OFF; only **Enable** persists acknowledgement and turns it ON. The info control remains available to read the notice again. There is no liability-waiver checkbox.
+
+The application stores enablement and acknowledgement together. Ordinary upgrades preserve an explicit ON or OFF choice and acknowledgement; fresh installs and existing settings without these keys stay OFF. Turning the switch OFF preserves acknowledgement so subsequent explicit enablement does not repeatedly interrupt the user. Reset AALyrics turns the source OFF and clears acknowledgement. Clearing translation models does not change this source preference.
+
+The source gate applies before requests, candidate selection and cache lookup. Changing it cancels the old lookup and clears retained lyrics, then re-evaluates current playback only while presentation demand and source eligibility permit. The enabled provider set is part of lookup ownership and cache identity. Disabled NetEase originals/translations cannot be reused from memory or disk. Cache files remain within the existing bounded cache and can be reused after explicit re-enablement. Existing LRCLIB, Musixmatch, SyncLRC and optional PetitLyrics behavior is unchanged.
+
+Compose previews cover OFF, enabled, the interactive first-enable/cancel flow, and the notice at normal, narrow, landscape and enlarged-text sizes. Confirmation text scrolls when space is limited. Reset previews use the updated production copy.
+
 ## Translation section
 
 Translation configuration already belongs to the Translation capability/application boundary.
+
+### Machine translation fallback
+
+The independent **Machine translation fallback** switch defaults to ON, preserving existing enabled users' behavior. With fallback OFF, matching source translations still display, but absence leaves original-only lyrics and a concise unavailable status. Missing rows inside a supplied translation are never machine-filled. When NetEase is enabled, Chinese is selectable without a downloaded model; with fallback OFF every supported target is selectable without a model. Source translations do not trigger Chinese target-model predownload.
+
+Reset AALyrics and Clear translation models restore this preference to ON while turning Translation OFF and restoring target English. The existing caches/models retention policy is unchanged; source-supplied translations are included in the preserved lyric cache.
 
 ### Translation toggle
 
@@ -242,7 +260,7 @@ The row shows the selected display name and opens a compact picker. Its info aff
 
 Approved tooltip copy:
 
-> Translation requires language models for the source and target languages. When Translation is enabled, AALyrics automatically downloads any required models. The source language is detected from the current lyrics.
+> Existing translations are preferred when available in the target language. Machine translation fallback downloads any required source and target language models. Source-provided translations do not need these models.
 
 This distinction is important: readiness of the selected target alone does not guarantee that a translation route is ready. For example, Japanese → English still requires the Japanese source-language model even though English itself is built in.
 
@@ -267,11 +285,13 @@ The target-language row remains available while Translation is disabled. Changin
 Each language row also exposes Translation-model readiness through one stable trailing action slot:
 
 - English is selectable from the start because AALyrics treats ML Kit English support as built in and requires no remote language-pack download;
-- an unavailable remote model is not selectable and shows an explicit download action;
-- an active download is not selectable and shows an indeterminate loading indicator;
+- when the target requires machine models, an unavailable remote model is not selectable and shows an explicit download action;
+- for such targets an active download is not selectable and shows an indeterminate loading indicator;
 - a ready remote model becomes selectable and shows no status icon unless it is the selected target;
 - the selected ready/built-in target shows the check mark in the same trailing slot;
-- a failed download is not selectable and shows a retry action in the trailing slot.
+- for such targets a failed download is not selectable and shows a retry action in the trailing slot.
+
+Chinese, and all targets while machine fallback is OFF, remain selectable independently of model state. Selecting such a target shows a check without claiming the model is downloaded.
 
 A successful manual download therefore transitions the row from disabled + download/loading UI to an ordinary selectable row. Downloading a model must not implicitly change the selected target.
 
@@ -952,6 +972,8 @@ The info tooltip explains that reset restores AALyrics-owned settings and onboar
 After confirmation, reset restores:
 
 - Translation -> OFF;
+- Machine translation fallback -> ON;
+- NetEase Cloud Music -> OFF, source notice acknowledgement -> cleared;
 - Target language -> English;
 - Verbose details -> OFF;
 - Karaoke experimental feature gate -> OFF;
@@ -968,7 +990,7 @@ After confirmation, reset restores:
 
 Reset does **not**:
 
-- delete cached original lyrics: the bounded offline cache intentionally survives reset, like reusable downloaded assets; clearing app storage/uninstall or capacity eviction removes it;
+- delete cached original lyrics or supplied translations: the bounded offline cache intentionally survives reset, like reusable downloaded assets; NetEase entries remain inaccessible until explicit re-enablement. Clearing app storage/uninstall or capacity eviction removes them;
 - delete downloaded translation models;
 - delete bounded Debug connection diagnostics or user-exported report files;
 - revoke Notification Access or other Android permissions;

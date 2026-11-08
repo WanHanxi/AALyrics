@@ -74,6 +74,17 @@ internal fun mapPhoneDetailsState(
                     languageLabel(tag, displayLocale)
                 },
                 lineCount = lyrics.lines.size,
+                credits = buildList {
+                    lyrics.attribution?.let { addAll(it.contributors); addAll(it.notices) }
+                    lyrics.suppliedTranslation?.let { translation ->
+                        val attribution = translation.attribution
+                        add(attribution.displayName + " · " + TranslationLanguages.displayName(
+                            translation.languageTag, displayLocale,
+                        ))
+                        addAll(attribution.contributors)
+                        addAll(attribution.notices)
+                    }
+                }.distinct(),
             )
         },
         lyricsStatus = resolvedLyrics.status,
@@ -173,7 +184,13 @@ private fun mapDetailsTranslationState(
     displayLocale: Locale,
 ): DetailsTranslationUiState {
     val targetLanguage = TranslationLanguages.normalizeTargetLanguage(settings.targetLanguage)
-    val matchingProfile = state.matchingProfile(
+    val visibleState = if (state is TranslationState.Ready &&
+        !settings.machineTranslationFallbackEnabled && state.artifact.suppliedAttribution == null
+    ) TranslationState.Idle else state
+    val supplied = (visibleState as? TranslationState.Ready)?.artifact?.takeIf {
+        it.request.matches(canonicalIdentity, targetLanguage)
+    }?.suppliedAttribution != null
+    val matchingProfile = visibleState.matchingProfile(
         canonicalIdentity = canonicalIdentity,
         targetLanguage = targetLanguage,
     )
@@ -199,12 +216,12 @@ private fun mapDetailsTranslationState(
     return DetailsTranslationUiState(
         sourceLanguageLabel = sourceLanguageLabel,
         targetLanguageLabel = TranslationLanguages.displayName(targetLanguage, displayLocale),
-        runtimeState = state.runtimeUiStateFor(
+        runtimeState = visibleState.runtimeUiStateFor(
             settingsEnabled = settings.enabled,
             canonicalIdentity = canonicalIdentity,
             targetLanguage = targetLanguage,
         ),
-        runtimeFailureReason = state.runtimeFailureUiReasonFor(
+        runtimeFailureReason = visibleState.runtimeFailureUiReasonFor(
             canonicalIdentity = canonicalIdentity,
             targetLanguage = targetLanguage,
         ),
@@ -226,7 +243,7 @@ private fun mapDetailsTranslationState(
                 },
             )
         },
-        targetModel = modelUiState(
+        targetModel = if (supplied || !settings.machineTranslationFallbackEnabled) null else modelUiState(
             languageTag = targetLanguage,
             translationEnabled = settings.enabled,
             modelStates = modelStates,
@@ -248,6 +265,7 @@ private fun TranslationState.matchingProfile(
     is TranslationState.Failed ->
         profile.takeIf { request.matches(canonicalIdentity, targetLanguage) }
     TranslationState.Disabled,
+    is TranslationState.Unavailable,
     TranslationState.Idle -> null
 }
 
@@ -267,6 +285,10 @@ private fun TranslationState.runtimeUiStateFor(
             } else {
                 DetailsTranslationRuntimeUiState.IDLE
             }
+        is TranslationState.Unavailable ->
+            if (request.matches(canonicalIdentity, targetLanguage)) {
+                DetailsTranslationRuntimeUiState.UNAVAILABLE
+            } else DetailsTranslationRuntimeUiState.IDLE
         is TranslationState.NotRequired ->
             if (request.matches(canonicalIdentity, targetLanguage)) {
                 DetailsTranslationRuntimeUiState.NOT_REQUIRED
