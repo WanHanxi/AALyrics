@@ -53,7 +53,3 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 When a release dependency is added, removed, or upgraded, this file should be checked for any new license or notice requirement.
 
 Build-only and test-only dependencies are not listed unless they are distributed as part of the application.
-
-## NetEase implementation references
-
-The NetEase adapter adds no third-party runtime library. It reuses the dependencies listed above. Public Lyricify Lyrics Helper (Apache-2.0) and ivLyrics NetEase plugin (MIT) endpoint shapes informed independent probes; their source code is not incorporated. Reference details and the separate unresolved platform/content rights are recorded in [Lyrics source rights](docs/LYRICS_SOURCE_RIGHTS.md).

@@ -4,6 +4,12 @@
 
 On 2026-11-07 the owner requested NetEase integration (QQ deferred), preferring a source's paired original and translated lyrics. Machine translation remains enabled as fallback by default, with a user switch to disable it. Personal fork only; finish with a Draft PR, without merge or release.
 
+## Authorized license-page cleanup
+
+The owner approved removing the NetEase implementation-reference section from `THIRD_PARTY_LICENSES.md`, which is also shown on the app's License page. Lyricify and ivLyrics are research references, not incorporated runtime dependencies. Their references and the platform/content rights discussion remain in `docs/LYRICS_SOURCE_RIGHTS.md` and `docs/providers/NETEASE.md`. Any further consolidation of rights wording requires separate approval; no Terms, source notice, runtime behavior or reset changes are included here.
+
+Validation: `:app:syncBundledDocumentsAssets` passed in a verified 3 GiB / zero-swap scope with the workstation flags; the scope exited. All six generated bundled documents match their repository sources, the removed reference section is absent from the License-page asset, and both repository reference documents retain the research attribution. Whitespace checks passed. The prior successful code build and 906-test validation are reused for this documentation-only change; no APK rebuild or device verification was needed or performed.
+
 ## Reported translation corruption follow-up
 
 The owner reported replacement characters in AALyrics while the official NetEase app shows clean text, and requested checking the official result before assuming another song version is interchangeable. The supplied share link resolves to song 3392743810 (translation version 7, no replacement characters); a duplicate metadata match, 3392881804 (translation version 5), returns eight literal U+FFFD characters in valid UTF-8 JSON. Current and legacy lyric endpoints and version parameters 0/-1 reproduce the latter payload. Replaying these two responses through the baseline compiled production provider/selector reproduces selection of 3392881804. The owner subsequently found the same defect in the other official-app record, and clarified that this largely readable translation should remain usable.
