@@ -10,10 +10,12 @@ import io.github.whoxamxl.aalyrics.core.model.Track
  * queried, how candidates are ranked, or how observable lyrics state is stored.
  */
 interface LyricsLookupLifecycle {
+    /** [enabledProviderIds] is a hard request gate; null permits all configured providers. */
     fun startLookup(
         track: Track,
         preferences: CandidateSelectionPreferences = CandidateSelectionPreferences(),
         playbackIdentity: PlaybackTrackIdentity? = null,
+        enabledProviderIds: Set<String>? = null,
     ): LyricsLookup
 
     /**

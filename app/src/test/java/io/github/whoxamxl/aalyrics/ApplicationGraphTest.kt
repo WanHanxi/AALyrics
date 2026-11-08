@@ -24,6 +24,7 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import io.github.whoxamxl.aalyrics.translation.api.TranslationSettings
 import kotlin.test.assertSame
@@ -51,6 +52,7 @@ class ApplicationGraphTest {
         )
         assertTrue(graph.providers.filterIsInstance<PetitLyricsProvider>().all { it.isConfigured })
         assertEquals(LyricsSyncType.WORD, graph.selectionPreferences.preferredSyncType)
+        assertFalse("netease" in graph.enabledProviderIds)
         assertSame(graph.coordinator.state, graph.lyricsState)
     }
 
@@ -81,6 +83,14 @@ class ApplicationGraphTest {
             graph.providers.map { it.descriptor.id.value },
         )
         assertTrue(graph.providers.filterIsInstance<PetitLyricsProvider>().single().isConfigured)
+    }
+
+    @Test
+    fun `production graph restores an explicitly enabled NetEase choice`() = runTest {
+        val graph = createProductionApplicationGraph(this, LyricsCache.None, neteaseEnabled = true)
+        assertTrue("netease" in graph.enabledProviderIds)
+        graph.updateNeteaseEnabled(false)
+        assertEquals(graph.providers.map { it.descriptor.id.value }.toSet() - "netease", graph.enabledProviderIds)
     }
 
     @Test

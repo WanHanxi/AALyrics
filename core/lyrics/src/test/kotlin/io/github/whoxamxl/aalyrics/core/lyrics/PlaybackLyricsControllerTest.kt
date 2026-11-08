@@ -210,6 +210,7 @@ class PlaybackLyricsControllerTest {
             track: Track,
             preferences: CandidateSelectionPreferences,
             playbackIdentity: PlaybackTrackIdentity?,
+            enabledProviderIds: Set<String>?,
         ): LyricsLookup {
             startedTracks += track
             startedPreferences += preferences

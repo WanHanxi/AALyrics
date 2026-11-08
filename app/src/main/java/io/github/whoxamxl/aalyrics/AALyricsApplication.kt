@@ -95,6 +95,7 @@ class AALyricsApplication : Application() {
     private lateinit var demandLifecycle: LyricsDemandLifecycle
     private lateinit var automotiveBinding: AutomotiveRuntimeBinding
     private lateinit var translationSettingsStore: SharedPreferencesTranslationSettingsStore
+    private lateinit var lyricsSourceSettingsStore: SharedPreferencesLyricsSourceSettingsStore
     private lateinit var phonePresentationSettingsStore: SharedPreferencesPhonePresentationSettingsStore
     private lateinit var lyricsTimingSettings: LyricsTimingSettings
     private lateinit var tapSyncCalibration: TapSyncCalibration
@@ -184,6 +185,9 @@ class AALyricsApplication : Application() {
 
     val translationSettings: StateFlow<TranslationSettings>
         get() = translationSettingsStore.settings
+
+    internal val lyricsSourceSettings: StateFlow<LyricsSourceSettings>
+        get() = lyricsSourceSettingsStore.settings
 
     val phonePlaybackSurfaceState: StateFlow<PlaybackSurfaceUiState?>
         get() = phonePlaybackSurfaceStateFlow
@@ -345,6 +349,16 @@ class AALyricsApplication : Application() {
         translationSettingsStore.setMachineTranslationFallbackEnabled(enabled)
     }
 
+    internal fun setNeteaseEnabled(enabled: Boolean) {
+        lyricsSourceSettingsStore.setNeteaseEnabled(enabled)
+        graph.updateNeteaseEnabled(lyricsSourceSettings.value.neteaseEnabled)
+    }
+
+    internal fun acknowledgeAndEnableNetease() {
+        lyricsSourceSettingsStore.acknowledgeAndEnableNetease()
+        graph.updateNeteaseEnabled(lyricsSourceSettings.value.neteaseEnabled)
+    }
+
     fun setTranslationTargetLanguage(languageTag: String) {
         translationSettingsStore.setTargetLanguage(languageTag)
     }
@@ -438,6 +452,8 @@ class AALyricsApplication : Application() {
         updateReleasePromptRuntime.reset()
         appUpdateCheckRuntime.reset()
         updateSuccessFeedbackRuntime.refresh()
+        lyricsSourceSettingsStore.resetToDefaults()
+        graph.updateNeteaseEnabled(false)
         translationSettingsStore.resetToDefaults()
         phonePresentationSettingsStore.resetToDefaults()
         resetLyricsTimingOffset()
@@ -523,6 +539,7 @@ class AALyricsApplication : Application() {
             onInstallPermissionRequired = installPermissionPromptRuntime::request,
         )
         translationSettingsStore = SharedPreferencesTranslationSettingsStore(this)
+        lyricsSourceSettingsStore = SharedPreferencesLyricsSourceSettingsStore(this)
         phonePresentationSettingsStore = SharedPreferencesPhonePresentationSettingsStore(this)
         automaticUpdateCheckRuntime = AutomaticUpdateCheckRuntime(
             cadenceStore = updateCheckCadenceStore,
@@ -550,10 +567,14 @@ class AALyricsApplication : Application() {
         graph = createProductionApplicationGraph(
             applicationScope,
             lyricsCache = FileLyricsCache(noBackupFilesDir.resolve("lyrics_cache")),
+            neteaseEnabled = lyricsSourceSettingsStore.settings.value.neteaseEnabled,
         )
         graph.updateTranslationPreference(translationSettingsStore.settings.value)
         applicationScope.launch {
             translationSettingsStore.settings.collect { graph.updateTranslationPreference(it) }
+        }
+        applicationScope.launch(Dispatchers.Main.immediate) {
+            lyricsSourceSettingsStore.settings.collect { graph.updateNeteaseEnabled(it.neteaseEnabled) }
         }
         tapSyncCalibration = TapSyncCalibration(
             settings = lyricsTimingSettings,
@@ -807,6 +828,7 @@ class AALyricsApplication : Application() {
         translationBackgroundRuntime.stop()
         phonePresentationSettingsStore.close()
         translationSettingsStore.close()
+        lyricsSourceSettingsStore.close()
         demandLifecycle.stop()
         mediaConnectionRecovery.stop()
         MediaSessionRuntimeHost.detachListenerConnection(listenerConnectionSink)
@@ -855,6 +877,7 @@ internal class ApplicationGraph(
     applicationScope: CoroutineScope,
     val selectionPreferences: CandidateSelectionPreferences,
     lyricsCache: LyricsCache = LyricsCache.None,
+    neteaseEnabled: Boolean = false,
 ) {
     internal val providers = providers.toList()
     internal val coordinator = LyricsCoordinator(this.providers, selector, applicationScope, cache = lyricsCache)
@@ -868,6 +891,20 @@ internal class ApplicationGraph(
         defaultPreferences = selectionPreferences,
     )
     @Volatile private var currentSelectionPreferences = selectionPreferences
+    @Volatile internal var enabledProviderIds = providerIdsFor(neteaseEnabled)
+        private set
+
+    private fun providerIdsFor(neteaseEnabled: Boolean): Set<String> = providers
+        .map { it.descriptor.id.value }
+        .filter { neteaseEnabled || it != "netease" }
+        .toSet()
+
+    fun updateNeteaseEnabled(enabled: Boolean) {
+        val updated = providerIdsFor(enabled)
+        if (updated == enabledProviderIds) return
+        enabledProviderIds = updated
+        lyricsDemandGate.refreshPreferences(clearRetainedLyrics = true)
+    }
 
     fun updateTranslationPreference(settings: TranslationSettings) {
         val updated = selectionPreferences.copy(
@@ -879,7 +916,9 @@ internal class ApplicationGraph(
     }
 
     val lyricsDemandGate = LyricsDemandGate(
-        downstream = { playbackLyricsController.onPlayback(it, currentSelectionPreferences) },
+        downstream = {
+            playbackLyricsController.onPlayback(it, currentSelectionPreferences, enabledProviderIds)
+        },
         onDemandInactive = playbackLyricsController::suspendForNoDemand,
     )
     val playbackSnapshotSink = PlaybackSnapshotSink { snapshot ->
@@ -909,6 +948,7 @@ internal fun createProductionApplicationGraph(
         packageName = BuildConfig.PETITLYRICS_PKG_NAME,
         clientAppId = BuildConfig.PETITLYRICS_CLIENT_APP_ID,
     ),
+    neteaseEnabled: Boolean = false,
 ): ApplicationGraph {
     val providers: List<LyricsProvider> = buildList {
         add(LrcLibProvider())
@@ -934,5 +974,6 @@ internal fun createProductionApplicationGraph(
         applicationScope = applicationScope,
         selectionPreferences = preferences,
         lyricsCache = lyricsCache,
+        neteaseEnabled = neteaseEnabled,
     )
 }

@@ -4,6 +4,17 @@
 
 On 2026-11-07 the owner requested NetEase integration (QQ deferred), preferring a source's paired original and translated lyrics. Machine translation remains enabled as fallback by default, with a user switch to disable it. Personal fork only; finish with a Draft PR, without merge or release.
 
+## Authorized opt-in follow-up
+
+The owner approved implementing a default-OFF NetEase switch with the neutral third-party notice and Cancel / Enable actions. Existing LRCLIB, Musixmatch and SyncLRC behavior is explicitly out of scope. Continue on Draft PR #8; no merge, release or review request.
+
+1. Persist the NetEase choice and notice acknowledgement atomically. A new installation or missing historical choice defaults OFF; ordinary upgrades preserve both values. Explicit Reset AALyrics restores OFF and clears acknowledgement, while retaining the existing cache/model retention policy.
+2. Gate NetEase before provider requests and include the effective provider set in lookup ownership and cache keys. Disabling cancels current work, removes retained NetEase results and refreshes eligible active playback with the existing sources; no background lookup starts without demand.
+3. Add the Phone Settings switch and first-enable confirmation, with preview coverage and updated reset/privacy/provider documentation. Keep machine fallback ON by default and user-controllable.
+4. Validate persistence, enabling/disabling, cancellation and cache isolation, then run required build/checks sequentially within the workstation budget. Commit/push coherent checkpoints and update the existing Draft PR around the final behavior.
+
+Status: request/cache gating and persisted choice/acknowledgement are implemented. `:core:lyrics:test :app:testDebugUnitTest` passed in a verified 3 GiB / zero-swap scope. Coverage includes default OFF, explicit enablement, retained upgrade choices, reset, source eligibility, cancellation and separate disk-cache identities across restarts. Settings UI/documentation and final validation remain in progress.
+
 ## Plan and acceptance
 
 1. Add a bounded anonymous NetEase provider using the verified search and lyric endpoints, existing OkHttp/Gson/LRC utilities, shared metadata matching, cancellation and error isolation. No third-party lyrics SDK, proxy, account or audio access.
