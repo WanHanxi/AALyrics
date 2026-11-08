@@ -1,25 +1,21 @@
-# AALyrics 1.1.0 stable release
+# NetEase paired original lyrics and Chinese translations
 
-## Scope and authorization
+## Authorized scope
 
-- On 2026-11-06, the owner approved merging personal PR #5 and publishing stable **1.1.0**, removing the beta designation.
-- Target only `WanHanxi/AALyrics`. Keep the original license/notices, personal application ID, signing key, provider configuration and reserved upstream contribution branch unchanged.
-- PR #5 merged by squash as `f9d58722defb5e8fa870c6b491c68fcf30d23cae`. Its final head `70c0c781228cb0e9ea17143cb19b703c7345768f` passed hosted Build `41781430055`; merged-tree equality was checked before cleaning its completed branch.
-- Release preparation starts on `release/1.1.0` from the merged personal `main`. Integrate the preparation through a personal PR under the owner's merge/release authorization, then publish the tag only after checks pass.
+On 2026-11-07 the owner requested NetEase integration (QQ deferred), preferring a source's paired original and translated lyrics. Machine translation remains enabled as fallback by default, with a user switch to disable it. Personal fork only; finish with a Draft PR, without merge or release.
 
-## Acceptance criteria
+## Plan and acceptance
 
-- Curate a newest `CHANGELOG.md` entry for `1.1.0`, dated 2026-11-06 in the owner's timezone, and align current README/release documentation with stable status. Preserve historical beta entries.
-- Publish tag `v1.1.0` on personal `main`. The existing Release workflow supplies Android `versionName=1.1.0`, a monotonically increased `versionCode`, durable personal signing, APK verification and a normal GitHub Release.
-- Preserve package `io.github.wanhanxi.aalyrics` and the pinned certificate so the personal beta can be updated in place. Keep Debug and upstream installs separate.
-- Confirm successful Build and Release CI, the APK and checksum assets, exact artifact version/signature/bundled documents, normal release labeling and update-feed discoverability.
-- Synchronize personal `main` and clean only this task's completed branches after confirmed merges.
+1. Add a bounded anonymous NetEase provider using the verified search and lyric endpoints, existing OkHttp/Gson/LRC utilities, shared metadata matching, cancellation and error isolation. No third-party lyrics SDK, proxy, account or audio access.
+2. Model source-supplied translations together with original lyrics and attribution. Pair only unique equal timestamps from the same response; preserve missing lines, credits and source identity. Use synthetic test lyrics only.
+3. Retain existing scoring and version gates. When translation is enabled, prefer a sufficiently complete same-source target-language pair only among comparably strong matches. Preserve normal scoring otherwise. Include this preference in lookup ownership and cache identity.
+4. Publish supplied translations through the existing atomic Translation state without invoking ML Kit. Preserve whole-artifact provenance and optional whole-song machine fallback; never machine-fill gaps inside supplied translations.
+5. Wire settings changes, Phone/Auto presentation, attribution, cache round trips and reset semantics. Reset restores machine fallback ON; downloaded models and lyric caches continue to survive reset, with explicit storage cleanup unchanged.
+6. Update architecture, provider profile and legal/reference documentation. Verify licenses separately from platform/content authorization; no claim that anonymous access, noncommercial licensing or disclaimers grant content rights.
+7. Run focused tests and full required build/checks sequentially within workstation memory limits; review branch-wide diff, push coherent checkpoints, then open a personal Draft PR.
 
-## Progress and validation
+## Validation/status
 
-- PR #5 is merged and personal `main` is synchronized. Its completed topic branch was removed after verifying the merged PR head and tree.
-- Stable changelog, README and release documentation are prepared. App code and workflow behavior need no change: stable tag parsing and beta-to-stable precedence already have unit coverage.
-- Static validation passed: architecture boundaries, whitespace checks, exact preservation of all historical Changelog entries, the stable heading/date and the five-file documentation-only scope. Publication remains gated on successful hosted Build and preparation-PR integration.
-- After integration, publish `v1.1.0`, await Release CI, inspect the downloaded public assets and confirm release/update metadata. The public Release and workflow run retain the publication outcome; the final handoff records artifact verification.
-
-No new persisted app state is introduced, so reset behavior is unchanged. Reuse the successful application checks; do not rebuild locally for documentation alone. Hosted Build and Release run the full unit suite and build their respective artifacts. No new emulator or on-device validation is claimed.
+- Prior anonymous probe succeeded for five of six manually matched popular-song samples; this is not a coverage or quality benchmark.
+- Implementation in progress. No build or on-device validation claimed yet.
+- Deferred: QQ, YRC word timing, cross-source translation alignment, manual source picker, commercial/content licensing agreements.

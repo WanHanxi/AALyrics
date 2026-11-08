@@ -30,6 +30,23 @@ class CrossProviderCandidateSelector : CandidateSelector {
         val standardBest = best(scored = synced)
 
         if (standardBest != null) {
+            // A paired translation is preferred only after the existing identity/quality gates.
+            // This is a structural-coverage preference, not a score for translation accuracy.
+            val bilingualBest = best(synced.filter { score ->
+                val document = score.candidate.lyrics
+                val translation = document.suppliedTranslation
+                val usefulIndices = document.lines.indices.filter { index ->
+                    document.lines[index].text.any(Char::isLetterOrDigit)
+                }
+                translation != null && preferences.preferredTranslationLanguage == translation.languageTag &&
+                    usefulIndices.isNotEmpty() &&
+                    usefulIndices.count { translation.lines[it] != null }.toDouble() / usefulIndices.size >=
+                    MIN_TRANSLATION_COVERAGE &&
+                    score.metadataScore >= standardBest.metadataScore - KARAOKE_METADATA_TOLERANCE &&
+                    score.qualityScore >= standardBest.qualityScore - KARAOKE_QUALITY_TOLERANCE
+            })
+            if (bilingualBest != null) return bilingualBest.candidate
+
             if (preferences.preferredSyncType == LyricsSyncType.WORD) {
                 val karaokeBest = best(
                     scored = synced.filter { score ->
@@ -261,6 +278,7 @@ class CrossProviderCandidateSelector : CandidateSelector {
 
     private companion object {
         const val MIN_METADATA_SCORE = 0.70
+        const val MIN_TRANSLATION_COVERAGE = 0.80
 
         const val METADATA_WEIGHT = 0.82
         const val QUALITY_WEIGHT = 0.10

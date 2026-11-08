@@ -14,6 +14,7 @@ import io.github.whoxamxl.aalyrics.provider.api.LyricsCandidate
  */
 data class CandidateSelectionPreferences(
     val preferredSyncType: LyricsSyncType? = null,
+    val preferredTranslationLanguage: String? = null,
 )
 
 /**
