@@ -28,6 +28,8 @@ AALyrics may change as Android, Android Auto, media applications, lyrics provide
 
 AALyrics may communicate with third-party services including lyrics providers and other external services.
 
+NetEase Cloud Music is an optional, unofficial third-party integration, off by default. The first enablement in Settings shows a notice about requests, local caching and third-party content. You can turn it off at any time. Ordinary updates preserve your choice; Reset AALyrics turns it off and clears the notice acknowledgement.
+
 Third-party lyrics, metadata, artwork, trademarks, service names, and other content remain the property of their respective owners and rightsholders. AALyrics does not grant you ownership of, or an independent license to, third-party content.
 
 Your access to or use of third-party services may also be governed by the provider's own terms, policies, technical restrictions, and availability.

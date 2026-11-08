@@ -760,6 +760,7 @@ internal fun SettingsConfirmationDialog(
         text = {
             Text(
                 text = text,
+                modifier = Modifier.verticalScroll(rememberScrollState()),
                 style = AALyricsTypography.TrackArtist,
                 color = AALyricsColors.TextSecondary,
             )

@@ -13,7 +13,9 @@ The owner approved implementing a default-OFF NetEase switch with the neutral th
 3. Add the Phone Settings switch and first-enable confirmation, with preview coverage and updated reset/privacy/provider documentation. Keep machine fallback ON by default and user-controllable.
 4. Validate persistence, enabling/disabling, cancellation and cache isolation, then run required build/checks sequentially within the workstation budget. Commit/push coherent checkpoints and update the existing Draft PR around the final behavior.
 
-Status: request/cache gating and persisted choice/acknowledgement are implemented. `:core:lyrics:test :app:testDebugUnitTest` passed in a verified 3 GiB / zero-swap scope. Coverage includes default OFF, explicit enablement, retained upgrade choices, reset, source eligibility, cancellation and separate disk-cache identities across restarts. Settings UI/documentation and final validation remain in progress.
+Status: opt-in implementation and final validation complete. The focused `:core:lyrics:test :app:testDebugUnitTest` checkpoint passed, followed by full `./gradlew test :app:assembleDebug` in a verified 3 GiB / zero-swap scope (114 suites / 899 executions, zero failures/errors/skips). Architecture guardrails, whitespace checks and all three release-script tests passed. All six APK-bundled documents match repository sources; LICENSE and NOTICE remain unchanged.
+
+Coverage includes default OFF, confirmation-gated enablement, retained ON/OFF upgrade choices, reset, source eligibility, cancellation/late results, separate disk-cache identities across restarts and the Chinese model-picker gate. Settings UI and reset/privacy/provider/cache documentation are aligned. Interactive Settings and notice/reset previews compile, including narrow/landscape/enlarged-text variants; no emulator, visual rendering or on-device test is claimed. Both task-owned build scopes exited; no emulator was started. Continue to use personal Draft PR #8 as the completion point, without review request, merge or release.
 
 ## Plan and acceptance
 
@@ -25,7 +27,7 @@ Status: request/cache gating and persisted choice/acknowledgement are implemente
 6. Update architecture, provider profile and legal/reference documentation. Verify licenses separately from platform/content authorization; no claim that anonymous access, noncommercial licensing or disclaimers grant content rights.
 7. Run focused tests and full required build/checks sequentially within workstation memory limits; review branch-wide diff, push coherent checkpoints, then open a personal Draft PR.
 
-## Validation/status
+## Initial integration validation (before the opt-in follow-up)
 
 - Prior anonymous probe succeeded for five of six manually matched popular-song samples; this is not a coverage or quality benchmark.
 - Implementation complete. NetEase adapter, bilingual selection, cache persistence, supplied-artifact publication, fallback setting/reset, Phone/Auto projection, credits and model-independent Chinese selection are integrated.
@@ -35,5 +37,5 @@ Status: request/cache gating and persisted choice/acknowledgement are implemente
 - Interactive Compose previews cover supplied-source status, unavailable translation, fallback OFF and Chinese selection without a model; previews compiled successfully. No emulator, device install or visual rendering was performed. Phone/Auto on-device verification remains a testing handoff, not a claimed result.
 - Existing lyric cache limits/retention are preserved; the version-2 schema and new provider/target identity cause previous selected-winner keys to miss. Reset restores fallback ON but retains lyric caches and downloaded models.
 - Official NetEase terms and reference-project licenses were checked; platform/content permission has not been obtained. This is not cleared for licensed/commercial distribution merely by passing implementation tests.
-- Branch-wide scope and personal-main baseline reviewed. Complete by opening the personal Draft PR; no merge/release/review request is authorized.
+- Branch-wide scope and personal-main baseline reviewed. The initial integration ended in personal Draft PR #8; the authorized opt-in follow-up above updates that same PR. No merge/release/review request is authorized.
 - Deferred: QQ, YRC word timing, cross-source translation alignment, manual source picker, commercial/content licensing agreements.

@@ -27,6 +27,11 @@
     <string name="settings_ignore_non_audio_apps">Ignore non-audio apps</string>
     <string name="settings_ignore_non_audio_apps_info">Only apps Android identifies as audio apps are used for lyrics lookup. This prevents unnecessary searches from games, browsers, social apps, and other media sources. Unclassified apps are blocked unless allowed in Advanced settings.</string>
     <string name="settings_ignore_non_audio_apps_info_description">About ignoring non-audio apps</string>
+    <string name="settings_netease">NetEase Cloud Music</string>
+    <string name="settings_netease_info_description">About NetEase lyrics and translations</string>
+    <string name="settings_netease_notice_title">Enable NetEase Cloud Music?</string>
+    <string name="settings_netease_notice_body">When enabled, AALyrics sends the current song’s title, artist and related information to NetEase Cloud Music to look up lyrics and translations, and may cache results on this device. This is an unofficial third-party integration. Rights to lyrics and translations belong to their respective rightsholders; use is subject to applicable law and the source platform’s terms. You can turn this off at any time.</string>
+    <string name="settings_netease_enable">Enable</string>
 
     <string name="settings_section_translation">TRANSLATION</string>
     <string name="settings_translation_enabled">Translation</string>
@@ -176,10 +181,10 @@
     <string name="settings_clear_translation_models_failed_body">Some downloaded translation models could not be removed. Try again when the model download or system operation has finished.</string>
     <string name="settings_section_reset">RESET</string>
     <string name="settings_reset_aalyrics">Reset AALyrics</string>
-    <string name="settings_reset_aalyrics_info">Restores AALyrics settings, including both Karaoke switches, machine translation fallback (on), and the lyrics offset, and onboarding state to their defaults; cancels app-owned update work, clears update recovery state, and removes downloaded app update files. Cached lyrics, downloaded translation models, Android permissions, install-source permission, and Android Auto system settings are not changed.</string>
+    <string name="settings_reset_aalyrics_info">Restores AALyrics settings, including both Karaoke switches, machine translation fallback (on), and the lyrics offset, and onboarding state to their defaults. NetEase will be turned off and its notice acknowledgement cleared. Cancels app-owned update work, clears update recovery state, and removes downloaded app update files. Cached lyrics, downloaded translation models, Android permissions, install-source permission, and Android Auto system settings are not changed.</string>
     <string name="settings_reset_aalyrics_info_description">About resetting AALyrics</string>
     <string name="settings_reset_aalyrics_dialog_title">Reset AALyrics?</string>
-    <string name="settings_reset_aalyrics_dialog_body">AALyrics settings, including both Karaoke switches, machine translation fallback (on), and the lyrics offset, and onboarding state will be restored to their defaults. Active app-owned update work will be cancelled, update recovery state will be cleared, and downloaded app update files will be removed. Cached lyrics, downloaded translation models and system settings, including install-source permission, will not be changed.</string>
+    <string name="settings_reset_aalyrics_dialog_body">AALyrics settings, including both Karaoke switches, machine translation fallback (on), and the lyrics offset, and onboarding state will be restored to their defaults. NetEase will be turned off and its notice acknowledgement cleared. Active app-owned update work will be cancelled, update recovery state will be cleared, and downloaded app update files will be removed. Cached lyrics, downloaded translation models and system settings, including install-source permission, will not be changed.</string>
     <string name="settings_reset">Reset</string>
     <string name="settings_cancel">Cancel</string>
     <string name="settings_done">Done</string>

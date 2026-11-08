@@ -19,6 +19,7 @@ import io.github.whoxamxl.aalyrics.ui.phone.settings.AppUpdateUiState
 import io.github.whoxamxl.aalyrics.ui.phone.settings.SettingsScreen
 import io.github.whoxamxl.aalyrics.ui.phone.settings.SettingsScreenContent
 import io.github.whoxamxl.aalyrics.ui.phone.settings.SettingsScreenUiState
+import io.github.whoxamxl.aalyrics.ui.phone.settings.NeteaseSourceNoticeDialog
 import io.github.whoxamxl.aalyrics.ui.phone.settings.TranslationModelCleanupUiState
 import io.github.whoxamxl.aalyrics.ui.phone.settings.TranslationModelUiState
 import kotlinx.coroutines.delay
@@ -27,7 +28,31 @@ import kotlinx.coroutines.launch
 @Preview(name = "Source translations only", group = "SettingsScreen", widthDp = 360, heightDp = 900)
 @Composable
 private fun SettingsSourceTranslationsOnlyPreview() {
-    SettingsScreenPreview(PhonePreviewFixtures.settingsTranslationOn.copy(machineTranslationFallbackEnabled = false))
+    SettingsScreenPreview(PhonePreviewFixtures.settingsTranslationOn.copy(
+        machineTranslationFallbackEnabled = false,
+        neteaseEnabled = true,
+        neteaseNoticeAcknowledged = true,
+    ))
+}
+
+@Preview(name = "NetEase enabled", group = "SettingsScreen", widthDp = 360, heightDp = 800)
+@Composable
+private fun SettingsNeteaseEnabledPreview() {
+    SettingsScreenPreview(PhonePreviewFixtures.settingsTypical.copy(
+        neteaseEnabled = true,
+        neteaseNoticeAcknowledged = true,
+    ))
+}
+
+@Preview(name = "NetEase notice", group = "SettingsScreen", widthDp = 412, heightDp = 760)
+@Preview(name = "NetEase notice · narrow", group = "SettingsScreen", widthDp = 320, heightDp = 640)
+@Preview(name = "NetEase notice · landscape", group = "SettingsScreen", widthDp = 760, heightDp = 360)
+@Preview(name = "NetEase notice · enlarged text", group = "SettingsScreen", widthDp = 360, heightDp = 760, fontScale = 1.4f)
+@Composable
+private fun SettingsNeteaseNoticePreview() {
+    AALyricsTheme {
+        NeteaseSourceNoticeDialog(onConfirm = {}, onDismissRequest = {})
+    }
 }
 
 @Preview(name = "Chinese without model", group = "SettingsScreen", widthDp = 360, heightDp = 760)
@@ -35,6 +60,8 @@ private fun SettingsSourceTranslationsOnlyPreview() {
 private fun SettingsChineseWithoutModelPreview() {
     SettingsScreenContentPreview(
         initialState = PhonePreviewFixtures.settingsTypical.copy(
+            neteaseEnabled = true,
+            neteaseNoticeAcknowledged = true,
             translationTargets = PhonePreviewFixtures.settingsTypical.translationTargets.map {
                 if (it.id == "zh") it.copy(selectionRequiresModel = false, modelState = TranslationModelUiState.NOT_DOWNLOADED) else it
             },
@@ -164,6 +191,10 @@ internal fun SettingsScreenPreview(
                     state = state.copy(verboseDetailsEnabled = it)
                 },
                 onMachineTranslationFallbackChanged = { state = state.copy(machineTranslationFallbackEnabled = it) },
+                onNeteaseEnabledChanged = { state = state.copy(neteaseEnabled = it) },
+                onNeteaseNoticeAccepted = {
+                    state = state.copy(neteaseEnabled = true, neteaseNoticeAcknowledged = true)
+                },
                 onTranslationEnabledChanged = {
                     state = state.copy(translationEnabled = it)
                 },
@@ -211,6 +242,8 @@ internal fun SettingsScreenPreview(
                         ignoreNonAudioApps = true,
                         allowUnclassifiedApps = false,
                         automaticallyCheckForUpdates = true,
+                        neteaseEnabled = false,
+                        neteaseNoticeAcknowledged = false,
                         verboseDetailsEnabled = false,
                         translationEnabled = false,
                         machineTranslationFallbackEnabled = true,
@@ -276,6 +309,10 @@ private fun SettingsScreenContentPreview(
                     state = state.copy(automaticallyCheckForUpdates = it)
                 },
                 onMachineTranslationFallbackChanged = { state = state.copy(machineTranslationFallbackEnabled = it) },
+                onNeteaseEnabledChanged = { state = state.copy(neteaseEnabled = it) },
+                onNeteaseNoticeAccepted = {
+                    state = state.copy(neteaseEnabled = true, neteaseNoticeAcknowledged = true)
+                },
                 onTranslationEnabledChanged = {
                     state = state.copy(translationEnabled = it)
                 },

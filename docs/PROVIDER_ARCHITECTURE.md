@@ -109,6 +109,8 @@ Generic title/artist/duration/recording-version semantics should not be copied i
 
 ## Result and failure semantics
 
+Provider enablement is an application-owned hard request gate, separate from ranking preferences. Each lookup receives an immutable enabled-provider set; `LyricsCoordinator` filters its configured adapters before fan-out and uses that effective set in the selected-winner cache key. `PlaybackLyricsController` includes the set in lookup ownership. A source-setting change clears retained state and cancels obsolete work, then refreshes only eligible, demanded playback. NetEase defaults OFF and requires explicit acknowledgement; the existing providers retain their prior behavior.
+
 Concrete providers follow the shared contract consistently:
 
 - no acceptable lyrics found: return an empty candidate list,

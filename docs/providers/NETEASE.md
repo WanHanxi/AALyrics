@@ -6,6 +6,8 @@ Anonymous, bounded retrieval of line-timed original lyrics and existing Chinese 
 
 ## Transport and discovery
 
+Application opt-in is required: **Settings > Lyrics > NetEase Cloud Music** defaults OFF and requires the first-enable source notice. Choice/acknowledgement survive ordinary upgrades; explicit reset clears both. The application supplies the effective provider set to lookup ownership and the coordinator, which excludes disabled providers from requests, candidate selection and cache keys. Disabling cancels active work and clears retained results, including during suspended demand. Cached files survive but are inaccessible while disabled. The adapter and other providers do not own this policy.
+
 - Search `https://music.163.com/api/cloudsearch/pc` with title and artist, at most 10 results. A title-only fallback is allowed only when the first query produces no plausible candidates.
 - Shared `MetadataMatchScore` validates title, artist, album, duration and recording version before fetching at most three candidate lyric responses. Explicit Chinese instrumental labels such as `伴奏` are recognized in version contexts; service `nolyric`/`uncollected` flags reject placeholder-only results.
 - `https://music.163.com/api/song/lyric/v1` supplies `lrc` and `tlyric` together. This slice advertises LINE only; YRC and romanization remain out of scope.

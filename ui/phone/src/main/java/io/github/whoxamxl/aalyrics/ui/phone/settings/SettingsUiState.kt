@@ -58,6 +58,8 @@ data class SettingsScreenUiState(
     val automaticallyCheckForUpdates: Boolean = true,
     val verboseDetailsEnabled: Boolean = false,
     val karaokeFeatureEnabled: Boolean = false,
+    val neteaseEnabled: Boolean = false,
+    val neteaseNoticeAcknowledged: Boolean = false,
     val translationEnabled: Boolean = false,
     val machineTranslationFallbackEnabled: Boolean = true,
     val translationTarget: SettingsLanguageOptionUiState,

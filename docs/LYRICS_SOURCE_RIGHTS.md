@@ -36,6 +36,8 @@ No platform or rightsholder permission has been obtained by this implementation.
 
 ## Implemented handling and its limits
 
+NetEase is off by default. First enablement shows a factual third-party notice and Cancel / Enable actions; ordinary upgrades preserve the saved choice and acknowledgement. Reset restores OFF and clears acknowledgement. Disabled NetEase is excluded from requests, selection and cached-result reuse. This is an explicit user choice, not a transfer of responsibility or a grant of content rights. Existing providers are unchanged in this slice.
+
 - Queries are bounded and cancellable, use no account cookies, and fetch no audio.
 - Originals, supplied translations, source IDs and available credits remain paired. No blanket claim of human authorship is made.
 - Existing app-private bounded cache stores the paired content; no lyrics database, proxy, bulk export or raw commercial-song fixtures are shipped in Git.

@@ -37,6 +37,8 @@ fun SettingsScreen(
     onKaraokeFeatureEnabledChanged: (Boolean) -> Unit = {},
     onTranslationEnabledChanged: (Boolean) -> Unit,
     onMachineTranslationFallbackChanged: (Boolean) -> Unit = {},
+    onNeteaseEnabledChanged: (Boolean) -> Unit = {},
+    onNeteaseNoticeAccepted: () -> Unit = {},
     onTranslationTargetSelected: (String) -> Unit,
     onTranslationModelDownloadRequested: (String) -> Unit,
     onClearTranslationModels: () -> Unit,
@@ -147,6 +149,8 @@ fun SettingsScreen(
                 onAutomaticallyCheckForUpdatesChanged,
             onTranslationEnabledChanged = onTranslationEnabledChanged,
             onMachineTranslationFallbackChanged = onMachineTranslationFallbackChanged,
+            onNeteaseEnabledChanged = onNeteaseEnabledChanged,
+            onNeteaseNoticeAccepted = onNeteaseNoticeAccepted,
             onTranslationTargetSelected = onTranslationTargetSelected,
             onTranslationModelDownloadRequested = onTranslationModelDownloadRequested,
             onAndroidAutoCompatibilitySetup = onAndroidAutoCompatibilitySetup,
@@ -186,6 +190,8 @@ internal fun SettingsScreenContent(
     onAutomaticallyCheckForUpdatesChanged: (Boolean) -> Unit,
     onTranslationEnabledChanged: (Boolean) -> Unit,
     onMachineTranslationFallbackChanged: (Boolean) -> Unit = {},
+    onNeteaseEnabledChanged: (Boolean) -> Unit = {},
+    onNeteaseNoticeAccepted: () -> Unit = {},
     onTranslationTargetSelected: (String) -> Unit,
     onTranslationModelDownloadRequested: (String) -> Unit,
     onAndroidAutoCompatibilitySetup: () -> Unit,
@@ -248,6 +254,15 @@ internal fun SettingsScreenContent(
                 infoText = stringResource(R.string.settings_ignore_non_audio_apps_info),
                 infoContentDescription =
                     stringResource(R.string.settings_ignore_non_audio_apps_info_description),
+            )
+
+            SettingsDivider()
+
+            NeteaseSourceSetting(
+                enabled = state.neteaseEnabled,
+                noticeAcknowledged = state.neteaseNoticeAcknowledged,
+                onEnabledChanged = onNeteaseEnabledChanged,
+                onNoticeAccepted = onNeteaseNoticeAccepted,
             )
         }
 

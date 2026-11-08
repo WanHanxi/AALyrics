@@ -132,7 +132,7 @@ Pure shared utilities. Matching owns genuinely provider-neutral metadata/version
 
 ### Concrete provider modules
 
-`:provider:lrclib`, `:provider:petitlyrics`, `:provider:musixmatch`, and `:provider:synclrc` are outer adapters implementing `LyricsProvider`.
+`:provider:lrclib`, `:provider:netease`, `:provider:petitlyrics`, `:provider:musixmatch`, and `:provider:synclrc` are outer adapters implementing `LyricsProvider`. Application-owned NetEase opt-in defaults OFF; the effective enabled-provider set gates requests and identifies lookups/cache entries separately from candidate ranking preferences.
 
 Each provider owns only its provider-local transport/authentication, query/fallback strategy, DTOs, parsing, provider-local validation, and normalization into `LyricsCandidate`. A provider may report provider-neutral evidence discovered during search, but it must not decide the final winner across providers.
 

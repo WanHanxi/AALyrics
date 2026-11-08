@@ -34,7 +34,9 @@ class PhoneSettingsMapperTest {
         )
 
         assertEquals(true, state.machineTranslationFallbackEnabled)
-        assertEquals(false, state.translationTargets.first { it.id == "zh" }.selectionRequiresModel)
+        assertEquals(false, state.neteaseEnabled)
+        assertEquals(false, state.neteaseNoticeAcknowledged)
+        assertEquals(true, state.translationTargets.first { it.id == "zh" }.selectionRequiresModel)
         assertEquals(TranslationModelUiState.NOT_DOWNLOADED, state.translationTargets.first { it.id == "zh" }.modelState)
         assertEquals(true, state.translationTargets.first { it.id == "ja" }.selectionRequiresModel)
         assertEquals(false, state.translationEnabled)
@@ -46,6 +48,28 @@ class PhoneSettingsMapperTest {
         assertEquals("demo privacy", state.privacyPolicyText)
         assertEquals("demo terms", state.termsOfUseText)
         assertEquals("demo third-party licenses", state.thirdPartyLicensesText)
+    }
+
+    @Test
+    fun `enabled NetEase permits Chinese selection without a model and exposes the saved choice`() {
+        val state = mapPhoneSettingsState(
+            translationSettings = TranslationSettings(enabled = true, targetLanguage = "zh"),
+            translationModelStates = emptyMap(),
+            lyricsSourceSettings = LyricsSourceSettings(true, true),
+            verboseDetailsEnabled = false,
+            plainLyricsAutoScrollEnabled = true,
+            ignoreNonAudioApps = true,
+            allowUnclassifiedApps = false,
+            androidAutoStatus = AndroidAutoCompatibilityUiStatus.ENABLED,
+            appVersionName = "test",
+            currentYear = 2026,
+            noticeText = "", licenseText = "", changelogText = "", privacyPolicyText = "",
+        )
+        assertEquals(true, state.neteaseEnabled)
+        assertEquals(true, state.neteaseNoticeAcknowledged)
+        assertEquals(false, state.translationTarget.selectionRequiresModel)
+        assertEquals(TranslationModelUiState.NOT_DOWNLOADED, state.translationTarget.modelState)
+        assertEquals(true, state.translationTargets.first { it.id == "ja" }.selectionRequiresModel)
     }
 
     @Test
