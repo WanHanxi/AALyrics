@@ -1,3 +1,25 @@
+## [1.2.0] - 2026-11-07
+
+AALyrics 1.2.0 adds optional NetEase Cloud Music lyrics and existing Chinese translations to the Phone and Android Auto experience. Matching originals and translations stay together, with on-device machine translation available as a fallback.
+
+### Updating and installation
+
+- Install over personal **1.1.0** or **1.1.0-beta.1** to retain settings. The package and signing identity are unchanged; upstream and Debug builds remain separate apps.
+- **Offline lyrics need to be fetched again after upgrading from 1.1.0 or 1.1.0-beta.1.** The new cache format does not reuse those older entries, even if NetEase stays off. Load songs online once before relying on them offline.
+- NetEase is **off by default**, including after upgrading from a version without this setting. Enable it in **Settings > Lyrics > NetEase Cloud Music** after reading the source notice, then enable Translation and choose Chinese to use supplied Chinese translations. Later upgrades preserve your choice; Reset AALyrics turns NetEase off and clears the notice acknowledgement.
+
+### Lyrics and translations
+
+- Prefer a matching original and supplied Chinese translation when available, while retaining song and recording-version checks. Supplied translations need no downloaded translation model and are cached with the original for offline reuse.
+- **Machine translation fallback** remains on by default and can be disabled in **Settings > Translation**. Missing rows in a supplied translation remain original-only; they are not filled with machine translation. Machine-generated translations are not saved in the lyrics cache.
+- Retain translation credits and source text. When otherwise equally scored matches exist, prefer translations without missing-character markers; partially affected translations remain usable.
+
+### Current limitations
+
+- NetEase availability and translation quality vary by song. Source errors or missing text may still appear, and cached results do not automatically refresh when the source changes.
+- NetEase supplies line timing in this release. A preferred bilingual match can replace word-timed lyrics from another source, so Karaoke may be unavailable for that selection.
+- LRCLIB, Musixmatch and SyncLRC remain available. PetitLyrics remains optional and disabled in this build.
+
 ## [1.1.0] - 2026-11-06
 
 AALyrics 1.1.0 is the first stable release of the WanHanxi personal fork. It carries forward fullscreen Phone lyrics, shared lyrics calibration, offline lyrics reuse and playback-connection recovery from 1.1 Beta 1, with clearer credits, feedback and support options.

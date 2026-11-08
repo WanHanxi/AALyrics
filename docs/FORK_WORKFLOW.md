@@ -87,7 +87,7 @@ The personal release channel targets `WanHanxi/AALyrics`. In-app update discover
 - Release application ID: `io.github.wanhanxi.aalyrics`; launcher/Android Auto label: `AALyrics`.
 - Debug application ID: `io.github.wanhanxi.aalyrics.debug`; label: `AALyrics Debug`.
 - Personal releases use their own durable signing key, independent of the original author and Android Debug keys.
-- Current stable version: `v1.1.0`, following the first personal release `v1.1.0-beta.1`. Version tags remain independent of upstream's release schedule.
+- The latest published stable version is listed in [personal GitHub Releases](https://github.com/WanHanxi/AALyrics/releases/latest). Version tags remain independent of upstream's release schedule; the first personal releases were `v1.1.0-beta.1` and stable `v1.1.0`.
 
 The new package can coexist with upstream and earlier Debug installs. It is a fresh installation: app settings/cache and Android permissions are separate, with no automatic migration. Later personal releases must retain this package identity and signing key and increase `versionCode`.
 
