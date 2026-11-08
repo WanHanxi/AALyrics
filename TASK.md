@@ -1,37 +1,46 @@
-# AALyrics 1.2.0 stable release preparation
+# Android Auto automatic activation
 
 ## Authorized scope
 
-On 2026-11-07 the owner approved preparing personal stable release `v1.2.0` after the NetEase feature was merged in PR #8. Work starts from personal `main` at `3f36034ef88954f205b9cbe21fb0ffafe088ca78` and targets `WanHanxi/AALyrics:main` through `release/1.2.0`.
+On 2026-11-07 the owner approved implementing the discussed automatic activation and
+providing a phone/car testing handoff. Work starts from personal `main` at
+`54f56871c70958a444aec3c5e490aa4f46880b59` on `feature/android-auto-activation` and targets
+`WanHanxi/AALyrics:main`.
 
-This slice prepares release documentation and validation, ending in a Draft PR. Merge and public tag publication require explicit owner approval. No runtime, workflow, signing, application identity, provider credentials, license, or reset behavior changes are planned.
+When real Android Auto projection is connected and an eligible source first publishes
+a valid playing track, bind the existing `LyricsBrowserService` to prepare its media
+session without opening the Phone Activity. Support either connection/playback order
+and process recreation. Retain the application's binding through pauses/track changes;
+release it on projection disconnect. Existing notification-listener recovery supplies
+playback observation. Android Auto's choice of media application is outside this slice.
 
-## Plan and acceptance
+No media-priority manipulation, foreground-service keepalive, new durable preference,
+provider changes, or upstream work. No merge or release publication is authorized.
 
-1. Add the newest `1.2.0` Changelog entry with the opt-in NetEase source, paired Chinese translations, optional machine fallback, and material upgrade/availability limitations.
-2. Align README and release instructions. Link the published stable version to GitHub Releases instead of describing an unpublished candidate as already available.
-3. Document that personal 1.1.0 / 1.1.0-beta.1 settings survive the upgrade but their older cache entries need online retrieval again, even with NetEase off. Reuse the merged feature's existing setting/reset semantics.
-4. Verify tag/changelog consistency, bundled documents, release scripts, architecture guardrails and the final branch scope. Reuse successful code validation for this documentation-only change and obtain CI on the preparation branch before opening the Draft PR.
-5. Commit/push, open the personal Draft PR, then stop for review and explicit merge/release authorization. Recheck the Changelog release date before publication if delayed.
+## Checkpoints and acceptance
 
-## Baseline evidence
+1. Record scope and baseline; commit/push the plan.
+2. Implement application-owned activation policy and Android service binding, wire raw
+   projection/playback inputs, and add focused lifecycle/regression tests. Bound retries
+   and clean up failed/pending bindings; service-created demand must not sustain its own
+   activation after disconnect. Commit/push the implementation checkpoint after tests.
+3. Align lifecycle documentation and provide installation, Xiaomi settings, car scenarios,
+   and diagnostic interpretation. Re-evaluate reset/privacy/Preview implications.
+4. Run final unit tests, debug APK build, architecture checks, and branch-wide scope review.
+   Commit/push final documentation, then open a personal Draft PR and stop.
 
-- PR #8 merged into personal `main`; [Build run 42447207069](https://github.com/WanHanxi/AALyrics/actions/runs/42447207069) passed on that exact merge commit.
-- The feature's local `./gradlew test :app:assembleDebug` validation passed with 115 suites / 906 executions, zero failures/errors/skips, in the workstation's verified 3 GiB / zero-swap scope. The owner subsequently reported successful real-device testing. This does not claim a new signed 1.1.0-to-1.2.0 device upgrade test.
-- Published `v1.1.0` has APK and checksum assets. Its [Release run 42337576453](https://github.com/WanHanxi/AALyrics/actions/runs/42337576453) passed with workflow run number 2. Signing configuration and the pinned public certificate remain unchanged; the next Release workflow will revalidate the actual tagged artifact.
-- Remote `main` matches the local baseline. No remote `v1.2.0` tag exists at preparation start.
+Phone/car verification is a user handoff: Xiaomi 15 Pro / xiaomi.eu HyperOS 3 / Android 16,
+including overnight non-use, system process reclamation, and reboot/unlock. Automated
+tests cannot establish OEM wake reliability or which media card Android Auto selects.
+Record these checks as pending, never as passed local validation.
 
-## Preparation status
+## Status
 
-- Release notes and README/release instructions complete; the branch diff is limited to five documentation files.
-- `:app:syncBundledDocumentsAssets` passed in a verified 3 GiB / zero-swap scope with the workstation Gradle flags; the scope exited. All six generated documents match their repository sources.
-- Executing the existing Release workflow's version, Changelog-validation and note-extraction steps locally passed for `v1.2.0`: display title `AALyrics 1.2`, sample run 3 gives `versionCode` 1003, and the extracted notes match the newest Changelog section exactly. No signing or publishing step was executed.
-- Architecture guardrails, all three release-script tests and whitespace checks passed. Existing full code validation is reused; no new local APK build, emulator or device test was performed for this documentation-only slice.
-- Preparation-branch CI must pass before the Draft PR is opened; record its exact commit/run in the PR validation section.
-- No release tag or public Release has been created.
-
-## Publication handoff
-
-After explicit owner authorization, merge the reviewed preparation PR, synchronize personal `main`, confirm the release date and create `v1.2.0` on the merged revision. Pushing the tag automatically publishes a signed APK and checksum when the Release workflow succeeds. Verify the final package/version/certificate checks, stable labeling, curated notes, both assets and update discovery afterward. Preserve the existing signing key and monotonically increasing workflow-derived `versionCode`.
-
-Deferred: QQ integration, word-timed NetEase lyrics, manual source selection, automatic cache refresh, and platform/content licensing agreements. These are not part of release preparation.
+- Baseline fetched and confirmed against personal `origin/main`; tracked tree was clean.
+- Existing untracked `.codex-attachments/` is unrelated and must remain uncommitted.
+- Existing system notification-listener recovery and projection observation are reused.
+- Verification will run sequentially inside a verified 3 GiB / zero-swap systemd scope,
+  with one Gradle worker, no parallel execution, no persistent daemon, and a 1 GiB heap.
+- No UI layout change is planned, so no new Compose Preview fixture is required.
+- Activation state is process-local. Existing diagnostic files retain their bounded
+  retention/reset policy; no new persisted user state or reset target is introduced.
