@@ -316,6 +316,15 @@ class MetadataMatchingTest {
     }
 
     @Test
+    fun chineseInstrumentalContextDoesNotMatchVocalRecordingOrMisclassifyOrdinaryTitle() {
+        assertFalse(MetadataMatching.versionsCompatible("Song", "Song（伴奏）"))
+        assertFalse(MetadataMatching.versionsCompatible("Song", "Song - 纯音乐版"))
+        assertTrue(MetadataMatching.versionsCompatible("Song (Instrumental)", "Song（伴奏）"))
+        assertTrue(MetadataMatching.versionsCompatible("人生的伴奏", "人生的伴奏"))
+        assertEquals(emptySet(), RecordingVersionContext.extractTitleVersionQualifiers("人生的伴奏"))
+    }
+
+    @Test
     fun instrumentalFlagPreventsVocalMismatch() {
         assertFalse(MetadataMatching.versionsCompatible("Song", "Song", candidateInstrumental = true))
         assertTrue(MetadataMatching.versionsCompatible("Song (Instrumental)", "Song", candidateInstrumental = true))

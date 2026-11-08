@@ -20,7 +20,7 @@ object MetadataMatching {
     private data class VersionQualifier(
         val name: String,
         val englishPattern: Regex,
-        val japaneseMarkers: List<String> = emptyList(),
+        val nonLatinMarkers: List<String> = emptyList(),
     )
 
     private val VERSION_QUALIFIERS = listOf(
@@ -28,7 +28,7 @@ object MetadataMatching {
         VersionQualifier("acoustic", Regex("""\bacoustic\b""", RegexOption.IGNORE_CASE), listOf("アコースティック")),
         VersionQualifier("remix", Regex("""\bremix(?:ed)?\b""", RegexOption.IGNORE_CASE), listOf("リミックス")),
         VersionQualifier("remaster", Regex("""\bremaster(?:ed)?\b""", RegexOption.IGNORE_CASE), listOf("リマスター")),
-        VersionQualifier("instrumental", Regex("""\binstrumental\b""", RegexOption.IGNORE_CASE), listOf("インストゥルメンタル", "インスト")),
+        VersionQualifier("instrumental", Regex("""\binstrumental\b""", RegexOption.IGNORE_CASE), listOf("インストゥルメンタル", "インスト", "伴奏", "纯音乐", "純音樂")),
         VersionQualifier("edit", Regex("""\bedit(?:ed)?\b""", RegexOption.IGNORE_CASE), listOf("エディット")),
         VersionQualifier("extended", Regex("""\bextended\b""", RegexOption.IGNORE_CASE), listOf("エクステンデッド")),
         VersionQualifier("demo", Regex("""\bdemo\b""", RegexOption.IGNORE_CASE), listOf("デモ")),
@@ -65,7 +65,7 @@ object MetadataMatching {
         for (qualifier in VERSION_QUALIFIERS) {
             if (
                 qualifier.englishPattern.containsMatchIn(normalized) ||
-                qualifier.japaneseMarkers.any { normalized.contains(it) }
+                qualifier.nonLatinMarkers.any { normalized.contains(it) }
             ) {
                 result += qualifier.name
             }

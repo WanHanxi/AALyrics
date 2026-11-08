@@ -30,6 +30,7 @@ class NeteaseProvider(
         for (song in songs.take(3)) {
             try {
                 val payload = transport.lyrics(song.id)
+                if (payload.boolean("nolyric") == true || payload.boolean("uncollected") == true) continue
                 val original = payload.obj("lrc")?.text("lyric").orEmpty()
                 val lines = LrcParser.parse(original)
                 if (lines.none { it.text.any(Char::isLetterOrDigit) }) continue
@@ -52,7 +53,14 @@ class NeteaseProvider(
                         suppliedTranslation = if (paired.any { it != null }) SuppliedLyricsTranslation(
                             languageTag = "zh",
                             lines = paired,
-                            attribution = attribution(song.id, payload.obj("transUser"), translated),
+                            attribution = attribution(song.id, payload.obj("transUser"), translated).let { credits ->
+                                // Rights/translator notices can have timestamps without an original counterpart.
+                                val notices = LrcParser.parse(translated).filter {
+                                    Regex("版权|译者|翻译|copyright|translated by|translation by", RegexOption.IGNORE_CASE)
+                                        .containsMatchIn(it.text)
+                                }.map { it.text }
+                                credits.copy(notices = (credits.notices + notices).distinct())
+                            },
                         ) else null,
                     ),
                 )

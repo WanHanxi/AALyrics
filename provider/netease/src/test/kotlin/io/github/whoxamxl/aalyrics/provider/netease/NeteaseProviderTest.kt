@@ -33,6 +33,13 @@ class NeteaseProviderTest {
         assertNull(lyricRequest.getHeader("Cookie"))
     }
 
+    @Test fun `unmatched timed translation rights notice is retained in attribution`() = withServer { server, provider ->
+        server.json(search(song()))
+        server.json(lyrics("[00:01.00]Original test", "[00:01.00]测试译文\n[00:00.00]Copyright: synthetic rights holder"))
+        val notices = provider.search(request).single().lyrics.suppliedTranslation!!.attribution.notices
+        assertTrue("Copyright: synthetic rights holder" in notices)
+    }
+
     @Test fun `timestamp gaps and ambiguous duplicates never shift translation onto another row`() = withServer { server, provider ->
         server.json(search(song()))
         server.json(lyrics(
@@ -61,7 +68,7 @@ class NeteaseProviderTest {
     }
 
     @Test fun `metadata ordering and request cap do not blindly use search position`() = withServer { server, provider ->
-        server.json(search(song(9, "Unrelated"), song(3), song(1), song(2), song(4)))
+        server.json(search(song(9, "Unrelated"), song(8, "Synthetic Song（伴奏）"), song(3), song(1), song(2), song(4)))
         repeat(3) { server.json(lyrics("[00:01.00]Original", "")) }
         val results = provider.search(request)
         assertEquals(listOf("1", "2", "3"), results.map { it.lyrics.attribution?.sourceId })
@@ -85,7 +92,7 @@ class NeteaseProviderTest {
 
     @Test fun `no lyrics and malformed sibling metadata do not create a candidate`() = withServer { server, provider ->
         server.json(mapOf("code" to 200, "result" to mapOf("songs" to listOf(mapOf("id" to "bad"), song()))))
-        server.json(mapOf("code" to 200, "nolyric" to true))
+        server.json(mapOf("code" to 200, "nolyric" to true, "lrc" to mapOf("lyric" to "[00:00.00]Instrumental placeholder")))
         assertTrue(provider.search(request).isEmpty())
     }
 

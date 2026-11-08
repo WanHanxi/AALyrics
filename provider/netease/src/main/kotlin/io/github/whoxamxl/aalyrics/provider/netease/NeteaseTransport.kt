@@ -80,3 +80,7 @@ internal fun JsonObject.text(name: String): String? = get(name)?.takeIf {
 internal fun JsonObject.number(name: String): Long? = try {
     get(name)?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isNumber }?.asBigDecimal?.longValueExact()
 } catch (_: ArithmeticException) { null }
+
+internal fun JsonObject.boolean(name: String): Boolean? = get(name)?.takeIf {
+    it.isJsonPrimitive && it.asJsonPrimitive.isBoolean
+}?.asBoolean
