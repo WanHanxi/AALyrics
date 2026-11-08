@@ -88,6 +88,7 @@ class AALyricsApplication : Application() {
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var connectionDiagnostics: ConnectionDiagnosticsRuntime? = null
     private lateinit var mediaConnectionRecovery: MediaConnectionRecovery
+    private lateinit var androidAutoActivation: AndroidAutoActivation
     private val listenerConnectionSink = MediaListenerConnectionSink { connected ->
         mediaConnectionRecovery.onConnectionChanged(connected)
     }
@@ -487,6 +488,11 @@ class AALyricsApplication : Application() {
             },
             record = { event, fields -> MediaConnectionDiagnostics.record(event) { fields } },
         )
+        androidAutoActivation = AndroidAutoActivation(
+            scope = CoroutineScope(applicationScope.coroutineContext + Dispatchers.Main.immediate),
+            createBinding = { AndroidAutoServiceBinding(this) },
+            record = { event, fields -> MediaConnectionDiagnostics.record(event) { fields } },
+        )
         lyricsTimingSettings = createLyricsTimingSettings(this)
         val updateUserAgent = "AALyrics/${BuildConfig.VERSION_NAME}"
         updateRecoveryStore = SharedPreferencesUpdateRecoveryStore(this)
@@ -600,6 +606,7 @@ class AALyricsApplication : Application() {
                 snapshot = snapshot,
                 sourceEligible = sourceEligible,
             )
+            androidAutoActivation.onPlaybackSnapshot(snapshot, sourceEligible)
         }
         phonePlaybackSourceAppInfoStateFlow = combine(
             graph.playbackSourceRuntimeState,
@@ -774,6 +781,7 @@ class AALyricsApplication : Application() {
             this,
             graph.lyricsDemandGate,
             ::updateConnectionRecoveryDemand,
+            androidAutoActivation::onProjectionChanged,
         ).also { it.start() }
         connectionDiagnostics?.start(::connectionDiagnosticState)
     }
@@ -830,6 +838,7 @@ class AALyricsApplication : Application() {
         translationSettingsStore.close()
         lyricsSourceSettingsStore.close()
         demandLifecycle.stop()
+        androidAutoActivation.stop()
         mediaConnectionRecovery.stop()
         MediaSessionRuntimeHost.detachListenerConnection(listenerConnectionSink)
         AutomotiveRuntimeHost.detach(automotiveBinding)
@@ -855,6 +864,10 @@ class AALyricsApplication : Application() {
     private fun applyCurrentPlaybackSourceEligibility() {
         val eligibility = playbackSourceEligibility(graph.playbackState.value)
         graph.lyricsDemandGate.setSourceEligible(
+            eligibility is PlaybackSourceEligibility.Allowed,
+        )
+        androidAutoActivation.onPlaybackSnapshot(
+            graph.playbackState.value,
             eligibility is PlaybackSourceEligibility.Allowed,
         )
     }

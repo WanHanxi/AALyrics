@@ -39,6 +39,12 @@ Record these checks as pending, never as passed local validation.
 - Baseline fetched and confirmed against personal `origin/main`; tracked tree was clean.
 - Existing untracked `.codex-attachments/` is unrelated and must remain uncommitted.
 - Existing system notification-listener recovery and projection observation are reused.
+- Activation policy and explicit Android self-binding are implemented. Real projection and
+  eligible playback are the only activation inputs; pauses retain the binding, disconnect
+  releases it, and failed/dead/null bindings get at most three attempts per car connection.
+- Focused validation passed: 40 tests across activation, listener recovery, demand gating,
+  and Phone lifecycle. Architecture and whitespace checks passed. The systemd scope
+  verified `MemoryMax=3221225472` and `MemorySwapMax=0` before Gradle; the build exited.
 - Verification will run sequentially inside a verified 3 GiB / zero-swap systemd scope,
   with one Gradle worker, no parallel execution, no persistent daemon, and a 1 GiB heap.
 - No UI layout change is planned, so no new Compose Preview fixture is required.
