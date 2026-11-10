@@ -410,7 +410,10 @@ The recovery goal is **correct reconstruction after process death**, not making 
 The application also prepares this same service through a projection-scoped self-binding
 on the first eligible playing track. Pauses retain that binding; projection disconnect
 releases it without touching the host's own binding. Service lifetime remains a demand
-source, but aggregate demand must never trigger self-binding. See
+source, but aggregate demand must never trigger self-binding. The service publishes initial
+metadata/playback before activation. A connection-scoped request permits one active-state
+refresh after real playback is published if the session already exists; ordinary rendering
+does not repeatedly reactivate it. See
 [automatic activation and device testing](ANDROID_AUTO_ACTIVATION.md).
 
 ### Cold-start lyrics lookup recovery

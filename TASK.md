@@ -38,25 +38,49 @@ instrument-cluster behavior remains separate from Desktop Head Unit validation.
 - [x] A surviving service can handle a new connection; repeated connection facts,
   pause/resume, lyrics ticks, track/source changes, and gaps do not repeat refresh.
 - [x] Focused tests, architecture guardrail, whitespace check, and Debug build pass.
-- [ ] Physical-phone/DHU checks cover already playing, playback after connection,
+- [x] Physical-phone/DHU checks cover already playing, playback after connection,
   repeated reconnects, return to maps, and passive playback across track changes.
   Record actual results, including any failed scenario, rather than treating
   successful service creation as successful AA selection.
-- [ ] Public documentation uses generic device descriptions and states what was
+- [x] Public documentation uses generic device descriptions and states what was
   observed. Raw logs and location-containing screenshots remain local only.
 
 Reset review: all new request/activation bookkeeping is process-local. No new
 persisted preference or cache, so `Reset AALyrics` has no additional reset target.
 No user-facing layout/copy changes; existing Compose Previews remain applicable.
 
-## Status
+## Completed validation
 
-Investigation found stale AA session ordering despite an already-correct Android
-stack. A controlled list-refresh experiment changed AA's selection without
-playback transport or audio-focus actions. Product implementation/validation is
-in progress; that experiment alone is not acceptance of this fix.
+- Implementation checkpoint `a16ddc2` publishes real playback before activating
+  the lyrics session and accepts one connection-scoped refresh request.
+- 462 Debug unit tests passed across `:app` and `:ui:automotive`; architecture,
+  whitespace, baseline, and branch-wide scope checks passed. Debug APK built
+  successfully with one Gradle worker, a 1 GiB JVM heap, and a verified 3 GiB
+  systemd memory limit with no swap. Later changes are documentation only;
+  reuse the successful build/tests.
+- Updated the physical phone's existing Debug installation without removing data.
+  Four DHU connections selected AALyrics without manually opening it after each
+  connection. Covered music already playing, AA autoplay after connection, and
+  a prior foreground Spotify selection.
+- Returning from Spotify's main view to maps restored AALyrics. Pause/resume
+  through the lyrics card worked without another activation refresh. Confirmed
+  the outgoing source separately from the dashboard carousel, which can still
+  show a Spotify card.
+- Final uninterrupted passive observation lasted 6m31s and crossed one natural
+  track transition. No AA source change or extra session activation occurred;
+  DHU still reported AALyrics Debug as its output source at the end. Across four
+  connections, diagnostics recorded four initial activations and four connection
+  refreshes. Spotify remained the system media-button target.
+- An earlier passive run ended with a DHU transport disconnect; it is excluded
+  from the continuous-duration result. Raw logs/screenshots remain local only.
+- DHU, observation, and build processes have finished; removed the task's port
+  forward. The updated Debug app and wireless debugging pairing remain available.
 
-Implementation checkpoint: 462 Debug unit tests passed across `:app` and
-`:ui:automotive`; architecture and whitespace checks passed. Debug APK built
-successfully with one Gradle worker, a 1 GiB JVM heap, and a verified 3 GiB
-systemd memory limit with no swap. Device validation is next.
+Host bindings were released on actual disconnects in this test, so retaining one
+service across reconnect has lifecycle-test coverage only. Real vehicle cluster,
+overnight/reboot, and cross-version behavior remain follow-up testing, not
+current success claims. Android Auto still owns selection; no permanent pin is
+promised. No new settings, persistent state, or Preview/reset changes are needed.
+
+Implementation and final validation are complete. Open the personal Draft PR and
+stop before review requests, ready-for-review, or merge.

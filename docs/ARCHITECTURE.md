@@ -215,6 +215,11 @@ Automotive-specific presentation and screen composition. It consumes the same ap
 
 Android Auto lyrics demand is owned/wired above presentation and currently combines projection connection with active legacy browser-service lifetime. `:ui:automotive` may report its service lifecycle through the narrow application-owned demand callback, but it does not own provider lookup policy or call providers directly.
 
+The application's projection activation owner also supplies a replayable, connection-scoped
+session activation request. The browser service publishes playback before activating its
+own output session, with at most one refresh per request; it does not discover or reorder
+other players. See [Android Auto activation](ANDROID_AUTO_ACTIVATION.md).
+
 Detailed presentation/source-set rules are defined in `docs/UI_ARCHITECTURE.md`.
 
 ## Compile-time dependency direction
