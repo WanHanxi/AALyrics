@@ -390,7 +390,7 @@ Phone process foreground
         OR
 CarConnection projection connected
         OR
-LyricsBrowserService active for the Android Auto host
+LyricsBrowserService active (host binding or automatic projection activation)
         ↓
 lyrics presentation demand
 ```
@@ -406,6 +406,12 @@ Requirements:
 - do not use an unconditional started service, foreground-service keepalive, or boot receiver merely to prevent process death in this slice.
 
 The recovery goal is **correct reconstruction after process death**, not making the application process immortal.
+
+The application also prepares this same service through a projection-scoped self-binding
+on the first eligible playing track. Pauses retain that binding; projection disconnect
+releases it without touching the host's own binding. Service lifetime remains a demand
+source, but aggregate demand must never trigger self-binding. See
+[automatic activation and device testing](ANDROID_AUTO_ACTIVATION.md).
 
 ### Cold-start lyrics lookup recovery
 

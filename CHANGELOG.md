@@ -1,3 +1,25 @@
+## [1.2.1] - 2026-11-09
+
+AALyrics 1.2.1 automatically prepares the lyrics media session when Android Auto connects and an eligible song is playing, so you do not need to open AALyrics on the phone for each drive.
+
+### Android Auto
+
+- Activate whether music starts before or after connecting Android Auto, without waiting for lyrics to finish loading.
+- Keep the same session through pauses and track changes, and release the application's connection when Android Auto disconnects.
+- Reuse existing notification-listener recovery when Android restores the app process. Debug builds include activation events in the connection-diagnostics export.
+
+### Updating and installation
+
+- Install over personal **1.2.0** to retain settings and cached lyrics. The package, signing identity, lyrics providers and reset behavior are unchanged. Upstream and Debug builds remain separate apps.
+- If upgrading directly from **1.1.0** or **1.1.0-beta.1**, the 1.2.0 cache-format limitation still applies: load songs online again before relying on them offline.
+- Keep Notification access enabled and complete the existing Android Auto compatibility setup. Device-specific background/autostart settings may also affect automatic recovery.
+
+### Current limitations
+
+- Automatic activation does not set AALyrics as the default or highest-priority media app. Android Auto still chooses which media card and app icon to show.
+- Bluetooth-only connections do not activate this feature. A paused track waits until playback begins for initial activation.
+- The owner reported successful repeated connection-trigger testing on Xiaomi 15 Pro / xiaomi.eu HyperOS 3 / Android 16. Recovery after overnight idle, reboot or system process reclamation has not been separately confirmed; OEM restrictions can still delay or prevent it. User Force stop requires reopening the app.
+
 ## [1.2.0] - 2026-11-07
 
 AALyrics 1.2.0 adds optional NetEase Cloud Music lyrics and existing Chinese translations to the Phone and Android Auto experience. Matching originals and translations stay together, with on-device machine translation available as a fallback.

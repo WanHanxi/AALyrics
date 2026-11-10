@@ -13,6 +13,7 @@ internal class LyricsDemandLifecycle(
     application: Application,
     private val gate: LyricsDemandGate,
     private val onDemandChanged: () -> Unit = {},
+    private val onProjectionChanged: (Boolean) -> Unit = {},
 ) {
     private val processLifecycle = ProcessLifecycleOwner.get().lifecycle
     private val carConnectionType = CarConnection(application).type
@@ -21,10 +22,10 @@ internal class LyricsDemandLifecycle(
         MediaConnectionDiagnostics.record("automotive_projection") {
             mapOf("connection_type" to connectionType.toString())
         }
-        gate.setAutomotiveProjectionConnected(
-            connectionType == CarConnection.CONNECTION_TYPE_PROJECTION,
-        )
+        val connected = connectionType == CarConnection.CONNECTION_TYPE_PROJECTION
+        gate.setAutomotiveProjectionConnected(connected)
         onDemandChanged()
+        onProjectionChanged(connected)
     }
     private var started = false
 
@@ -43,6 +44,7 @@ internal class LyricsDemandLifecycle(
         gate.setPhoneProcessForeground(false)
         gate.setAutomotiveProjectionConnected(false)
         onDemandChanged()
+        onProjectionChanged(false)
     }
 }
 

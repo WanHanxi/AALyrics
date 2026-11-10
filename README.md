@@ -80,7 +80,7 @@ Each Release also includes a matching `.sha256` file for APK integrity verificat
 
 After the first release-signed installation, later AALyrics releases signed with the same key can update the installed app normally. AALyrics can also discover, verify, and hand off newer releases through its in-app update flow.
 
-**Upgrading to personal 1.2.0:** install over the existing personal 1.1.0 or 1.1.0-beta.1 Release app when the new version is published, or use its in-app update check. The package and signing identity are unchanged, so no uninstall is needed and settings are retained. Older lyrics cache entries cannot be reused: load songs online again before relying on them offline, even if NetEase stays off.
+**Upgrading to personal 1.2.1:** install over the existing personal 1.2.0 Release app when the new version is published, or use its in-app update check. The package and signing identity are unchanged, so no uninstall is needed and settings and cached lyrics are retained. When upgrading directly from 1.1.0 or 1.1.0-beta.1, older lyrics cache entries still cannot be reused: load songs online again before relying on them offline, even if NetEase stays off.
 
 > [!NOTE]
 > The personal app is labeled **AALyrics** (or **AALyrics Debug**) and can coexist with upstream. Install it as a new app: original-app settings, cached lyrics and Android permissions do not transfer. Enable Notification access and select the new app in Android Auto. Future personal Release builds use the same personal signing key and can update this installation.
@@ -99,7 +99,20 @@ To enable it:
 
 The host receives the active track, artwork, supported playback actions, current synchronized lyric line, and an eligible translated line when available. Android Auto controls the final layout and text truncation.
 
-## What's new in 1.2.0
+Version 1.2.1 automatically prepares the lyrics media session when Android
+Auto is connected and an eligible song is playing. This does not set the default media
+app. See the [activation behavior and phone/car test guide](docs/ANDROID_AUTO_ACTIVATION.md).
+
+## What's new in 1.2.1
+
+AALyrics 1.2.1 adds automatic activation when Android Auto is connected and an eligible
+song is playing. It handles either connection/playback order, keeps the session through
+pause and track changes, and releases the application's binding on disconnect. Android
+Auto still decides which media card to display. Notification access and normal system
+background recovery remain necessary; see the [test guide](docs/ANDROID_AUTO_ACTIVATION.md)
+for device-specific checks.
+
+The NetEase and translation features introduced in 1.2.0 remain available:
 
 AALyrics 1.2.0 adds optional NetEase Cloud Music originals and Chinese translations. Enable **Settings > Lyrics > NetEase Cloud Music** after reading the source notice, then enable Translation and choose Chinese. NetEase defaults off; ordinary upgrades preserve an existing choice, while Reset AALyrics restores it to off.
 
