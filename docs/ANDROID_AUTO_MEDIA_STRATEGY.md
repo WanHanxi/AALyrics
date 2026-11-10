@@ -74,7 +74,7 @@ The legacy Now Playing completion must preserve the existing application/platfor
 
 Its lifecycle policy is recovery-oriented rather than keepalive-oriented. Active `LyricsBrowserService` lifetime is an independent lyrics-demand signal alongside CarConnection projection state, and active-session observation re-requests the system Notification Listener binding when Automotive host activity or listener disconnection requires recovery. The app does not keep itself alive with an unconditional started service or foreground-service notification merely for Android Auto. A forced process-death device test confirmed Android Auto can recreate AALyrics and restore current playback/lyrics operation without reopening the Phone Activity.
 
-The current development branch adds application-owned automatic preparation of this
+The 1.2.1 release slice adds application-owned automatic preparation of this
 same media service when real projection and eligible playback coincide. It retains the
 binding through pause and releases it on disconnect. It does not set media priority or
 guarantee which application the host displays. The earlier host-driven process-death test
