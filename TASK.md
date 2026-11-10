@@ -35,5 +35,16 @@ No upstream work, runtime changes, version bump, or signing-identity change.
   the unchanged runtime. Reuse that validation; rebuild only for bundled notes.
 - Reset, persisted state, and UI layout are unchanged; no reset-path or Compose
   Preview change is needed.
-- Pending: signed APK refresh, Release verification, debug-artifact removal,
-  final scope/whitespace checks, and Draft PR creation.
+- [Refresh run 42779790900](https://github.com/WanHanxi/AALyrics/actions/runs/42779790900)
+  passed from documentation source `993df7c`. It rebuilt and replaced the signed
+  v1.2.1 APK/checksum, sanitized the Release body, and removed the four affected
+  debug artifacts from runs `42773060705` and `42774561114`.
+- Independent public downloads passed the package/version, signing-certificate,
+  non-debuggable-build, bundled-Changelog, and SHA-256 checks. All six bundled
+  documents and the updated PR/Release text pass the known-device-details scan.
+  APK SHA-256: `3b5dfbd154062a6cd769e1445a91e78ee29e1586ea61c69f618fcdb453eee165`.
+- Remote `main` and the original annotated v1.2.1 tag were verified unchanged.
+  The temporary maintenance workflow has been removed from the branch's final
+  tree; the final diff contains documentation changes only.
+- Architecture, whitespace, and branch-wide scope checks passed. The current
+  documents still need normal Draft PR integration into personal `main`.
