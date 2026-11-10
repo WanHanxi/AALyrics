@@ -80,7 +80,9 @@ changes are introduced, so existing Compose Previews remain applicable.
 
 ## 小米手机实测步骤
 
-目标设备：小米 15 Pro、xiaomi.eu HyperOS 3、Android 16。以下真机结果尚待用户验证。
+目标设备：小米 15 Pro、xiaomi.eu HyperOS 3、Android 16。
+2026-11-09 用户反馈“测试好像没问题，每次连上 android auto 都可以触发”，已确认其实际
+连接测试中的自动触发效果。隔夜闲置、重启和受控进程死亡未单独反馈，以下矩阵保留作后续验证参考。
 在停车状态下操作手机和车机。
 
 ### 安装和准备

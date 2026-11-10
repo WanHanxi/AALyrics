@@ -58,7 +58,7 @@ Record these checks as pending, never as passed local validation.
   release-script tests, and whitespace checks also passed.
 - Final verification enforced the 3 GiB / zero-swap scope and recorded peak usage of
   2,234,990,592 bytes (about 2.08 GiB). The scope exited; no Java build process or emulator
-  remains. No emulator or physical phone/car verification was attempted for this slice.
+  remains. No emulator or agent-run physical phone/car verification was attempted.
 - Debug APK signature verification passed. Artifact:
   `app/build/outputs/apk/debug/app-debug.apk`, package `io.github.wanhanxi.aalyrics.debug`,
   version `1.2.0-dev+9a99551.dirty`, SHA-256
@@ -71,7 +71,15 @@ Record these checks as pending, never as passed local validation.
 - [Device testing guide](docs/ANDROID_AUTO_ACTIVATION.md) includes independent Debug setup,
   source/connection order, pause/track changes, disconnect, Bluetooth-only, overnight,
   reboot/unlock, optional controlled process death, and export interpretation.
-- Xiaomi/Android Auto physical results remain pending the owner's tests. No claim of
-  guaranteed OEM wake behavior or automatic media-card selection is made.
-- Final step: push the documentation checkpoint, open a Draft PR against the personal
-  `main`, and stop. Merge, publication, and media-priority work remain outside authorization.
+- The owner reported on 2026-11-09 that testing appeared to work without problems and
+  activation triggered every time Android Auto connected on the previously identified
+  Xiaomi 15 Pro / xiaomi.eu HyperOS 3 / Android 16. This records the owner's observed
+  connection-trigger result; overnight, reboot, and controlled process-death scenarios
+  were not separately confirmed, and no diagnostic report was supplied with the feedback.
+- Personal [Draft PR #10](https://github.com/WanHanxi/AALyrics/pull/10) is open.
+  [Build run 42458511957](https://github.com/WanHanxi/AALyrics/actions/runs/42458511957)
+  passed for implementation/documentation head `4933c15`. This follow-up records device
+  evidence only and reuses the successful local tests/APK; no rebuild is needed.
+- Review requests, ready-for-review transition, merge, publication, and media-priority
+  work still require separate owner authorization. No guaranteed OEM wake behavior or
+  automatic media-card selection is claimed.
