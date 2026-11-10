@@ -137,6 +137,12 @@ Provider planning and provider implementation are separate authorization boundar
 
 ## Scope and acceptance criteria
 
+Keep public device-testing reports in repository documents, pull requests, and releases
+generic: state the tested scenarios and observed results without the owner's device
+model, ROM, or OS details unless the owner explicitly authorizes publishing them.
+For example, use "Connection-trigger testing completed successfully on a physical
+device." Do not turn untested scenarios into successful validation claims.
+
 Before review begins, treat the pull request description, the current `TASK.md` when it describes that PR's active work, and the relevant roadmap/architecture documents as the acceptance criteria for that PR. Do not inherit a stale or unrelated `TASK.md` as scope for a different pull request.
 
 Do not silently expand the scope because a reviewer can imagine additional hardening, future configurations, exotic syntax, or adversarial bypasses. A review finding should change the current PR only when it materially affects the current PR's intended behavior or stated guarantees.

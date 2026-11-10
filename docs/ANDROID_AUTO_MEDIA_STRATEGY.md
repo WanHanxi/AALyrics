@@ -78,7 +78,7 @@ The 1.2.1 release slice adds application-owned automatic preparation of this
 same media service when real projection and eligible playback coincide. It retains the
 binding through pause and releases it on disconnect. It does not set media priority or
 guarantee which application the host displays. The earlier host-driven process-death test
-does not validate this new activation path or Xiaomi overnight recovery; see
+does not validate this new activation path or overnight recovery; see
 [automatic activation and the pending device checks](ANDROID_AUTO_ACTIVATION.md).
 
 ## Planned templated-media requirements
