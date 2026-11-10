@@ -19,9 +19,23 @@ releases this application's binding and cancels pending retries. Android Auto ca
 hold its own binding, in which case the service/session may legitimately remain alive.
 The application never disconnects the host's client or tells Spotify to start/stop playback.
 
-An active media session does **not** make AALyrics the default/highest-priority media app.
-Android Auto still chooses the sidebar icon and media card. Automatic preparation and
-host display selection must be evaluated separately.
+The browser service publishes metadata and the real playback state before activating
+its media session. If the service was already active, the first eligible playback of a
+projection connection requests one inactive/active refresh after a valid playing state
+has been published. A replayable request identifies each connection, including when
+Android Auto retains the service across disconnects. Pauses, track/source changes,
+lyrics ticks, and temporary metadata gaps do not repeat the refresh in that connection.
+
+This sequencing addresses stale session ordering: Android can reorder its media stack
+on playback changes without notifying active-session listeners. A session activation
+change makes listeners read the current list. It does not request audio focus, create a
+dummy session, manufacture `PLAYING`, or send a transport action to the source player.
+
+Android Auto still chooses the sidebar icon, media card, and outgoing media metadata.
+This is not a permanent pin or default-app API. Automatic preparation and actual host
+display selection must be evaluated separately, especially after manually choosing
+another media app. See the [framework session service](https://android.googlesource.com/platform/frameworks/base/+/refs/heads/android16-release/services/core/java/com/android/server/media/MediaSessionService.java)
+and [MediaSessionManager](https://developer.android.com/reference/android/media/session/MediaSessionManager).
 
 ## Ownership and recovery
 
@@ -64,6 +78,7 @@ Debug builds add the following to the existing bounded connection report:
 | `automotive_activation_bind_accepted` | Android accepted the request; not proof of a callback |
 | `automotive_activation_connected` | Application's service connection received a binder |
 | `automotive_host_demand` with `active=true` | Browser service created its media session and entered its active lifetime |
+| `automotive_session_activated` | Playback already published; `reason=initial` for first activation or `projection_refresh` for a connection's one-time reactivation |
 | `automotive_activation_disconnected` | Temporary service disconnection; existing binding retained |
 | `automotive_activation_binding_lost` / `automotive_activation_bind_failed` | Binding died, was null, or request failed |
 | `automotive_activation_released` | Application dropped its binding; includes reason |

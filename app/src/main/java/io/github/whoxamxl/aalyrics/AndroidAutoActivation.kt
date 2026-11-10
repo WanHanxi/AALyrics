@@ -5,6 +5,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
@@ -32,6 +34,10 @@ internal class AndroidAutoActivation(
     private val createBinding: () -> AutomotiveActivationBinding,
     private val record: (String, Map<String, String>) -> Unit = { _, _ -> },
 ) {
+    private val mutableSessionActivationRequest = MutableStateFlow<Long?>(null)
+    /** Replayed to a browser service that may outlive our binding or the projection. */
+    val sessionActivationRequest = mutableSessionActivationRequest.asStateFlow()
+    private var nextSessionActivationRequest = 0L
     private var projectionConnected = false
     private var eligiblePlayback = false
     private var activationRequested = false
@@ -63,7 +69,10 @@ internal class AndroidAutoActivation(
 
     private fun reconcile() {
         if (!scope.isActive || !projectionConnected || (!activationRequested && !eligiblePlayback)) return
-        activationRequested = true
+        if (!activationRequested) {
+            activationRequested = true
+            mutableSessionActivationRequest.value = ++nextSessionActivationRequest
+        }
         if (binding != null || retryJob != null || attempts >= MAX_ATTEMPTS) return
 
         val job = scope.launch(start = CoroutineStart.LAZY) {
@@ -117,6 +126,7 @@ internal class AndroidAutoActivation(
     }
 
     private fun reset(reason: String) {
+        mutableSessionActivationRequest.value = null
         activationRequested = false
         attempts = 0
         val job = retryJob

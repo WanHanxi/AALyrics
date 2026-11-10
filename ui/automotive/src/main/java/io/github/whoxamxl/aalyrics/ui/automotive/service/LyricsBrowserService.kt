@@ -34,7 +34,13 @@ import kotlinx.coroutines.launch
 class LyricsBrowserService : MediaBrowserServiceCompat() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private lateinit var mediaSession: MediaSessionCompat
+    private val sessionActivation = AutomotiveSessionActivation { refresh ->
+        if (refresh) mediaSession.isActive = false
+        mediaSession.isActive = true
+        binding?.onSessionActivated?.invoke(refresh)
+    }
     private var binding: AutomotiveRuntimeBinding? = null
+    private var sessionActivationCollection: Job? = null
     private var playbackCollection: Job? = null
     private var lyricsCollection: Job? = null
     private var lyricsTimingOffsetCollection: Job? = null
@@ -63,7 +69,6 @@ class LyricsBrowserService : MediaBrowserServiceCompat() {
                     MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS,
             )
             setCallback(SessionCallback())
-            isActive = true
         }
         sessionToken = mediaSession.sessionToken
 
@@ -81,6 +86,7 @@ class LyricsBrowserService : MediaBrowserServiceCompat() {
 
     override fun onDestroy() {
         binding?.hostDemand?.setActive(false)
+        sessionActivationCollection?.cancel()
         playbackCollection?.cancel()
         lyricsCollection?.cancel()
         lyricsTimingOffsetCollection?.cancel()
@@ -126,7 +132,11 @@ class LyricsBrowserService : MediaBrowserServiceCompat() {
         latestTranslationSettings = runtimeBinding.translationSettings.value
         latestTranslationState = runtimeBinding.translationState.value
         latestCanonicalLyricsIdentity = runtimeBinding.canonicalLyricsIdentity(latestLyrics)
+        render()
 
+        sessionActivationCollection = scope.launch {
+            runtimeBinding.sessionActivationRequest.collectLatest { render() }
+        }
         playbackCollection = scope.launch {
             runtimeBinding.playback.collectLatest { snapshot ->
                 latestPlayback = snapshot
@@ -194,6 +204,7 @@ class LyricsBrowserService : MediaBrowserServiceCompat() {
         }
 
         mediaSession.setPlaybackState(NowPlayingScreen.playbackState(state))
+        sessionActivation.onPlaybackPublished(latestPlayback, binding?.sessionActivationRequest?.value)
     }
 
     private inner class SessionCallback : MediaSessionCompat.Callback() {

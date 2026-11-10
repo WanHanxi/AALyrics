@@ -734,6 +734,12 @@ class AALyricsApplication : Application() {
         MediaSessionRuntimeHost.attachListenerConnection(listenerConnectionSink)
         automotiveBinding = AutomotiveRuntimeBinding(
             playback = graph.playbackState,
+            sessionActivationRequest = androidAutoActivation.sessionActivationRequest,
+            onSessionActivated = { refreshed ->
+                MediaConnectionDiagnostics.record("automotive_session_activated") {
+                    mapOf("reason" to if (refreshed) "projection_refresh" else "initial")
+                }
+            },
             lyrics = graph.lyricsState,
             lyricsTimingOffset = lyricsTimingSettings.offset,
             artwork = mutableAutomotiveArtworkState.asStateFlow(),

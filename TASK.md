@@ -1,50 +1,62 @@
-# Public device-test documentation cleanup
+# Android Auto media-session publication order
 
 ## Scope
 
-Remove the owner's device model, ROM, and OS details from current documentation,
-personal PR descriptions, the v1.2.1 Release notes, and its APK's bundled Changelog.
-Use generic wording while retaining the actual tested scenarios and limitations.
-Add a repository instruction to keep future public test reports equally generic.
+Start from personal `main` at `4a1562f` on `fix/android-auto-session-order`;
+target `WanHanxi/AALyrics:main`. Correct the order in which the lyrics session
+publishes playback and announces activation, so Android Auto can observe the
+current session ordering when projection playback starts.
 
-Work starts from personal `main` at `c552b06e77608795326d0362a65de567dde35d81`
-on `docs/remove-device-details` and targets `WanHanxi/AALyrics:main`.
-The owner chose to preserve existing Git history and tags. Historical commits,
-diffs, source archives, and already-downloaded copies are outside this cleanup.
-No upstream work, runtime changes, version bump, or signing-identity change.
+Publish metadata and real playback state before initial activation. For a session
+already active when projection playback starts, refresh its active state once
+after publishing a valid playing snapshot. Carry a connection-scoped request from
+the application's existing activation owner so a host-retained browser service
+can handle the next connection too. Do not refresh on ordinary ticks, track
+changes, pause/resume, or metadata gaps within the same connection.
+
+No new preference, fake playback, extra media session, audio-focus request,
+provider change, version bump, UI redesign, or change to transport routing.
+Android Auto owns display selection; this is not a permanent pin API. Real car
+instrument-cluster behavior remains separate from Desktop Head Unit validation.
 
 ## Checkpoints
 
-1. Sanitize current docs and PR descriptions; record the public-reporting rule.
-2. Rebuild v1.2.1 with the updated bundled Changelog using the existing release
-   identity, package `io.github.wanhanxi.aalyrics`, and versionCode `1004`.
-   Replace the existing APK/checksum and sanitize the Release description.
-3. Delete the four identified CI debug artifacts containing the old Changelog.
-4. Verify published assets and metadata, remove temporary maintenance automation,
-   review the final documentation-only diff, and open a personal Draft PR.
-   Stop before merge as required by the repository workflow.
+1. Implement publication/activation sequencing and focused lifecycle tests.
+   Verify architecture, unit tests, and Debug build within workstation limits;
+   commit and push the implementation checkpoint.
+2. Update the existing phone Debug install without removing its data. Validate
+   actual AA selection using wireless ADB and Desktop Head Unit, then document
+   the observed results and limits.
+3. Review the branch-wide diff and final checks, commit/push, and open a personal
+   Draft PR. Stop before review requests, ready-for-review, or merge.
 
-## Status and validation
+## Acceptance and validation
 
-- Personal PR descriptions #1, #2, and #10 have been sanitized. The other personal
-  PR descriptions and inspected comments did not require edits.
-- Current Changelog, activation, media-strategy, and recovery documentation use
-  generic test descriptions. Successful repeated connection-trigger testing is
-  retained; overnight, reboot, and process-reclamation checks remain unconfirmed.
-- The existing 116 suites / 919 passing tests and successful main/release CI cover
-  the unchanged runtime. Reuse that validation; rebuild only for bundled notes.
-- Reset, persisted state, and UI layout are unchanged; no reset-path or Compose
-  Preview change is needed.
-- [Refresh run 42779790900](https://github.com/WanHanxi/AALyrics/actions/runs/42779790900)
-  passed from documentation source `993df7c`. It rebuilt and replaced the signed
-  v1.2.1 APK/checksum, sanitized the Release body, and removed the four affected
-  debug artifacts from runs `42773060705` and `42774561114`.
-- Independent public downloads passed the package/version, signing-certificate,
-  non-debuggable-build, bundled-Changelog, and SHA-256 checks. All six bundled
-  documents and the updated PR/Release text pass the known-device-details scan.
-  APK SHA-256: `3b5dfbd154062a6cd769e1445a91e78ee29e1586ea61c69f618fcdb453eee165`.
-- Remote `main` and the original annotated v1.2.1 tag were verified unchanged.
-  The temporary maintenance workflow has been removed from the branch's final
-  tree; the final diff contains documentation changes only.
-- Architecture, whitespace, and branch-wide scope checks passed. The current
-  documents still need normal Draft PR integration into personal `main`.
+- [x] Initial state is published before the session becomes active.
+- [x] Already-playing and connect-before-playing cases refresh at most once per
+  connection/session; disconnected or invalid playback cannot consume a request.
+- [x] A surviving service can handle a new connection; repeated connection facts,
+  pause/resume, lyrics ticks, track/source changes, and gaps do not repeat refresh.
+- [x] Focused tests, architecture guardrail, whitespace check, and Debug build pass.
+- [ ] Physical-phone/DHU checks cover already playing, playback after connection,
+  repeated reconnects, return to maps, and passive playback across track changes.
+  Record actual results, including any failed scenario, rather than treating
+  successful service creation as successful AA selection.
+- [ ] Public documentation uses generic device descriptions and states what was
+  observed. Raw logs and location-containing screenshots remain local only.
+
+Reset review: all new request/activation bookkeeping is process-local. No new
+persisted preference or cache, so `Reset AALyrics` has no additional reset target.
+No user-facing layout/copy changes; existing Compose Previews remain applicable.
+
+## Status
+
+Investigation found stale AA session ordering despite an already-correct Android
+stack. A controlled list-refresh experiment changed AA's selection without
+playback transport or audio-focus actions. Product implementation/validation is
+in progress; that experiment alone is not acceptance of this fix.
+
+Implementation checkpoint: 462 Debug unit tests passed across `:app` and
+`:ui:automotive`; architecture and whitespace checks passed. Debug APK built
+successfully with one Gradle worker, a 1 GiB JVM heap, and a verified 3 GiB
+systemd memory limit with no swap. Device validation is next.

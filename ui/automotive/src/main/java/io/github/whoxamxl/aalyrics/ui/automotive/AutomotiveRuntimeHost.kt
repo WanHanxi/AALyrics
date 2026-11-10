@@ -41,6 +41,8 @@ fun interface AutomotiveHostDemand {
 
 class AutomotiveRuntimeBinding(
     val playback: StateFlow<PlaybackSnapshot>,
+    val sessionActivationRequest: StateFlow<Long?>,
+    val onSessionActivated: (refreshed: Boolean) -> Unit,
     val lyrics: StateFlow<LyricsState>,
     val lyricsTimingOffset: StateFlow<LyricsTimingOffset>,
     val artwork: StateFlow<AutomotiveArtworkState>,
