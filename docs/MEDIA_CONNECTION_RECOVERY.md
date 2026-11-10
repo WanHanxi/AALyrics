@@ -2,9 +2,9 @@
 
 ## Problem and ownership
 
-Notification access being enabled does not prove that Android has bound AALyrics' `NotificationListenerService`. The 2026-10-31 Xiaomi 15 Pro / Android 16 incident showed two successive Phone processes with access granted, no service created and zero session observations. Restarting Spotify coincided with eventual binding, but application logs did not establish why Android delayed it. An earlier Automotive incident took about 37 seconds to bind after a rebind request returned.
+Notification access being enabled does not prove that Android has bound AALyrics' `NotificationListenerService`. A reported device incident showed two successive Phone processes with access granted, no service created and zero session observations. Restarting Spotify coincided with eventual binding, but application logs did not establish why Android delayed it. An earlier Automotive incident took about 37 seconds to bind after a rebind request returned.
 
-In a second incident around 22:51 PDT, automatic retries and a manual Reconnect all returned without service creation or connection. The owner confirmed that turning AALyrics Debug notification access off/on restored detection. Android 16 AOSP's [`ManagedServices.setComponentState`](https://android.googlesource.com/platform/frameworks/base/+/refs/heads/android16-release/services/core/java/com/android/server/notification/ManagedServices.java) returns immediately if the requested enabled state already matches its internal state. Repeating `requestRebind` can therefore leave a missing binding unchanged. This is a plausible explanation for the ineffective retry, not proof of Xiaomi's internal state or of the original cause of service loss.
+In a second reported incident, automatic retries and a manual Reconnect all returned without service creation or connection. The owner confirmed that turning AALyrics Debug notification access off/on restored detection. The examined AOSP implementation's [`ManagedServices.setComponentState`](https://android.googlesource.com/platform/frameworks/base/+/refs/heads/android16-release/services/core/java/com/android/server/notification/ManagedServices.java) returns immediately if the requested enabled state already matches its internal state. Repeating `requestRebind` can therefore leave a missing binding unchanged. This is a plausible explanation for the ineffective retry, not proof of the device's internal state or of the original cause of service loss.
 
 `MediaListenerConnectionSink` carries actual connected/disconnected/destroyed callbacks from `:platform:media` to the application. It is independent of Debug diagnostics and selected media sessions. A bound listener with no player is healthy and does not need rebinding. `MediaSessionObservation` still waits for `onListenerConnected()` before using active-session APIs; source selection, metadata stabilization and playback ownership are unchanged.
 
@@ -49,7 +49,7 @@ Recovery state/jobs are process-local, with no durable settings and no new reset
 
 Deterministic tests cover cold start, exact attempt budget, request-return semantics, synchronous/late connection, duplicate events/taps, background cancellation, permission revocation/restoration, and overlapping Phone/projection/host demand. Manual-reset coverage checks one reset per manual episode, queued-reset cancellation and condition checks, reentrant callbacks, unbind/rebind ordering, unsupported/failed unbind fallback, and contained rebind failures. Mapper tests distinguish missing binding, timeout, access loss and a healthy listener without media. The existing production-component Compose Previews cover the unchanged timeout pill and connecting/timeout/access dialogs at normal, narrow/large-text and landscape sizes.
 
-Physical-device checks remain necessary because JVM tests cannot reproduce Xiaomi's notification-service scheduling:
+Physical-device checks remain necessary because JVM tests cannot reproduce the device's notification-service scheduling:
 
 1. Play Spotify before opening AALyrics; try a cold Phone launch and an Automotive-only launch.
 2. Confirm that a normal connected player, pause, no-player state and source filtering do not start rebind loops.
@@ -58,4 +58,4 @@ Physical-device checks remain necessary because JVM tests cannot reproduce Xiaom
 5. Background/return, rotate the phone, and overlap Phone use with Android Auto; verify no duplicate requests and no cancellation while a car demand source remains active.
 6. Export diagnostics later from Settings > Advanced > Debug. Record the local incident time; the export itself uses UTC.
 
-The test APK is based on personal main, with the separate unmerged Phone Performance-mode branch excluded. No claim of Xiaomi/Android Auto device validation or of fixing the system's underlying scheduling cause is implied by a successful build.
+The test APK is based on personal main, with the separate unmerged Phone Performance-mode branch excluded. No claim of physical-device Android Auto validation or of fixing the system's underlying scheduling cause is implied by a successful build.

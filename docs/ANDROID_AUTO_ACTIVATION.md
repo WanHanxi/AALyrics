@@ -51,7 +51,7 @@ See [Media connection recovery](MEDIA_CONNECTION_RECOVERY.md).
 `CarConnection` is a runtime observer; it cannot by itself wake a dead process. Ordinary
 system process reclamation and user **Force stop** are different cases. OEM restrictions
 can prevent/delay listener recovery even with permission enabled. No guarantee of
-xiaomi.eu background recovery is implied by JVM tests or a successful APK build.
+background recovery is implied by JVM tests or a successful APK build.
 
 ## Diagnostics, reset, and UI
 
@@ -78,11 +78,9 @@ reset target. Existing diagnostic retention intentionally survives Reset AALyric
 remains covered by the current privacy/reset documentation. No user-facing layout/copy
 changes are introduced, so existing Compose Previews remain applicable.
 
-## 小米手机实测步骤
+## 设备实测步骤
 
-目标设备：小米 15 Pro、xiaomi.eu HyperOS 3、Android 16。
-2026-11-09 用户反馈“测试好像没问题，每次连上 android auto 都可以触发”，已确认其实际
-连接测试中的自动触发效果。隔夜闲置、重启和受控进程死亡未单独反馈，以下矩阵保留作后续验证参考。
+已在设备上完成连接触发测试，多次连接 Android Auto 均能触发。隔夜闲置、重启和受控进程死亡未单独反馈，以下矩阵保留作后续验证参考。
 在停车状态下操作手机和车机。
 
 ### 安装和准备

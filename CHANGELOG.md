@@ -18,7 +18,7 @@ AALyrics 1.2.1 automatically prepares the lyrics media session when Android Auto
 
 - Automatic activation does not set AALyrics as the default or highest-priority media app. Android Auto still chooses which media card and app icon to show.
 - Bluetooth-only connections do not activate this feature. A paused track waits until playback begins for initial activation.
-- The owner reported successful repeated connection-trigger testing on Xiaomi 15 Pro / xiaomi.eu HyperOS 3 / Android 16. Recovery after overnight idle, reboot or system process reclamation has not been separately confirmed; OEM restrictions can still delay or prevent it. User Force stop requires reopening the app.
+- Connection-trigger testing completed successfully on a physical device. Recovery after overnight idle, reboot or system process reclamation has not been separately confirmed; OEM restrictions can still delay or prevent it. User Force stop requires reopening the app.
 
 ## [1.2.0] - 2026-11-07
 
