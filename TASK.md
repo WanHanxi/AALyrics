@@ -1,4 +1,4 @@
-# Android Auto media-session publication order
+# Android Auto media selection and 1.2.2 preparation
 
 ## Scope
 
@@ -15,7 +15,8 @@ can handle the next connection too. Do not refresh on ordinary ticks, track
 changes, pause/resume, or metadata gaps within the same connection.
 
 No new preference, fake playback, extra media session, audio-focus request,
-provider change, version bump, UI redesign, or change to transport routing.
+provider change, UI redesign, or change to transport routing. The follow-up below
+prepares the 1.2.2 release in this same PR.
 Android Auto owns display selection; this is not a permanent pin API. Real car
 instrument-cluster behavior remains separate from Desktop Head Unit validation.
 
@@ -76,11 +77,33 @@ No user-facing layout/copy changes; existing Compose Previews remain applicable.
 - DHU, observation, and build processes have finished; removed the task's port
   forward. The updated Debug app and wireless debugging pairing remain available.
 
-Host bindings were released on actual disconnects in this test, so retaining one
-service across reconnect has lifecycle-test coverage only. Real vehicle cluster,
-overnight/reboot, and cross-version behavior remain follow-up testing, not
-current success claims. Android Auto still owns selection; no permanent pin is
+Host bindings were released on actual disconnects in DHU, so retaining one
+service across reconnect has lifecycle-test coverage only. The owner subsequently
+reported successful priority selection across several real-car connections.
+Vehicle-specific instrument-cluster rendering, overnight/reboot recovery, and
+cross-version behavior are not claimed as separately confirmed. Android Auto still owns selection; no permanent pin is
 promised. No new settings, persistent state, or Preview/reset changes are needed.
 
-Implementation and final validation are complete. Open the personal Draft PR and
-stop before review requests, ready-for-review, or merge.
+## 1.2.2 follow-up (2026-11-10)
+
+The owner reported that several real-car connections successfully prioritized
+AALyrics and requested a clearer PR description, a README Highlights entry, and
+1.2.2 release preparation in this same PR. Future Release notes should omit
+routine Updating and installation text unless a release requires manual action.
+
+- [x] Describe the user-visible media-selection effect and the one-time
+  publication/activation mechanism, keeping actual audio playback with Spotify.
+- [x] Record the in-car feedback without device identifiers or unsupported
+  instrument-cluster compatibility claims.
+- [x] Add the 1.2.2 Changelog entry and update README/release preparation docs.
+  Preserve existing signing, package, provider configuration, and versionCode policy.
+- [x] Make the action-only installation-notes policy explicit for future releases;
+  retain historical release entries and actionable legacy-cache instructions.
+- [ ] Verify note extraction, documentation consistency, and the updated PR CI.
+- [ ] Update PR #12's title/description around the complete implementation and
+  1.2.2 scope, with the validation results.
+
+Runtime source has not changed since the successfully tested and device-validated
+implementation. Reuse the existing local build/test evidence; the PR pipeline
+checks the updated bundled Changelog. Publication must follow the existing
+merged-main tag workflow; do not tag the feature-branch head.

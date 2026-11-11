@@ -131,7 +131,7 @@ The checked-in source/configuration can be prepared and reviewed before publishi
 
 1. **Repository setup:** the personal Build and Release workflows are active. Build runs on `main` and `release/**` pushes, PRs and manual dispatch; check a successful run for the reviewed revision. Release-branch/PR Build checks do not receive provider secrets. If a fresh fork shows the Actions enablement banner, enable it before testing; zero recorded runs is not a successful CI check.
 2. **Personal signing:** install the four signing secrets above in this repository. Keep the keystore/password backup outside Git and independently of GitHub Secrets. Never paste private signing data into issues, PRs or logs.
-3. **Optional PetitLyrics:** personal 1.2.1 retains the 1.2.0 configuration, leaving all four values unset. No upstream or third-party credentials are required or copied. If enabling the source later, configure your own authorized values as a complete set and update the release notes to reflect the enabled sources. Do not replace `PETITLYRICS_PKG_NAME` with the Android application ID; it is a separate provider client identity.
+3. **Optional PetitLyrics:** personal 1.2.2 retains the 1.2.0 configuration, leaving all four values unset. No upstream or third-party credentials are required or copied. If enabling the source later, configure your own authorized values as a complete set and update the release notes to reflect the enabled sources. Do not replace `PETITLYRICS_PKG_NAME` with the Android application ID; it is a separate provider client identity.
 4. **CI and signed candidate:** run Build on the reviewed branch (manual dispatch may target it after Actions is enabled). The optional `update_test_release_signed` fixture checks signing without publishing. The Release workflow independently tests and verifies the actual tagged artifact before publication.
 5. **Device validation:** install a personal signed fixture and check launch, Notification access, MediaSession detection and Android Auto discovery. For the later update test, use the same key/package with a lower code, then verify source trust, download, Android confirmation, preserved settings and success feedback. APK metadata inspection and JVM tests do not prove these Android flows.
 6. **Approval and publication:** merge the completed personal PR only after owner approval, then tag only after explicit release authorization. Check both APK and checksum assets, curated notes, Pre-release labeling and in-app discovery afterward.
@@ -167,7 +167,7 @@ To check a locally built signed candidate, inject its canonical version and a po
 ```bash
 python3 scripts/verify-release-apk.py app/build/outputs/apk/release/app-release.apk \
   --build-tools "$ANDROID_HOME/build-tools/36.0.0" \
-  --version-name 1.2.1 --version-code 1004
+  --version-name 1.2.2 --version-code 1005
 ```
 
 This check validates the signature with Android Build Tools, the pinned personal certificate, release package/version, non-debuggable status and exact bundled Changelog. It does not certify provider credentials or native installation success. Keep local verification artifacts distinct from published APKs until all release prerequisites are complete.
@@ -202,17 +202,17 @@ On Windows PowerShell, convert the keystore to the single-line Base64 value used
 After the intended commit is merged into `main`, ensure the release version is the newest entry in repository-root `CHANGELOG.md`, then create and push the version tag.
 
 Release preparation may be included in the feature PR that supplies the release content;
-a separate release PR or `release/*` branch is not required. Personal PR #10 combines
-Android Auto automatic activation with the 1.2.1 Changelog and publication preparation.
+a separate release PR or `release/*` branch is not required. Personal PR #12 combines
+Android Auto media-source selection with the 1.2.2 Changelog and publication preparation.
 The tag must still be created on the merged `main` revision, not the feature-branch head.
 
-Complete the combined feature/preparation PR and obtain explicit merge/release approval first. Confirm the existing signing identity and intended optional-provider configuration above, and check that the release date in Changelog is still correct. For 1.2.1, from a clean checkout after approval:
+Complete the combined feature/preparation PR and obtain explicit merge/release approval first. Confirm the existing signing identity and intended optional-provider configuration above, and check that the release date in Changelog is still correct. For 1.2.2, from a clean checkout after approval:
 
 ```bash
 git switch main
 git pull --ff-only origin main
-git tag -a v1.2.1 -m "AALyrics 1.2.1"
-git push origin v1.2.1
+git tag -a v1.2.2 -m "AALyrics 1.2.2"
+git push origin v1.2.2
 ```
 
 Tag publication triggers a public Release automatically; do not use a pushed tag as a dry run.
@@ -265,6 +265,13 @@ The standard AALyrics Release body should therefore use this order:
 4. **Auto-generated GitHub notes last** — preserve the generated `## What's Changed` section and `Full Changelog` link at the bottom of the Release body.
 
 The generated section should **not be deleted or replaced** when curating a Release. It remains the traceable PR-level record of what entered the version. Curated notes are added above it.
+
+Omit a routine **Updating and installation** section from new changelog entries and
+Release notes. Include update instructions only when that release requires a specific
+manual action, such as re-fetching an incompatible cache, migrating settings, granting a
+new permission, or completing a signing/package migration. State the affected versions
+and the action directly. Normal in-place updates, unchanged signing identity, and the
+standard first-install instructions belong in the README rather than every Release.
 
 Recommended shape:
 
