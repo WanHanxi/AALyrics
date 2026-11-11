@@ -31,18 +31,19 @@ add a new setting, enable production logging, or change AA selection behavior.
 
 ## Acceptance and validation
 
-- [ ] Logs distinguish session order changes, identical list notifications, and
+- [x] Logs distinguish session order changes, identical list notifications, and
   replacement sessions from the same package, with diagnostic read failures
   isolated from playback.
-- [ ] Logs identify AALyrics' published playback and activation request/reason,
+- [x] Logs identify AALyrics' published playback and activation request/reason,
   without introducing new activation, session queries, or transport commands.
-- [ ] Debug-only recording and export retain existing bounded local storage;
+- [x] Debug-only recording and export retain existing bounded local storage;
   no song titles, lyrics, media IDs, raw tokens, or automatic uploads.
-- [ ] Focused regression tests and required architecture/build checks pass.
-- [ ] APK package, version, debug signature, and installation compatibility with
+- [x] Focused regression tests and required architecture/build checks pass.
+- [x] APK package, version, debug signature, and installation compatibility with
   the previous local Debug artifact are checked where evidence is available.
-- [ ] Document the incident-time/export procedure and observability limits.
-- [ ] Commit/push completed checkpoints and open a Draft PR with validation.
+- [x] Document the incident-time/export procedure and observability limits.
+- [x] Commit/push implementation checkpoints and prepare the validated final
+  documentation checkpoint for a personal Draft PR.
 
 ## Reset and presentation review
 
@@ -59,3 +60,27 @@ cannot directly read Android Auto's chosen display source or prove another app
 called setActive. Token fingerprints are diagnostic correlation values, scoped
 by the process records; they are not serialized session tokens. Correlate the
 owner's incident time and observed sidebar/cluster with the surrounding events.
+
+## Completed verification and handoff
+
+- Runtime/test checkpoints: `822db4b` and `23a52dc`. The first test compilation
+  exposed nullable-list assertion typing errors; corrected them before the
+  successful validation run.
+- 531 Debug unit tests passed: 68 in `:platform:media`, 27 in `:ui:automotive`,
+  and 436 in `:app`, including eight new diagnostic regressions. Debug APK build,
+  architecture guardrail, whitespace, and branch scope checks passed.
+- Gradle ran sequentially with one worker, no parallel execution, no persistent
+  daemon, a 1 GiB JVM heap, and in-process Kotlin compilation inside a verified
+  3 GiB/no-swap systemd scope. Task scopes exited; no emulator or phone installation
+  was used for this diagnostic follow-up.
+- APK metadata verified: `io.github.wanhanxi.aalyrics.debug`, version
+  `1.2.2-dev+23a52dc.dirty`, code 1, debuggable, with a valid local Android Debug
+  signature. The runtime matches `23a52dc`; later edits are documentation only.
+  The previous local APK is no longer available for direct certificate comparison,
+  so installation compatibility is a user-device handoff rather than a completed
+  device check. Package/signing configuration is unchanged.
+- The deliverable APK and SHA-256 are retained outside tracked source in local
+  artifacts. Use the existing Debug export action; Verbose details is not required.
+- Public documentation describes correlation limits and the incident-time/export
+  procedure. New-device/real-car validation is intentionally left to the owner,
+  who requested the APK for installation and later incident capture.
