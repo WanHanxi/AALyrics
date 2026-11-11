@@ -14,9 +14,9 @@ class MediaSessionObservationTest {
 
     @Test
     fun `diagnostics distinguish framework callbacks from queries without changing observation`() {
-        val reasons = mutableListOf<String?>()
+        val reasons = mutableListOf<String>()
         MediaConnectionDiagnostics.attach { event, fields ->
-            if (event == "sessions_observed") reasons += fields["reason"]
+            if (event == "sessions_observed") reasons += fields.getValue("reason")
         }
         val controller = FakeController("selected")
         val source = FakeSource().apply { sessions = listOf(controller) }

@@ -38,7 +38,7 @@ class AndroidAutoActivationTest {
             ),
             events.map { it.first },
         )
-        assertEquals(listOf(first, first, second, second), events.map { it.second["request"] })
+        assertEquals(listOf(first, first, second, second), events.map { it.second.getValue("request") })
         assertEquals("projection_disconnected", events[1].second["reason"])
         assertEquals("stopped", events[3].second["reason"])
     }

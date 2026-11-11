@@ -95,8 +95,8 @@ class MediaConnectionDiagnosticsTest {
 
     @Test
     fun `playback churn is deduplicated but buffering and restored playing are retained`() {
-        val states = mutableListOf<String?>()
-        MediaConnectionDiagnostics.attach { _, fields -> states += fields["playback_state"] }
+        val states = mutableListOf<String>()
+        MediaConnectionDiagnostics.attach { _, fields -> states += fields.getValue("playback_state") }
         val controller = Controller("token", "app.player")
 
         repeat(100) {

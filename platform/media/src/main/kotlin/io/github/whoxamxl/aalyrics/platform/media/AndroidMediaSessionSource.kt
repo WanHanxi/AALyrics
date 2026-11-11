@@ -71,7 +71,7 @@ internal class AndroidRuntimeMediaController(
         return mapOf(
             "playing" to (state == PlaybackState.STATE_PLAYING).toString(),
             "playback_state" to (state?.toString() ?: "none"),
-            "playback_type" to (controller.playbackInfo?.playbackType?.toString() ?: "none"),
+            "playback_type" to controller.playbackInfo.playbackType.toString(),
         )
     }
 
