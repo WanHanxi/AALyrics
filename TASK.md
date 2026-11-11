@@ -88,7 +88,7 @@ promised. No new settings, persistent state, or Preview/reset changes are needed
 
 The owner reported that several real-car connections successfully prioritized
 AALyrics and requested a clearer PR description, a README Highlights entry, and
-1.2.2 release preparation in this same PR. Future Release notes should omit
+release of this PR as 1.2.2. Future Release notes should omit
 routine Updating and installation text unless a release requires manual action.
 
 - [x] Describe the user-visible media-selection effect and the one-time
@@ -99,11 +99,20 @@ routine Updating and installation text unless a release requires manual action.
   Preserve existing signing, package, provider configuration, and versionCode policy.
 - [x] Make the action-only installation-notes policy explicit for future releases;
   retain historical release entries and actionable legacy-cache instructions.
-- [ ] Verify note extraction, documentation consistency, and the updated PR CI.
-- [ ] Update PR #12's title/description around the complete implementation and
+- [x] Verify note extraction, documentation consistency, and the updated PR CI.
+- [x] Update PR #12's title/description around the complete implementation and
   1.2.2 scope, with the validation results.
 
 Runtime source has not changed since the successfully tested and device-validated
-implementation. Reuse the existing local build/test evidence; the PR pipeline
-checks the updated bundled Changelog. Publication must follow the existing
-merged-main tag workflow; do not tag the feature-branch head.
+implementation. Reuse the existing local build/test evidence. Build CI run
+`42948535245` passed for documentation/release checkpoint `cadba02`, including the
+updated bundled Changelog. Release-note extraction matches the 1.2.2 section;
+historical Changelog entries are unchanged. Architecture, whitespace, and
+documentation consistency checks passed.
+
+The owner's request authorizes publishing this PR as 1.2.2. After the final PR
+checks, squash-merge into personal main and create `v1.2.2` on the merged commit.
+The Release workflow must pass and publish the signed APK and checksum; verify
+the published notes, package/version, signing certificate, and bundled Changelog.
+Do not tag the feature-branch head. Publication evidence belongs to the GitHub
+Release and its workflow run.
