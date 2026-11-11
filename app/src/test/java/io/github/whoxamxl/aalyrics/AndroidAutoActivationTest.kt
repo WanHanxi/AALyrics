@@ -19,6 +19,31 @@ import kotlin.test.assertNull
 @OptIn(ExperimentalCoroutinesApi::class)
 class AndroidAutoActivationTest {
     @Test
+    fun `diagnostics correlate each request with its disconnect without repeating during playback`() = runTest {
+        val fixture = Fixture(this)
+        fixture.activate()
+        val first = fixture.activation.sessionActivationRequest.value.toString()
+        repeat(10) { fixture.play() }
+        fixture.activation.onProjectionChanged(false)
+        fixture.activate()
+        val second = fixture.activation.sessionActivationRequest.value.toString()
+        fixture.activation.stop()
+        advanceUntilIdle()
+
+        val events = fixture.eventDetails.filter { it.first.startsWith("automotive_activation_request") }
+        assertEquals(
+            listOf(
+                "automotive_activation_request", "automotive_activation_request_cleared",
+                "automotive_activation_request", "automotive_activation_request_cleared",
+            ),
+            events.map { it.first },
+        )
+        assertEquals(listOf(first, first, second, second), events.map { it.second["request"] })
+        assertEquals("projection_disconnected", events[1].second["reason"])
+        assertEquals("stopped", events[3].second["reason"])
+    }
+
+    @Test
     fun `session request is replayable once per eligible projection and clears on disconnect`() = runTest {
         val fixture = Fixture(this)
         val requests = fixture.activation.sessionActivationRequest
@@ -272,12 +297,16 @@ class AndroidAutoActivationTest {
     ) {
         val bindings = mutableListOf<FakeBinding>()
         val events = mutableListOf<String>()
+        val eventDetails = mutableListOf<Pair<String, Map<String, String>>>()
         val activation = AndroidAutoActivation(
             scope = scope,
             createBinding = {
                 FakeBinding(accepted, throws, loseSynchronously).also(bindings::add)
             },
-            record = { event, _ -> events += event },
+            record = { event, fields ->
+                events += event
+                eventDetails += event to fields
+            },
         )
 
         fun play(eligible: Boolean = true) = activation.onPlaybackSnapshot(playing, eligible)

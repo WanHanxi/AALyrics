@@ -71,7 +71,9 @@ internal class AndroidAutoActivation(
         if (!scope.isActive || !projectionConnected || (!activationRequested && !eligiblePlayback)) return
         if (!activationRequested) {
             activationRequested = true
-            mutableSessionActivationRequest.value = ++nextSessionActivationRequest
+            val request = ++nextSessionActivationRequest
+            record("automotive_activation_request", mapOf("request" to request.toString()))
+            mutableSessionActivationRequest.value = request
         }
         if (binding != null || retryJob != null || attempts >= MAX_ATTEMPTS) return
 
@@ -126,6 +128,9 @@ internal class AndroidAutoActivation(
     }
 
     private fun reset(reason: String) {
+        mutableSessionActivationRequest.value?.let { request ->
+            record("automotive_activation_request_cleared", mapOf("request" to request.toString(), "reason" to reason))
+        }
         mutableSessionActivationRequest.value = null
         activationRequested = false
         attempts = 0
