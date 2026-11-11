@@ -54,6 +54,7 @@ AALyrics observes the active Android media session, matches the current track ag
 
 - **Synchronized lyrics** — plain, line-synced, and genuine word-synced lyrics when the selected provider supplies them.
 - **Android Auto Now Playing** — current lyric line, artwork, translated line when eligible, and the transport controls exposed by the active media app.
+- **Automatic Android Auto lyrics selection** — improves selection of AALyrics as the media display source when connecting and playing music, while Spotify continues supplying audio. Compatible instrument clusters can receive the lyric metadata too.
 - **Offline lyrics reuse** — previously resolved lyrics are cached locally for track switches and app restarts, subject to storage limits.
 - **Multiple lyrics providers** — LRCLIB, Musixmatch, and SyncLRC with provider-independent candidate selection. NetEase Cloud Music is optional, off by default, and can be enabled after a source notice in **Settings > Lyrics**. PetitLyrics is an optional build-time source, enabled only with complete [configuration](docs/providers/PETITLYRICS.md#configuration-source).
 - **Paired Chinese translations** — when NetEase is enabled, prefer matching originals and supplied translations; on-device machine translation remains an optional fallback, enabled by default. Source and translation rights remain separate from the app license; see [source rights and references](docs/LYRICS_SOURCE_RIGHTS.md).
@@ -80,7 +81,7 @@ Each Release also includes a matching `.sha256` file for APK integrity verificat
 
 After the first release-signed installation, later AALyrics releases signed with the same key can update the installed app normally. AALyrics can also discover, verify, and hand off newer releases through its in-app update flow.
 
-**Upgrading to personal 1.2.1:** install over the existing personal 1.2.0 Release app when the new version is published, or use its in-app update check. The package and signing identity are unchanged, so no uninstall is needed and settings and cached lyrics are retained. When upgrading directly from 1.1.0 or 1.1.0-beta.1, older lyrics cache entries still cannot be reused: load songs online again before relying on them offline, even if NetEase stays off.
+**Upgrading from personal 1.1.0 or 1.1.0-beta.1:** older lyrics cache entries cannot be reused by 1.2.0 and later. Load songs online again before relying on them offline, even if NetEase stays off.
 
 > [!NOTE]
 > The personal app is labeled **AALyrics** (or **AALyrics Debug**) and can coexist with upstream. Install it as a new app: original-app settings, cached lyrics and Android permissions do not transfer. Enable Notification access and select the new app in Android Auto. Future personal Release builds use the same personal signing key and can update this installation.
@@ -99,18 +100,24 @@ To enable it:
 
 The host receives the active track, artwork, supported playback actions, current synchronized lyric line, and an eligible translated line when available. Android Auto controls the final layout and text truncation.
 
-Version 1.2.1 automatically prepares the lyrics media session when Android
-Auto is connected and an eligible song is playing. This does not set the default media
-app. See the [activation behavior and phone/car test guide](docs/ANDROID_AUTO_ACTIVATION.md).
+When Android Auto connects and an eligible song is playing, AALyrics automatically
+prepares its lyrics session. Version 1.2.2 improves selection of that session as the
+media display source, including when returning to navigation from Spotify. Repeated
+in-car connections have successfully prioritized AALyrics.
+Android Auto still controls the final selection and layout; see the
+[activation behavior and phone/car test guide](docs/ANDROID_AUTO_ACTIVATION.md).
 
-## What's new in 1.2.1
+## What's new in 1.2.2
 
-AALyrics 1.2.1 adds automatic activation when Android Auto is connected and an eligible
-song is playing. It handles either connection/playback order, keeps the session through
-pause and track changes, and releases the application's binding on disconnect. Android
-Auto still decides which media card to display. Notification access and normal system
-background recovery remain necessary; see the [test guide](docs/ANDROID_AUTO_ACTIVATION.md)
-for device-specific checks.
+AALyrics 1.2.2 improves automatic lyrics-source selection in Android Auto. Connect and
+play Spotify, and AALyrics can supply the display metadata while Spotify supplies the
+audio. Repeated in-car connections selected AALyrics successfully; desktop head-unit
+tests also confirmed selection after returning from Spotify to maps and through natural
+track changes. No new setting is required.
+
+The dashboard's swipeable media card may still show Spotify while the sidebar and
+outgoing media source use AALyrics. Instrument-cluster rendering depends on the vehicle;
+see the [test guide](docs/ANDROID_AUTO_ACTIVATION.md) for the verified behavior and limits.
 
 The NetEase and translation features introduced in 1.2.0 remain available:
 

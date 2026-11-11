@@ -81,6 +81,13 @@ guarantee which application the host displays. The earlier host-driven process-d
 does not validate this new activation path or overnight recovery; see
 [automatic activation and the pending device checks](ANDROID_AUTO_ACTIVATION.md).
 
+Version 1.2.2 corrects publication/activation ordering and adds one connection-scoped
+refresh for an existing lyrics session. This lets Android Auto observe the updated
+playing-session order without repeated priority requests. Repeated in-car connections
+successfully selected AALyrics; DHU also confirmed the outgoing media source after
+returning to maps and through a natural track change. Host selection and vehicle-specific
+instrument-cluster rendering remain host-controlled; details are in the activation guide.
+
 ## Planned templated-media requirements
 
 The dedicated Car App Library implementation slice should introduce and validate the Android for Cars templated-media contract, including:

@@ -1,3 +1,18 @@
+## [1.2.2] - 2026-11-10
+
+AALyrics 1.2.2 improves automatic lyrics-source selection in Android Auto, so the lyrics display can take priority when you connect and play Spotify while Spotify continues supplying audio.
+
+### Android Auto
+
+- Improve selection of the lyrics display when music starts before or after connecting Android Auto, including when returning to navigation from Spotify.
+- Correct playback-state publication and refresh the lyrics session at most once per connection. Pauses, track changes and lyric updates do not repeatedly request priority.
+- Repeated in-car connections successfully selected AALyrics. Desktop head-unit tests also confirmed selection after returning from Spotify to maps, working pause/resume controls, and continuous selection through a natural track change.
+
+### Current limitations
+
+- Android Auto still controls the final media selection. The dashboard's swipeable media card can show Spotify even while AALyrics supplies the outgoing metadata; instrument-cluster rendering depends on the vehicle.
+- Other Android Auto versions and recovery after overnight idle or reboot have not been separately confirmed.
+
 ## [1.2.1] - 2026-11-09
 
 AALyrics 1.2.1 automatically prepares the lyrics media session when Android Auto connects and an eligible song is playing, so you do not need to open AALyrics on the phone for each drive.

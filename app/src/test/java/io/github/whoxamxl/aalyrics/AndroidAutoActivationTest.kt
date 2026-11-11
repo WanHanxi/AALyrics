@@ -12,9 +12,51 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AndroidAutoActivationTest {
+    @Test
+    fun `session request is replayable once per eligible projection and clears on disconnect`() = runTest {
+        val fixture = Fixture(this)
+        val requests = fixture.activation.sessionActivationRequest
+        fixture.play()
+        assertNull(requests.value)
+        fixture.activation.onProjectionChanged(true)
+        val first = assertNotNull(requests.value)
+        repeat(10) {
+            fixture.activation.onProjectionChanged(true)
+            fixture.play()
+        }
+        fixture.activation.onPlaybackSnapshot(playing.copy(status = PlaybackStatus.PAUSED), true)
+        fixture.activation.onPlaybackSnapshot(PlaybackSnapshot(), false)
+        assertEquals(first, requests.value)
+        fixture.activation.onProjectionChanged(false)
+        assertNull(requests.value)
+        fixture.activation.onProjectionChanged(true)
+        fixture.play(eligible = false)
+        assertNull(requests.value)
+        fixture.play()
+        val second = assertNotNull(requests.value)
+        assertNotEquals(first, second)
+        fixture.activation.stop()
+        assertNull(requests.value)
+        advanceUntilIdle()
+    }
+
+    @Test
+    fun `binding retries reuse the same session activation request`() = runTest {
+        val fixture = Fixture(this, accepted = false)
+        fixture.activate()
+        val request = assertNotNull(fixture.activation.sessionActivationRequest.value)
+        advanceUntilIdle()
+        assertEquals(3, fixture.bindings.size)
+        assertEquals(request, fixture.activation.sessionActivationRequest.value)
+        fixture.activation.stop()
+    }
+
     @Test
     fun `play then connect activates once without phone or lyrics input`() = runTest {
         val fixture = Fixture(this)

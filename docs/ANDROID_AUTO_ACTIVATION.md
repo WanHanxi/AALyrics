@@ -19,9 +19,23 @@ releases this application's binding and cancels pending retries. Android Auto ca
 hold its own binding, in which case the service/session may legitimately remain alive.
 The application never disconnects the host's client or tells Spotify to start/stop playback.
 
-An active media session does **not** make AALyrics the default/highest-priority media app.
-Android Auto still chooses the sidebar icon and media card. Automatic preparation and
-host display selection must be evaluated separately.
+The browser service publishes metadata and the real playback state before activating
+its media session. If the service was already active, the first eligible playback of a
+projection connection requests one inactive/active refresh after a valid playing state
+has been published. A replayable request identifies each connection, including when
+Android Auto retains the service across disconnects. Pauses, track/source changes,
+lyrics ticks, and temporary metadata gaps do not repeat the refresh in that connection.
+
+This sequencing addresses stale session ordering: Android can reorder its media stack
+on playback changes without notifying active-session listeners. A session activation
+change makes listeners read the current list. It does not request audio focus, create a
+dummy session, manufacture `PLAYING`, or send a transport action to the source player.
+
+Android Auto still chooses the sidebar icon, media card, and outgoing media metadata.
+This is not a permanent pin or default-app API. Automatic preparation and actual host
+display selection must be evaluated separately, especially after manually choosing
+another media app. See the [framework session service](https://android.googlesource.com/platform/frameworks/base/+/refs/heads/android16-release/services/core/java/com/android/server/media/MediaSessionService.java)
+and [MediaSessionManager](https://developer.android.com/reference/android/media/session/MediaSessionManager).
 
 ## Ownership and recovery
 
@@ -64,6 +78,7 @@ Debug builds add the following to the existing bounded connection report:
 | `automotive_activation_bind_accepted` | Android accepted the request; not proof of a callback |
 | `automotive_activation_connected` | Application's service connection received a binder |
 | `automotive_host_demand` with `active=true` | Browser service created its media session and entered its active lifetime |
+| `automotive_session_activated` | Playback already published; `reason=initial` for first activation or `projection_refresh` for a connection's one-time reactivation |
 | `automotive_activation_disconnected` | Temporary service disconnection; existing binding retained |
 | `automotive_activation_binding_lost` / `automotive_activation_bind_failed` | Binding died, was null, or request failed |
 | `automotive_activation_released` | Application dropped its binding; includes reason |
@@ -72,6 +87,9 @@ Debug builds add the following to the existing bounded connection report:
 The existing `listener_connected`, `playback_forwarded`, and `process_start` records help
 identify whether a failure happened before playback discovery or during activation.
 Logs do not prove which card Android Auto displayed; record that observation separately.
+The dashboard's swipeable media card can remain on another app even while the sidebar
+and outgoing media source use AALyrics. For instrument-cluster validation, also inspect
+Desktop Head Unit's `Media Playback Status` source or the real car's display.
 
 All activation state is process-local. There is no new preference, cache, permission, or
 reset target. Existing diagnostic retention intentionally survives Reset AALyrics and
@@ -82,6 +100,28 @@ changes are introduced, so existing Compose Previews remain applicable.
 
 已在设备上完成连接触发测试，多次连接 Android Auto 均能触发。隔夜闲置、重启和受控进程死亡未单独反馈，以下矩阵保留作后续验证参考。
 在停车状态下操作手机和车机。
+
+### 媒体来源时序修复验证
+
+时序修复在真实手机配合 Google Desktop Head Unit 上完成四轮连接检查，未在每轮连接后
+手动打开 AALyrics。覆盖连接前已播放、连接后自动播放，以及断开前在 Spotify 主界面的
+情况；每轮稳定后的 AA 选择和 DHU `Media Playback Status` 的来源均为 AALyrics Debug。
+初次连接时可能先出现 Spotify，再在歌词会话发布后切换；不保证启动期间完全没有过渡。
+
+在连接内打开 Spotify 主界面时，AA 会随前台应用选择 Spotify；返回地图/主界面后又选择
+AALyrics。通过 AALyrics 卡片暂停/继续能控制 Spotify，日志未出现额外的会话激活刷新。
+一次重连的右侧轮播卡片仍停在 Spotify，但侧栏和 DHU 输出来源已是 AALyrics，二者不能
+混为同一个优先级。
+
+最后一轮连续静置 6 分 31 秒，跨过一次自然换曲；AA 未改选其他来源，DHU 结束时仍显示
+`Source: AALyrics Debug`，应用没有额外的激活刷新。四轮各记录一次初始激活和一次连接刷新。
+此前一次静置观察被 DHU 传输断线中断，不计入上述连续播放时长；重连后再次自动选择 AALyrics。
+后续实车反馈（2026-11-10）：多次连接均成功优先选择 AALyrics。该反馈确认了实际车载
+连接场景的优先选择效果，未单独确认所有仪表盘歌词字段的渲染或其他车型兼容性。
+
+DHU 实际断线后，宿主均释放了歌词服务；宿主跨断线保留同一服务的场景由生命周期单测
+覆盖，尚无本轮宿主实测证据。其他 AA 版本、隔夜和重启后的可靠性仍待单独验证。
+上述结果不构成永久置顶或每次上车成功的保证。
 
 ### 安装和准备
 
