@@ -35,9 +35,15 @@ class LyricsBrowserService : MediaBrowserServiceCompat() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private lateinit var mediaSession: MediaSessionCompat
     private val sessionActivation = AutomotiveSessionActivation { refresh ->
-        if (refresh) mediaSession.isActive = false
+        if (refresh) {
+            mediaSession.isActive = false
+            recordSessionDiagnostic("automotive_session_deactivated", mapOf("reason" to "projection_refresh"))
+        }
         mediaSession.isActive = true
-        binding?.onSessionActivated?.invoke(refresh)
+        recordSessionDiagnostic(
+            "automotive_session_activated",
+            mapOf("reason" to if (refresh) "projection_refresh" else "initial"),
+        )
     }
     private var binding: AutomotiveRuntimeBinding? = null
     private var sessionActivationCollection: Job? = null
@@ -73,6 +79,7 @@ class LyricsBrowserService : MediaBrowserServiceCompat() {
         sessionToken = mediaSession.sessionToken
 
         binding = AutomotiveRuntimeHost.current()
+        recordSessionDiagnostic("automotive_session_created")
         binding?.hostDemand?.setActive(true)
         bindState(binding)
 
@@ -96,6 +103,7 @@ class LyricsBrowserService : MediaBrowserServiceCompat() {
         translationStateCollection?.cancel()
         scope.cancel()
         mediaSession.isActive = false
+        recordSessionDiagnostic("automotive_session_destroying")
         mediaSession.release()
         super.onDestroy()
     }
@@ -203,8 +211,32 @@ class LyricsBrowserService : MediaBrowserServiceCompat() {
             mediaSession.setMetadata(NowPlayingScreen.metadata(state))
         }
 
-        mediaSession.setPlaybackState(NowPlayingScreen.playbackState(state))
+        val publishedPlayback = NowPlayingScreen.playbackState(state)
+        mediaSession.setPlaybackState(publishedPlayback)
+        recordSessionDiagnostic(
+            "automotive_playback_published",
+            mapOf("published_state" to publishedPlayback.state.toString()),
+        )
         sessionActivation.onPlaybackPublished(latestPlayback, binding?.sessionActivationRequest?.value)
+    }
+
+    private fun recordSessionDiagnostic(event: String, extra: Map<String, String> = emptyMap()) {
+        val report = binding?.onSessionDiagnostic ?: return
+        try {
+            report(
+                event,
+                mediaSession.sessionToken.token,
+                mapOf(
+                    "request" to (binding?.sessionActivationRequest?.value?.toString() ?: "none"),
+                    "active" to mediaSession.isActive.toString(),
+                    "playback" to latestPlayback.status.name,
+                    "source" to (latestPlayback.source?.id ?: "none"),
+                    "has_track" to (latestPlayback.track != null).toString(),
+                ) + extra,
+            )
+        } catch (_: RuntimeException) {
+            // Diagnostic collection must not change publication or activation behavior.
+        }
     }
 
     private inner class SessionCallback : MediaSessionCompat.Callback() {

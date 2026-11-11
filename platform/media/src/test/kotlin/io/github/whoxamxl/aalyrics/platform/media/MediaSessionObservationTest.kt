@@ -3,12 +3,35 @@ package io.github.whoxamxl.aalyrics.platform.media
 import io.github.whoxamxl.aalyrics.core.model.PlaybackSnapshot
 import io.github.whoxamxl.aalyrics.core.model.PlaybackSource
 import io.github.whoxamxl.aalyrics.core.model.Track
+import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNull
 
 class MediaSessionObservationTest {
+    @AfterTest fun detachDiagnostics() = MediaConnectionDiagnostics.detach()
+
+    @Test
+    fun `diagnostics distinguish framework callbacks from queries without changing observation`() {
+        val reasons = mutableListOf<String>()
+        MediaConnectionDiagnostics.attach { event, fields ->
+            if (event == "sessions_observed") reasons += fields.getValue("reason")
+        }
+        val controller = FakeController("selected")
+        val source = FakeSource().apply { sessions = listOf(controller) }
+        val observation = observation(source, mutableListOf(), mutableListOf())
+
+        observation.connect()
+        repeat(2) { source.emit() }
+
+        assertEquals(listOf("query", "active_sessions_callback", "active_sessions_callback"), reasons)
+        assertEquals(1, source.currentSessionsCount)
+        assertEquals(1, source.registerCount)
+        assertEquals(0, controller.detachCount)
+        observation.stop()
+    }
+
     @Test
     fun `active sessions are not read before listener connection`() {
         val source = FakeSource()
@@ -230,6 +253,8 @@ class MediaSessionObservationTest {
         var unregisterCount = 0
         var currentSessionsCount = 0
         private var listener: ((List<RuntimeMediaController<String>>) -> Unit)? = null
+
+        fun emit() { listener?.invoke(sessions) }
 
         override fun register(listener: (List<RuntimeMediaController<String>>) -> Unit) {
             registerCount += 1

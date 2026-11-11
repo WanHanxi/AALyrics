@@ -8,6 +8,9 @@ internal interface RuntimeMediaController<Token> {
     val packageName: String
     val isPlaying: Boolean
 
+    /** Metadata-free diagnostic facts; read only while the Debug recorder is attached. */
+    fun diagnosticPlayback(): Map<String, String> = mapOf("playing" to isPlaying.toString())
+
     fun snapshot(): PlaybackSnapshot
     fun artwork(): Bitmap? = null
     fun queueArtworkBitmaps(): Map<Long, Bitmap> = emptyMap()
@@ -173,7 +176,12 @@ internal class SelectedMediaSessionRuntime<Token>(
 
     private fun switchTo(next: RuntimeMediaController<Token>?) {
         MediaConnectionDiagnostics.record("controller_switch") {
-            mapOf("from" to (selectedController?.packageName ?: "none"), "to" to (next?.packageName ?: "none"))
+            mapOf(
+                "from" to (selectedController?.packageName ?: "none"),
+                "from_token_hash" to MediaConnectionDiagnostics.tokenFingerprint(selectedController?.token),
+                "to" to (next?.packageName ?: "none"),
+                "to_token_hash" to MediaConnectionDiagnostics.tokenFingerprint(next?.token),
+            )
         }
         pendingMetadataTask?.cancel()
         pendingMetadataTask = null
@@ -234,8 +242,8 @@ internal class SelectedMediaSessionRuntime<Token>(
     private fun callbackFor(token: Token): RuntimeMediaControllerCallback =
         object : RuntimeMediaControllerCallback {
             override fun onMetadataChanged() {
-                if (!owns(token)) return
-                MediaConnectionDiagnostics.record("controller_metadata_callback")
+                val current = selectedController?.takeIf { it.token == token } ?: return
+                MediaConnectionDiagnostics.controllerEvent("controller_metadata_callback", current)
                 val latest = playbackClockReconciler.reconcile(selectedController?.snapshot() ?: return)
                 if (latest.trackIdentity == stableSnapshot?.trackIdentity) {
                     stableSnapshot = latest
@@ -248,7 +256,7 @@ internal class SelectedMediaSessionRuntime<Token>(
 
             override fun onPlaybackStateChanged() {
                 val current = selectedController?.takeIf { it.token == token } ?: return
-                MediaConnectionDiagnostics.record("controller_playback_callback")
+                MediaConnectionDiagnostics.controllerEvent("controller_playback_callback", current, deduplicate = true)
                 val latest = playbackClockReconciler.reconcile(current.snapshot())
                 controlStateSink.onPlaybackControlState(current.controlState())
                 if (
@@ -270,8 +278,8 @@ internal class SelectedMediaSessionRuntime<Token>(
             }
 
             override fun onSessionDestroyed() {
-                if (!owns(token)) return
-                MediaConnectionDiagnostics.record("controller_destroyed")
+                val current = selectedController?.takeIf { it.token == token } ?: return
+                MediaConnectionDiagnostics.controllerEvent("controller_destroyed", current)
                 switchTo(null)
                 refreshSessions()
             }

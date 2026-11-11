@@ -66,6 +66,15 @@ internal class AndroidRuntimeMediaController(
     override val isPlaying: Boolean
         get() = controller.playbackState?.state == PlaybackState.STATE_PLAYING
 
+    override fun diagnosticPlayback(): Map<String, String> {
+        val state = controller.playbackState?.state
+        return mapOf(
+            "playing" to (state == PlaybackState.STATE_PLAYING).toString(),
+            "playback_state" to (state?.toString() ?: "none"),
+            "playback_type" to controller.playbackInfo.playbackType.toString(),
+        )
+    }
+
     override fun snapshot() = MediaControllerSnapshotAdapter.snapshot(controller)
 
     override fun artwork() =

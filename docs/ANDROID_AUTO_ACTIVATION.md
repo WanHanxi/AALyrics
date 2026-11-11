@@ -74,15 +74,37 @@ Debug builds add the following to the existing bounded connection report:
 | Event | Meaning |
 | --- | --- |
 | `automotive_projection` with `connection_type=2` | Android Auto projection observed |
+| `automotive_activation_request` / `automotive_activation_request_cleared` | Connection request ID issued or cleared, including the clear reason |
 | `automotive_activation_bind_requested` | Application requested service creation; includes attempt number |
 | `automotive_activation_bind_accepted` | Android accepted the request; not proof of a callback |
 | `automotive_activation_connected` | Application's service connection received a binder |
 | `automotive_host_demand` with `active=true` | Browser service created its media session and entered its active lifetime |
-| `automotive_session_activated` | Playback already published; `reason=initial` for first activation or `projection_refresh` for a connection's one-time reactivation |
+| `automotive_session_created` / `automotive_session_destroying` | Own session token fingerprint and lifetime; destruction is logged after deactivation, before release |
+| `automotive_playback_published` | Changed published playback state, source presence, active flag, request ID, and own token fingerprint; excludes lyric/position churn |
+| `automotive_session_deactivated` / `automotive_session_activated` | Actual active-flag transitions; `reason=initial` or `projection_refresh`, correlated with request ID and token fingerprint |
 | `automotive_activation_disconnected` | Temporary service disconnection; existing binding retained |
 | `automotive_activation_binding_lost` / `automotive_activation_bind_failed` | Binding died, was null, or request failed |
 | `automotive_activation_released` | Application dropped its binding; includes reason |
 | `automotive_activation_unbind_failed` | Cleanup failed; includes exception class only |
+| `sessions_observed` | Original system order, token fingerprints, packages, playback states/types, and whether received through a query or an active-session callback |
+| `controller_switch` / `controller_destroyed` | AALyrics' source-controller identity changes or destruction, including token fingerprints |
+| `controller_playback_callback` | Changed state/type of the source controller, including buffering and restored playing |
+
+System-list callbacks are recorded even when their contents are identical: a quick
+inactive/active transition can produce a notification without a different final list.
+Each list records up to 16 entries as `session_0`, `session_1`, etc.; `count` and
+`omitted` make truncation explicit. Numeric framework playback states include
+`2=PAUSED`, `3=PLAYING`, `6=BUFFERING`; playback type is `1=LOCAL`, `2=REMOTE`.
+The records reuse existing list deliveries and selected-controller callbacks. Logging
+does not query an extra list, attach another controller, or alter playback/activation.
+
+Token hashes are fingerprints for correlating events within the surrounding process
+records, not serialized session tokens or proof of a particular call inside another app.
+An identical callback alone cannot identify which app triggered it. Source selection in
+`controller_switch`/`session_selection` means the player AALyrics follows; it does not
+mean the display source Android Auto selected. The app has no API to read AA's final
+choice. Its own state publication and activation events can be correlated with the
+observed system list and the owner's incident time.
 
 The existing `listener_connected`, `playback_forwarded`, and `process_start` records help
 identify whether a failure happened before playback discovery or during activation.
@@ -157,6 +179,17 @@ DHU 实际断线后，宿主均释放了歌词服务；宿主跨断线保留同�
 发生在该手动操作之前。没有手动打开前的记录，就不能声称通过了自动激活测试。
 
 ### 导出证据和进程恢复检查
+
+此诊断 APK 沿用 Debug 版的自动记录和导出入口，不需要开启 **Verbose details**。
+那个开关只改变 Details 页显示的信息量。日志会跨 App 重启保留；旧记录按现有容量上限
+轮换，因此出现异常后应尽快导出。没有新增开关，也不改变 1.2.2 的会话选择行为。
+
+若途中发现 Spotify 重新变成显示来源，记下当地日期、时间（尽量到秒）和时区，以及
+当时看到变化的是 AA 左侧图标、仪表盘，还是仅右侧轮播卡片。还应记录当时是否刚换歌、
+暂停恢复、打开 Spotify 全屏、锁屏或重连；无需为了记录而在行车中操作手机。
+停车后按下方路径导出，把日志与上述时间一起交给维护者。先导出再清数据或卸载，
+以保留问题发生前的记录。该日志可定位应用/系统会话变化，但不包含 AA 的内部选择日志；
+必要时仍需补充事发附近的系统日志。
 
 完成一轮后，再打开手机测试版：**Settings > Advanced > Debug > Export connection diagnostics**。
 保存报告，提供对应本地时间与测试场景；报告时间戳为 UTC。导出本身会打开 App，因此判断
