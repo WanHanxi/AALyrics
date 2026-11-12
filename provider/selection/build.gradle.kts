@@ -15,3 +15,11 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
+tasks.register<JavaExec>("matchingBenchmark") {
+    group = "verification"
+    description = "Runs the opt-in synthetic selection CPU benchmark."
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("io.github.whoxamxl.aalyrics.provider.selection.MatchingBenchmark")
+    maxHeapSize = "256m"
+}
