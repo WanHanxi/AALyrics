@@ -636,10 +636,12 @@ Contract:
 
 - the Quick-controls Karaoke row is hidden while the Experimental gate is OFF;
 - the live Karaoke toggle defaults to OFF;
-- toggling it does not trigger provider lookup or mutate lyrics;
+- toggling it updates the application selection preference and reselects the current track; a matching preference-keyed cache avoids provider work, otherwise normal lookup runs;
 - effective rendering additionally requires a WORD_SYNC source;
-- LINE_SYNC and PLAIN sources ignore the live Karaoke toggle;
-- disabling the Experimental gate clears the live Karaoke toggle.
+- LINE_SYNC and PLAIN documents remain readable fallbacks without word highlighting;
+- disabling the Experimental gate clears the live Karaoke toggle and word-timing selection priority;
+- all enabled sources still participate, including SyncLRC, while the toggle is OFF;
+- enabling Karaoke can select word-timed original lyrics without a source translation instead of a bilingual LINE document.
 
 Quick controls owns only the user interaction. Application-owned persisted state remains outside `:ui:phone`.
 

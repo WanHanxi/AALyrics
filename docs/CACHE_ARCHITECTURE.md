@@ -119,7 +119,9 @@ Source translations containing literal replacement characters remain usable cach
 
 ## Multilingual selection policy update
 
-Selection policy 3 invalidates hits for older selected winners, including romanized
-lyrics selected under the previous mixed-script penalty. Schema remains 2. Stored
-files are not bulk-deleted or rewritten; ordinary cache eviction still applies.
-This adds no new reset target or setting and preserves the keep-cache contract.
+Selection policy 4 invalidates hits for older selected winners, including romanized
+lyrics selected before policy 3 and results selected under the former translation
+coverage/always-WORD policy. Schema remains 2. Stored files are not bulk-deleted or
+rewritten; ordinary cache eviction still applies. Karaoke OFF and ON use separate
+preference keys. Reset removes the existing Karaoke preference but preserves cache
+files; no new reset target or durable setting is introduced.

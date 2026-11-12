@@ -301,13 +301,13 @@ Karaoke ON/OFF is presentation/application state.
 
 It does not:
 
-- alter canonical lyrics;
+- rewrite a selected document's source text or timestamps;
 - alter `EffectiveLyricsPosition`;
 - change Timing Semantic Engine output for the same input;
 - trigger provider refetch solely to switch rendering;
 - reapply timing offset.
 
-If a later product decision changes Lyrics Provider preference when Karaoke is enabled, that is a separate lookup/preference policy and must not be confused with timing semantics.
+The November 2026 selection follow-up now gives word timing priority only when both existing Karaoke switches are ON. All enabled providers participate in either state. A switch may select a different canonical document after a preference-keyed cache read or normal lookup; this application policy is separate from rendering and never changes the timing semantics of a given document. See `MULTILINGUAL_MATCHING.md` and `APPLICATION_COMPOSITION.md`.
 
 ## Translation relationship
 

@@ -10,7 +10,11 @@ object MatchingBenchmark {
 
     @JvmStatic fun main(args: Array<String>) {
         val selector = CrossProviderCandidateSelector()
-        val preferences = CandidateSelectionPreferences(preferredTranslationLanguage = "zh")
+        val mixedTiming = "--mixed-timing" in args || "--karaoke" in args
+        val preferences = CandidateSelectionPreferences(
+            preferredSyncType = LyricsSyncType.WORD.takeIf { "--karaoke" in args },
+            preferredTranslationLanguage = "zh",
+        )
         val fixtures = listOf(
             Track("Evening Light", listOf("Example Band"), "First Album", 240_000),
             Track("星の道", listOf("架空歌手"), "夜", 240_000),
@@ -20,7 +24,12 @@ object MatchingBenchmark {
             Track("Northern Light", listOf("Svet & Mir", "Novy"), "Album", 240_000),
         ).mapIndexed { fixtureIndex, track ->
             val candidates = (0 until 8).map { candidateIndex ->
-                val provider = if (candidateIndex % 2 == 0) "lrclib" else "netease"
+                val provider = when {
+                    mixedTiming && candidateIndex % 4 == 2 -> "musixmatch"
+                    mixedTiming && candidateIndex % 4 == 3 -> "synclrc"
+                    candidateIndex % 2 == 0 -> "lrclib"
+                    else -> "netease"
+                }
                 val attribution = LyricsAttribution(provider, sourceId = "$candidateIndex")
                 val lines = (0 until 60).map { line ->
                     val text = when {
@@ -31,7 +40,10 @@ object MatchingBenchmark {
                         else -> "We follow the evening light"
                     }
                     // 75% distinct rows; repeated choruses must not dominate the CPU sample.
-                    TimedLyricLine(if (line % 4 == 0) text else "$text $line", line * 3_800L)
+                    val row = if (line % 4 == 0) text else "$text $line"
+                    TimedLyricLine(row, line * 3_800L, words = if (provider in setOf("musixmatch", "synclrc")) {
+                        row.split(" ").mapIndexed { index, token -> TimedWord(token, line * 3_800L + index * 300) }
+                    } else emptyList())
                 }
                 val matched = track.copy(
                     title = when {
@@ -45,7 +57,7 @@ object MatchingBenchmark {
                 )
                 LyricsCandidate(LyricsProviderId(provider), matched, LyricsDocument(
                     lines, attribution = attribution,
-                    suppliedTranslation = if (candidateIndex % 2 == 1) SuppliedLyricsTranslation(
+                    suppliedTranslation = if (provider == "netease") SuppliedLyricsTranslation(
                         "zh", lines.mapIndexed { i, _ -> if (i % 3 == 0) null else "测试译文" }, attribution,
                     ) else null,
                 ))

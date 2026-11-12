@@ -168,7 +168,7 @@
     <string name="settings_verbose_details">Verbose details</string>
     <string name="settings_section_experimental">EXPERIMENTAL FEATURES</string>
     <string name="settings_karaoke_mode">Karaoke mode</string>
-    <string name="settings_karaoke_info">Experimental. Enable Karaoke in the media player’s Quick controls after turning this on. Karaoke applies only to word-synced lyrics.</string>
+    <string name="settings_karaoke_info">Experimental. Enable Karaoke in the media player’s Quick controls after turning this on. Karaoke prefers word-synced lyrics and may change the lyrics source. Other lyrics remain available when word timing is unavailable.</string>
     <string name="settings_karaoke_info_description">About experimental Karaoke mode</string>
     <string name="settings_section_storage">STORAGE</string>
     <string name="settings_clear_translation_models">Clear translation models</string>

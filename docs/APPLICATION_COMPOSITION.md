@@ -60,7 +60,7 @@ The existing `BuildConfig` injection remains authoritative:
 
 ## Playback preference wiring
 
-SyncLRC intentionally performs no request unless `LyricsRequest.preferredSyncType == WORD`, so application composition carries the selection preference through playback-to-lookup ownership.
+All enabled sources, including SyncLRC, participate regardless of `LyricsRequest.preferredSyncType`. Application composition carries the preference through playback-to-lookup ownership so the selector can give word timing priority only when Karaoke is enabled.
 
 Current behavior:
 
@@ -70,7 +70,7 @@ Current behavior:
 - position/status/rate/duration-only churn -> do not restart lookup;
 - no active track -> clear lookup ownership.
 
-The working fork defaults karaoke preference to enabled. Until a later settings/persistence slice exists, the application boundary initializes production selection with `preferredSyncType = WORD`. The default remains outside provider and selector implementations.
+Production starts without a word-timing preference and restores it only when both persisted Karaoke switches are ON. The Advanced experimental gate exposes the Quick-controls live switch; merely exposing it does not prefer WORD. Disabling either switch removes that priority. Updates preserve the independently selected translation language. Same-track changes check the corresponding preference-keyed cache before provider work.
 
 ## Explicitly not owned by composition
 
