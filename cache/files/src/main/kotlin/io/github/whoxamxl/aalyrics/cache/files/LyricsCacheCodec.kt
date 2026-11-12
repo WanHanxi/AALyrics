@@ -18,7 +18,7 @@ import java.util.Locale
 internal object LyricsCacheCodec {
     private const val SCHEMA_VERSION = 2
     // Bump when retrieval/selection changes make previously selected winners unsuitable.
-    private const val SELECTION_POLICY_VERSION = 3
+    private const val SELECTION_POLICY_VERSION = 4
 
     fun identity(key: LyricsCacheKey): String = JsonObject().apply {
         addProperty("schema", SCHEMA_VERSION)

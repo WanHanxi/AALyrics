@@ -39,9 +39,12 @@ class SuppliedTranslationSelectionTest {
             assertEquals(standard, selector.select(track, candidates, chinese.copy(preferredTranslationLanguage = "en")))
         }
     }
-    @Test fun `sparse translations do not earn ranking preference`() {
+    @Test fun `partial translations earn preference without a coverage threshold`() {
         val standard = candidate("lrclib")
-        assertEquals(standard, selector.select(track, listOf(standard, candidate("netease", 7)), chinese))
+        for (count in listOf(1, 3, 7)) {
+            val paired = candidate("netease", count)
+            assertEquals(paired, selector.select(track, listOf(standard, paired), chinese))
+        }
     }
     @Test fun `replacement characters only break equal bilingual ties for the requested target`() {
         val intact = candidate("netease", 10, sourceId = "1")

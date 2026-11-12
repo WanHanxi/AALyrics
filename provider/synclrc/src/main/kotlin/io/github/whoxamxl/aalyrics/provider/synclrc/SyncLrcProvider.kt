@@ -28,7 +28,8 @@ class SyncLrcProvider(
     )
 
     override suspend fun search(request: LyricsRequest): List<LyricsCandidate> {
-        if (request.preferredSyncType != LyricsSyncType.WORD) return emptyList()
+        // Word-timed lyrics can also be displayed by line. Retrieval is independent
+        // of whether the selector currently gives word timing extra priority.
         val artist = request.track.artists.joinToString(", ")
         if (artist.isBlank()) return emptyList()
 

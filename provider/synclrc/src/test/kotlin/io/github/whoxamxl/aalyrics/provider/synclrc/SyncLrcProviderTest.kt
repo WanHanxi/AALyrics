@@ -68,13 +68,21 @@ class SyncLrcProviderTest {
     }
 
     @Test
-    fun nonWordPreferencesAndMissingArtistSkipTransport() = withServer { server, provider ->
+    fun nonWordPreferencesStillRetrieveUsableWordLyrics() = withServer { server, provider ->
         listOf(null, LyricsSyncType.PLAIN, LyricsSyncType.LINE).forEach { preference ->
-            assertTrue(provider.search(request.copy(preferredSyncType = preference)).isEmpty())
+            server.enqueueJson("""{"karaoke":"[00:01.00]<00:01.00>Provider"}""")
+            val candidate = provider.search(request.copy(preferredSyncType = preference)).single()
+            assertEquals(LyricsSyncType.WORD, candidate.lyrics.syncType)
         }
+        assertEquals(3, server.requestCount)
+    }
+
+    @Test
+    fun missingArtistSkipsTransportRegardlessOfPreference() = withServer { server, provider ->
         assertTrue(
             provider.search(LyricsRequest(Track("Provider"), LyricsSyncType.WORD)).isEmpty(),
         )
+        assertTrue(provider.search(LyricsRequest(Track("Provider"))).isEmpty())
         assertEquals(0, server.requestCount)
     }
 

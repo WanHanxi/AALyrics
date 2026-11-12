@@ -2,7 +2,26 @@
 
 Personal baseline: `659c37f`, branch `fix/multilingual-lyrics-matching`, target
 `WanHanxi/AALyrics:main`. Implementation and performance comparison authorized.
-Duration scores/weight and bilingual coverage/tolerances stay unchanged.
+Duration scores/weight and metadata/quality tolerances stay unchanged.
+Follow-up authorized November 12: query every enabled source regardless of
+Karaoke, apply word-timing preference only with both existing Karaoke switches
+enabled, and remove the translation-coverage threshold.
+
+## Authorized follow-up
+
+1. Remove the supplied-translation coverage gate and SyncLRC request gate;
+   make all word-timing ranking advantages conditional on the Karaoke preference.
+2. Connect the persisted experimental/live switches to selection without losing
+   the translation preference; keep provider participation independent of both.
+   Reuse preference-keyed cache and increment selection-policy invalidation.
+3. Test selection, transport participation, preference changes/restoration/reset,
+   cache separation and late-result cancellation. Re-run relevant checks/build
+   under the workstation memory limit; compare frozen/current CPU measurements
+   and replay private playlist candidates without publishing personal data.
+4. Update documentation and the existing personal Draft PR. Stop before merge.
+
+Reset: existing Karaoke switches still reset OFF; no new durable preference or
+downloaded asset. Existing cache files survive policy invalidation.
 
 ## Checkpoints
 

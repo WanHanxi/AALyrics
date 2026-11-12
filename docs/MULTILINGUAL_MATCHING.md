@@ -45,11 +45,22 @@ receive the mixing penalty. Source confidence recognizes Japanese from lyric tex
 even when every metadata field is Latin; explicit English versions retain the
 English-source preference. Native-script evidence never overrides version checks.
 
-Bilingual preference remains >=80% useful-row coverage, within .03 metadata and
-.05 quality of the normal synchronized winner. A partial supplied translation
-still displays when its original wins normally. Sources are never merged or
-retimed to manufacture a bilingual document. Some otherwise valid translations
-can still miss these unchanged preference gates.
+A supplied translation in the requested language receives preference when at
+least one useful original row has a paired translation. There is no coverage
+percentage gate: untranslated English, vocalizations and other gaps remain
+original-only. This is an availability preference, not a translation-accuracy
+score. Metadata must remain within .03 and lyric quality within .05 of the normal
+synchronized winner. Sources are never merged or retimed.
+
+All enabled sources, including SyncLRC, participate regardless of Karaoke. With
+Karaoke off, WORD documents compete as ordinary synchronized lyrics, with no
+word-timing confidence bonus. The existing experimental gate and Quick-controls
+Karaoke switch must both be on to prefer usable WORD candidates within the same
+identity/quality bounds. Supplied translations then receive preference within
+that WORD group; if no suitable WORD exists, bilingual/ordinary LINE fallback
+remains available. Rendering still needs real word timestamps. A switch can
+change the current lyrics source, including from supplied bilingual LINE lyrics
+to WORD lyrics without a supplied translation.
 
 LRCLIB keeps its ordinary one-request exact fast path. A strong exact result
 suspected of romanization may trigger one extra title/artist search without album,
@@ -71,9 +82,12 @@ quality scores, and writing signals. The coordinator retains at most 64 records,
 without lyric text, artist names or persistent logs. Provider-local discarded
 search results are not exported by this diagnostics list.
 
-Selection-policy version 3 prevents old selected winners from masking the fix.
+Selection-policy version 4 prevents old selected winners from masking the fix.
 Cache schema stays 2, old files are not bulk-deleted, and reset semantics are
 unchanged. The first lookup of an old-policy entry needs normal network retrieval;
-subsequent valid hits still avoid provider work. No new UI, setting or model asset.
+subsequent valid hits still avoid provider work. Karaoke and translation
+preferences are separate cache-key inputs; changing the effective Karaoke state
+reselects the current track, with a normal provider lookup on a cache miss. No new
+setting or model asset is introduced. Reset still turns both Karaoke switches off.
 
 See `MATCHING_PERFORMANCE.md` for identical-input before/after measurements.
