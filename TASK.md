@@ -19,7 +19,7 @@ Duration scores/weight and bilingual coverage/tolerances stay unchanged.
 
 ## Acceptance
 
-- [ ] Traditional/simplified, aliases, feature credits and equivalent language
+- [x] Traditional/simplified, aliases, feature credits and equivalent language
   version spellings match; unrelated artists and incompatible versions do not.
 - [ ] Mixed original/English lyrics retain quality; originals can beat romanization
   without widening bilingual thresholds or merging sources.
@@ -35,3 +35,6 @@ Reset: no new settings or persisted user state. Existing cache files survive;
 selection-policy increment forces old winners to resolve again. No UI changes
 or new Previews. Deferred: Russian machine translation, source picker, general
 placeholder cleanup, duration changes and threshold tuning.
+
+Checkpoint: metadata and all provider/selection regressions passed. Architecture
+and whitespace checks passed. Baseline benchmark frozen before production changes.

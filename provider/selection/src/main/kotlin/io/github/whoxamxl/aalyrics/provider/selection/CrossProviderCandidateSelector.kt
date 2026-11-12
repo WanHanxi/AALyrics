@@ -103,6 +103,9 @@ class CrossProviderCandidateSelector : CandidateSelector {
         requestedDurationMs = track.durationMs,
         candidateDurationMs = candidate.matchedTrack.durationMs,
         artistQueryCorroborated = candidate.evidence.artistQueryCorroborated,
+        requestedArtists = track.artists,
+        candidateArtists = candidate.matchedTrack.artists,
+        candidateArtistAliases = candidate.evidence.artistAliases,
     )
 
     internal fun lyricsQualityScore(

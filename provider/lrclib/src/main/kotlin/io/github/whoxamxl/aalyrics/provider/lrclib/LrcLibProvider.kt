@@ -4,7 +4,8 @@ import com.google.gson.annotations.SerializedName
 import io.github.whoxamxl.aalyrics.core.model.*
 import io.github.whoxamxl.aalyrics.provider.api.*
 import io.github.whoxamxl.aalyrics.provider.lrc.LrcParser
-import io.github.whoxamxl.aalyrics.provider.matching.MetadataMatching.artistSimilarity
+import io.github.whoxamxl.aalyrics.provider.matching.ArtistIdentity
+import io.github.whoxamxl.aalyrics.provider.matching.MetadataMatching.titleSimilarity
 import io.github.whoxamxl.aalyrics.provider.matching.MetadataMatching.durationSimilaritySeconds
 import io.github.whoxamxl.aalyrics.provider.matching.MetadataMatching.stringSimilarity
 import io.github.whoxamxl.aalyrics.provider.matching.MetadataMatching.stripFeaturing
@@ -55,10 +56,6 @@ class LrcLibProvider(
 
     private fun hasUsablePlainLyrics(candidate: LrcLibResponse): Boolean =
         candidate.plainLyrics.orEmpty().lines().any { it.isNotBlank() }
-
-    private fun titleSimilarity(left: String, right: String): Double = maxOf(
-        stringSimilarity(left, right), stringSimilarity(stripFeaturing(left), stripFeaturing(right)),
-    )
 
     private suspend fun getExact(track: String, artist: String, album: String, durationSec: Int): LrcLibResponse? =
         transport.getExact(track, artist, album, durationSec)
@@ -277,22 +274,19 @@ class LrcLibProvider(
         val artistScore = if (artistName.isBlank() || candidateArtist.isBlank()) {
             null
         } else {
-            artistSimilarity(
-                left = artistName,
-                right = candidateArtist,
-                allowContributorComponents = titleScore >= 0.95
+            ArtistIdentity.similarity(
+                requested = listOf(artistName),
+                candidate = listOf(candidateArtist),
+                allowComponents = titleScore >= 0.95,
             )
         }
 
         val durationScore = durationSimilaritySeconds(durationSec, candidate.duration)
         if (durationScore != null && durationScore < 0.0) return null
 
-        // Reject a clearly different artist unless title + duration are both
-        // exceptionally strong. Exact contributor-component matches are admitted
-        // only for near-exact titles by artistSimilarity().
+        // Duration corroborates a recording; it cannot establish artist identity.
         if (artistScore != null && artistScore < MIN_ARTIST_SCORE) {
-            val strongTitleAndDuration = titleScore >= 0.95 && (durationScore ?: 0.0) >= 0.85
-            if (!strongTitleAndDuration) return null
+            return null
         }
 
         var weightedScore = titleScore * 0.55

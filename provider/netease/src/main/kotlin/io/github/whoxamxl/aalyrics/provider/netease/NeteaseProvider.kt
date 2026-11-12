@@ -47,6 +47,7 @@ class NeteaseProvider(
                 candidates += LyricsCandidate(
                     providerId = descriptor.id,
                     matchedTrack = song.track,
+                    evidence = LyricsCandidateEvidence(artistAliases = song.aliases),
                     lyrics = LyricsDocument(
                         lines = lines,
                         attribution = attribution,
@@ -85,6 +86,14 @@ class NeteaseProvider(
             val artists = (song.array("ar").ifEmpty { song.array("artists") }).mapNotNull {
                 if (it.isJsonObject) it.asJsonObject.text("name")?.takeIf(String::isNotBlank) else null
             }
+            val aliases = (song.array("ar").ifEmpty { song.array("artists") }).mapNotNull { value ->
+                if (!value.isJsonObject) return@mapNotNull null
+                val artist = value.asJsonObject
+                val name = artist.text("name") ?: return@mapNotNull null
+                name to (artist.array("alias") + artist.array("alia")).mapNotNull {
+                    if (it.isJsonPrimitive && it.asJsonPrimitive.isString) it.asString.takeIf(String::isNotBlank) else null
+                }.distinct().take(8)
+            }.toMap()
             val matched = Track(
                 title = title,
                 artists = artists,
@@ -96,8 +105,10 @@ class NeteaseProvider(
                 requestedArtist = requested.artists.joinToString(", "), candidateArtist = artists.joinToString(", "),
                 requestedAlbum = requested.album.orEmpty(), candidateAlbum = matched.album.orEmpty(),
                 requestedDurationMs = requested.durationMs, candidateDurationMs = matched.durationMs,
+                requestedArtists = requested.artists, candidateArtists = artists,
+                candidateArtistAliases = aliases,
             ) ?: return@mapNotNull null
-            if (score < 0.70) null else Song(id, matched, score)
+            if (score < 0.70) null else Song(id, matched, score, aliases)
         }.distinctBy { it.id }.sortedWith(compareByDescending<Song> { it.score }.thenBy { it.id })
     }
 
@@ -117,5 +128,5 @@ class NeteaseProvider(
             },
         )
 
-    private data class Song(val id: String, val track: Track, val score: Double)
+    private data class Song(val id: String, val track: Track, val score: Double, val aliases: Map<String, List<String>>)
 }

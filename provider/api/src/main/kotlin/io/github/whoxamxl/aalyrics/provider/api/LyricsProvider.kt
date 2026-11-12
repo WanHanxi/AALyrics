@@ -47,6 +47,8 @@ data class LyricsRequest(
  */
 data class LyricsCandidateEvidence(
     val artistQueryCorroborated: Boolean = false,
+    /** Explicit catalog aliases, keyed by their corresponding matched artist name. */
+    val artistAliases: Map<String, List<String>> = emptyMap(),
 )
 
 /**

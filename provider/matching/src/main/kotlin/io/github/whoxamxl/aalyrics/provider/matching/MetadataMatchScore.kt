@@ -12,7 +12,12 @@ object MetadataMatchScore {
         requestedDurationMs: Long? = null,
         candidateDurationMs: Long? = null,
         artistQueryCorroborated: Boolean = false,
+        requestedArtists: List<String> = listOf(requestedArtist).filter(String::isNotBlank),
+        candidateArtists: List<String> = listOf(candidateArtist).filter(String::isNotBlank),
+        candidateArtistAliases: Map<String, List<String>> = emptyMap(),
+        onRejected: ((Rejection) -> Unit)? = null,
     ): Double? {
+        fun reject(reason: Rejection): Double? { onRejected?.invoke(reason); return null }
         if (
             !MetadataMatching.versionsCompatible(
                 requestedTitle = requestedTitle,
@@ -21,17 +26,17 @@ object MetadataMatchScore {
                 candidateAlbum = candidateAlbum,
             )
         ) {
-            return null
+            return reject(Rejection.VERSION)
         }
 
-        val titleScore = MetadataMatching.stringSimilarity(requestedTitle, candidateTitle)
-        if (titleScore < MIN_TITLE_SCORE) return null
+        val titleScore = MetadataMatching.titleSimilarity(requestedTitle, candidateTitle)
+        if (titleScore < MIN_TITLE_SCORE) return reject(Rejection.TITLE)
 
         val durationScore = MetadataMatching.durationSimilarity(
             requestedMs = requestedDurationMs,
             candidateMs = candidateDurationMs,
         )
-        if (durationScore != null && durationScore < 0.0) return null
+        if (durationScore != null && durationScore < 0.0) return reject(Rejection.DURATION)
 
         val albumScore = if (
             requestedAlbum.isNotBlank() &&
@@ -44,15 +49,11 @@ object MetadataMatchScore {
             null
         }
 
-        val rawArtistScore = if (requestedArtist.isNotBlank() && candidateArtist.isNotBlank()) {
-            MetadataMatching.artistSimilarity(
-                left = requestedArtist,
-                right = candidateArtist,
-                allowContributorComponents = titleScore >= 0.95,
-            )
-        } else {
-            null
-        }
+        val rawArtistScore = ArtistIdentity.similarity(
+            requestedArtists, candidateArtists, candidateArtistAliases,
+            allowComponents = titleScore >= 0.95,
+            allowTransliteration = titleScore >= 0.95 && (durationScore ?: 0.0) >= 0.85,
+        )
 
         val crossScriptArtist = rawArtistScore != null &&
             rawArtistScore < MIN_ARTIST_SCORE &&
@@ -60,14 +61,12 @@ object MetadataMatchScore {
             scriptsClearlyDifferent(requestedArtist, candidateArtist)
         val secondaryEvidence =
             artistQueryCorroborated ||
-                (albumScore != null && albumScore >= CROSS_SCRIPT_ALBUM_EVIDENCE) ||
-                (durationScore != null && durationScore >= 0.85)
+                (albumScore != null && albumScore >= CROSS_SCRIPT_ALBUM_EVIDENCE)
 
         val artistScore = if (crossScriptArtist && secondaryEvidence) null else rawArtistScore
 
         if (artistScore != null && artistScore < MIN_ARTIST_SCORE) {
-            val strongTitleAndDuration = titleScore >= 0.95 && (durationScore ?: 0.0) >= 0.85
-            if (!strongTitleAndDuration) return null
+            return reject(Rejection.ARTIST)
         }
 
         var weighted = titleScore * 0.55
@@ -103,6 +102,7 @@ object MetadataMatchScore {
     private fun containsJapanese(value: String): Boolean = JAPANESE_SCRIPT.containsMatchIn(value)
 
     private const val MIN_TITLE_SCORE = 0.60
+    enum class Rejection { VERSION, TITLE, DURATION, ARTIST }
     private const val MIN_ARTIST_SCORE = 0.40
     private const val CROSS_SCRIPT_ALBUM_EVIDENCE = 0.65
     private val JAPANESE_SCRIPT = Regex("[\\u3040-\\u30ff\\u3400-\\u4dbf\\u4e00-\\u9fff]")

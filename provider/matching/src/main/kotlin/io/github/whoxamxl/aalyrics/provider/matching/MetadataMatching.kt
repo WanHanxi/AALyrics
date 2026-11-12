@@ -135,6 +135,11 @@ object MetadataMatching {
     fun stringSimilarity(left: String, right: String): Double {
         val a = normalizeForMatch(left)
         val b = normalizeForMatch(right)
+        if (a == b && a.isNotBlank()) return 1.0
+        return maxOf(normalizedSimilarity(a, b), normalizedSimilarity(ComparisonText.foldHan(a), ComparisonText.foldHan(b)))
+    }
+
+    private fun normalizedSimilarity(a: String, b: String): Double {
         if (a.isBlank() || b.isBlank()) return 0.0
         if (a == b) return 1.0
 
@@ -215,7 +220,7 @@ object MetadataMatching {
             ((left.length - 1) + (right.length - 1)).toDouble()
     }
 
-    private fun normalizeForMatch(value: String): String {
+    internal fun normalizeForMatch(value: String): String {
         return Normalizer.normalize(value, Normalizer.Form.NFKC)
             .lowercase(Locale.ROOT)
             .replace('’', '\'')
@@ -230,4 +235,14 @@ object MetadataMatching {
     fun stripFeaturing(value: String): String {
         return value.replace(FEAT_SUFFIX, "").trim().ifBlank { value.trim() }
     }
+
+    fun titleSimilarity(left: String, right: String): Double = stringSimilarity(
+        RecordingVersionContext.normalizeLanguageVersion(stripTitleCredits(left)),
+        RecordingVersionContext.normalizeLanguageVersion(stripTitleCredits(right)),
+    )
+
+    /** Remove explicit credits without swallowing a following Live/language qualifier. */
+    fun stripTitleCredits(value: String): String = stripFeaturing(value.replace(BRACKETED_CREDIT, ""))
+
+    private val BRACKETED_CREDIT = Regex("""[\(\[]\s*(?:feat(?:uring)?|ft)\.?\s+[^)\]]+[\)\]]""", RegexOption.IGNORE_CASE)
 }
