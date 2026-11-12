@@ -49,6 +49,55 @@ class MultilingualMetadataTest {
         assertEquals(MetadataMatchScore.Rejection.ARTIST, reason)
     }
 
+    @Test fun phoneStyleCollaborationCreditsMatchTheSameCompleteParticipants() {
+        val candidate = listOf("Alpha", "Эндшпиль", "Рем Вега")
+        for (requested in listOf(
+            listOf("Alpha & Endspiel", "Rem Vega"),
+            listOf("Alpha & Endspiel, Rem Vega"),
+            listOf("Alpha & Endspiel; Rem Vega"),
+        )) {
+            assertEquals(0.985, MetadataMatchScore.score(
+                "Northern Light", "Northern Light", requested.joinToString(", "), candidate.joinToString(", "),
+                "Album", "Album", 240_000, 240_100,
+                requestedArtists = requested, candidateArtists = candidate,
+            ))
+        }
+        assertEquals(0.95, ArtistIdentity.similarity(listOf("Alpha, Mir"), listOf("Alpha", "Мир"),
+            allowComponents = true, allowTransliteration = true))
+    }
+
+    @Test fun commasWithinAlreadyMatchedParticipantsRemainIntact() {
+        assertEquals(0.95, ArtistIdentity.similarity(listOf("Alpha, Beta & Mir"),
+            listOf("Alpha, Beta", "Мир"), allowComponents = true, allowTransliteration = true))
+    }
+
+    @Test fun flatCreditExpansionCannotUseASubsetOrReuseAnArtist() {
+        val requested = listOf("Alpha & Endspiel, Rem Vega")
+        for (candidate in listOf(
+            listOf("Alpha"),
+            listOf("Alpha", "Рем Вега"),
+            listOf("Alpha", "Рем Вега", "Рем Вега"),
+            listOf("Alpha", "Unrelated", "Рем Вега"),
+        )) {
+            assertTrue(ArtistIdentity.similarity(requested, candidate, allowComponents = true,
+                allowTransliteration = true, allowSecondaryCreditMismatch = true)!! < 0.95)
+        }
+    }
+
+    @Test fun flatCrossScriptCreditsKeepVersionAndDurationRequirements() {
+        fun score(title: String = "Northern Light", duration: Long = 240_100) = MetadataMatchScore.score(
+            "Northern Light", title, "Alpha & Endspiel, Rem Vega", "Alpha, Эндшпиль, Рем Вега",
+            "Album", "Album", 240_000, duration,
+            candidateArtists = listOf("Alpha", "Эндшпиль", "Рем Вега"),
+        )
+        assertNull(score(title = "Northern Light (Live)"))
+        assertNull(score(duration = 256_000))
+        assertNull(score(duration = 246_000)) // Too weak to corroborate transliteration.
+        assertTrue(ArtistIdentity.similarity(listOf("Alpha & Endspiel, Rem Vega"),
+            listOf("Alpha", "Эндшпиль", "Рем Вега"), allowComponents = false,
+            allowTransliteration = true)!! < 0.4)
+    }
+
     @Test fun secondaryCatalogCreditsNeedSamePrimaryAlbumAndDuration() {
         val score = MetadataMatchScore.score("Echo", "Echo", "Lead, Pianist", "Lead, Label", "Album", "Album", 240_000, 240_000,
             requestedArtists = listOf("Lead", "Pianist"), candidateArtists = listOf("Lead", "Label"))

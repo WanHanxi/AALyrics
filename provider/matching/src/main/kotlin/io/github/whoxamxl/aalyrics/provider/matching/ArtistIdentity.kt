@@ -31,9 +31,12 @@ object ArtistIdentity {
                 left.any { compare(it, variants) >= 0.999 }
             }) return maxOf(direct, 0.95)
 
-        // Expand & only if the provider actually lists every participant separately. A direct
-        // name/alias anchor plus complete one-to-one coverage is required for transliteration.
-        val expanded = left.flatMap { it.split(Regex("\\s+&\\s+")) }
+        // MediaSession can flatten structured credits into one comma/semicolon/& field.
+        // Expand only for complete one-to-one provider coverage, never subset matching.
+        // Transliteration still requires a direct name/alias anchor.
+        val ampersandParts = left.flatMap { it.split(AMPERSAND_SEPARATOR) }
+        val expanded = if (ampersandParts.size == candidate.size) ampersandParts
+            else ampersandParts.flatMap { it.split(FLAT_CREDIT_SEPARATOR) }
         if (expanded.size != candidate.size) return direct
         val matrix = expanded.map { name -> names.map { compare(name, it) } }
         if (covers(matrix, 0.999)) return maxOf(direct, 0.95)
@@ -47,6 +50,9 @@ object ArtistIdentity {
         }
         return direct
     }
+
+    private val AMPERSAND_SEPARATOR = Regex("\\s+&\\s+")
+    private val FLAT_CREDIT_SEPARATOR = Regex("\\s*[,;]\\s*")
 
     private fun compare(name: String, variants: List<String>): Double {
         val best = variants.maxOf { MetadataMatching.stringSimilarity(name, it) }

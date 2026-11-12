@@ -131,14 +131,20 @@ A user toggle now changes selection, so its first cache miss can incur a normal
 provider lookup; this differs from the previous display-only switch. The disk-cache
 integration test queries each enabled provider once for OFF and once for ON, then
 repeated switches reuse the corresponding winners without network calls. Old-policy
-winners require a fresh policy-4 lookup; existing files are retained. No extra
+winners require a fresh lookup under the current policy; existing files are retained. No extra
 lookup occurs just from exposing the experimental switch while the live switch is off.
 
 To reproduce the extra fixtures, run the existing `matchingBenchmark` task with
 `--args="--mixed-timing"` (off) or `--args="--karaoke"` (on), using the same Gradle
 resource limits above. The default no-argument fixture remains unchanged.
 
-Final local verification: 957 unit tests across 20 modules, three script tests,
+The subsequent phone artist-format correction extends complete-participant
+comparison to flattened comma/semicolon credits while retaining recognized
+ampersand grouping. It adds no provider query stage or model call. The timing
+tables above were captured at the preceding Karaoke checkpoint; they are not a
+separate phone-latency measurement of this correction.
+
+Final local verification including that correction: 962 unit tests across 20 modules, three script tests,
 architecture/whitespace checks and a Debug APK build passed. Runs were sequential
 under the verified 3 GiB / zero-swap limit with the required 1 GiB Gradle heap.
 No emulator or physical-device verification is claimed. Existing UI layouts and

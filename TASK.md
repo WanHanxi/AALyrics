@@ -29,6 +29,28 @@ follows the existing switches, and the translation-coverage threshold is removed
    0.997 -> 1.045 ms and 0.819 -> 0.900 ms respectively. See MATCHING_PERFORMANCE.md.
    Private catalog replay and targeted live checks remain outside the repository.
 
+## Phone artist-format regression follow-up
+
+The owner reported a latest-build mismatch with NetEase enabled. Reproduction
+with the production providers confirms that a flat MediaSession artist field
+containing both an ampersand and a comma is rejected locally, while equivalent
+structured playlist credits pass. The previous audit missed this input shape.
+
+Completed: extended only the complete-participant comparison to include
+comma/semicolon separators when the existing ampersand grouping cannot cover the
+candidate. One-to-one coverage and the existing transliteration anchor, title,
+version and duration gates remain. Synthetic provider-to-selector regression
+coverage uses a flat phone-style field. Selection-policy version 5 excludes stale
+selected winners while preserving existing files and reset behavior.
+
+Phone-shaped input now selects the supplied bilingual candidate through the real
+providers and selector. A private metadata replay also checks the same flat shape
+against the saved catalog candidates; this is not a full network audit. All 962
+unit tests across 20 modules, three script tests, architecture/whitespace checks
+and Debug assembly passed under the existing resource budget. No emulator or
+physical-device verification is claimed. No matching thresholds, provider request
+stages, settings or reset semantics changed. Delivery updates the same Draft PR.
+
 ## Final behavior and scope
 
 - Reliable original writing and recording identity still precede preferences.
@@ -41,7 +63,7 @@ follows the existing switches, and the translation-coverage threshold is removed
 - All enabled sources, including SyncLRC, are queried for either preference.
 - Switching reselects the current track using its own preference-keyed cache;
   a first miss performs normal lookup. No new cache of private candidate collections.
-- Cache schema remains 2; selection policy is 4. Existing files are retained.
+- Cache schema remains 2; selection policy is 5. Existing files are retained.
 - Reset continues to turn both Karaoke switches OFF and reset the existing source
   preferences separately. No new durable setting, model download or permission.
 - Existing layouts/Preview states remain applicable; Karaoke info text and contracts

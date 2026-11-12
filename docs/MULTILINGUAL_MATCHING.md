@@ -19,6 +19,10 @@ strong existing duration evidence. An exact primary artist plus near-exact album
 title and duration may tolerate differing secondary catalog/label credits.
 Legacy flat contributor lists retain their limited subset compatibility; band
 names containing ampersands are not split for that fallback.
+Phone MediaSession credits may be one combined comma/semicolon/ampersand field.
+That form also supports the complete-participant comparison, with the same
+one-to-one coverage and transliteration requirements; a partial band name or a
+shared guest cannot receive that preference. Displayed metadata is unchanged.
 
 Cross-script mismatch can still be corroborated by an artist-constrained query
 or album evidence. Duration alone no longer excuses an unrelated artist. This is
@@ -82,7 +86,8 @@ quality scores, and writing signals. The coordinator retains at most 64 records,
 without lyric text, artist names or persistent logs. Provider-local discarded
 search results are not exported by this diagnostics list.
 
-Selection-policy version 4 prevents old selected winners from masking the fix.
+Selection-policy version 5 prevents old selected winners from masking the fix,
+including winners cached before the phone artist-format correction.
 Cache schema stays 2, old files are not bulk-deleted, and reset semantics are
 unchanged. The first lookup of an old-policy entry needs normal network retrieval;
 subsequent valid hits still avoid provider work. Karaoke and translation
