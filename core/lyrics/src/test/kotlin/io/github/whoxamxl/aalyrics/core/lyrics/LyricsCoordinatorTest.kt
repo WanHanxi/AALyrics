@@ -28,6 +28,24 @@ class LyricsCoordinatorTest {
     )
 
     @Test
+    fun `selection explanations belong to the current lookup and clear with it`() = runTest {
+        val winner = candidate("provider", "Winner")
+        val diagnostic = CandidateSelectionDiagnostic("provider", "synthetic-id", "selected", 1.0, 1.0, "ja")
+        val selector = object : CandidateSelector {
+            override fun select(track: Track, candidates: List<LyricsCandidate>, preferences: CandidateSelectionPreferences) = winner
+            override fun selectWithDiagnostics(track: Track, candidates: List<LyricsCandidate>, preferences: CandidateSelectionPreferences) =
+                CandidateSelectionResult(winner, listOf(diagnostic))
+        }
+        val coordinator = LyricsCoordinator(listOf(FakeProvider("provider") { listOf(winner) }), selector, this)
+        val lookup = coordinator.startLookup(track)
+        advanceUntilIdle()
+        assertEquals(lookup.id, coordinator.diagnostics.value.lookupId)
+        assertEquals(listOf(diagnostic), coordinator.diagnostics.value.selection)
+        coordinator.clear()
+        assertTrue(coordinator.diagnostics.value.selection.isEmpty())
+    }
+
+    @Test
     fun `combines provider candidates and delegates winner selection once`() = runTest {
         val first = candidate("provider-a", "First")
         val second = candidate("provider-b", "Second")

@@ -33,7 +33,7 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalCoroutinesApi::class)
 class ApplicationGraphTest {
     @Test
-    fun `production graph uses build configuration and preserves karaoke default`() = runTest {
+    fun `production graph uses build configuration with karaoke preference off by default`() = runTest {
         val graph = createProductionApplicationGraph(this, LyricsCache.None)
         val hasCompletePetitLyricsConfig = listOf(
             BuildConfig.PETITLYRICS_USER_ID,
@@ -51,7 +51,7 @@ class ApplicationGraphTest {
             graph.providers.map { it.descriptor.id.value },
         )
         assertTrue(graph.providers.filterIsInstance<PetitLyricsProvider>().all { it.isConfigured })
-        assertEquals(LyricsSyncType.WORD, graph.selectionPreferences.preferredSyncType)
+        assertEquals(null, graph.selectionPreferences.preferredSyncType)
         assertFalse("netease" in graph.enabledProviderIds)
         assertSame(graph.coordinator.state, graph.lyricsState)
     }

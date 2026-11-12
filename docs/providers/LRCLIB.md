@@ -38,11 +38,11 @@ free-text fallback
 plain lyrics only after synchronized candidates are exhausted
 ```
 
-A very strong synchronized `/get` match may return early. Search results are deduplicated before local candidate selection.
+A very strong synchronized `/get` match returns early unless lexical/phonotactic evidence suggests romanization. That case permits one title/artist search without album, with a 1,000 ms coroutine deadline. Failure or timeout of this optional search retains the healthy exact result; parent cancellation still propagates. Explicit English versions retain the fast path. Search results are deduplicated before local candidate selection.
 
 ## Validation and matching
 
-Preserve the mature title, artist, duration, album, contributor-component, and recording-version validation semantics. These semantics are generic and must not become duplicated LRCLIB-only copies if another provider or the production selector also needs them.
+Shared matching normalizes equivalent title/artist spellings and explicit feature credits while preserving recording/language versions. Duration thresholds, precision and weight remain unchanged. A clearly different artist is rejected even with identical title/duration. These semantics are generic and must not become duplicated LRCLIB-only copies if another provider or the production selector also needs them.
 
 LRCLIB owns the provider-local decision about whether an LRCLIB response is plausible enough to emit. It does not assign the final cross-provider winner score.
 
@@ -98,5 +98,5 @@ Do not reuse an experimental LRCLIB branch by default. The approved migration sl
 - The fork's catch-all network failure suppression is replaced with operational exceptions and cancellable OkHttp calls, as required by the provider contract. Exact `/get` 404 is a miss; other unsuccessful statuses are failures. Malformed payloads/rows are rejected while discovery continues.
 - Timed payloads must contain real text before fast-path/local acceptance. This preserves the fork call site's usability rule while allowing later synchronized fallback instead of letting malformed LRC stop discovery. Empty timed rows retain the existing `♪` representation.
 - User-Agent identifies AALyrics and its repository instead of the old app/version. HTTP endpoints and 10s connect/15s read timeouts are preserved.
-- Deduplication retains the first response by result ID, or by metadata when ID is missing, as in the fork. One provider-local winner is emitted; global selection remains external. Artist-query corroboration remains false as in the original LRCLIB call site.
+- Deduplication retains the first response by result ID, or by metadata when ID is missing, as in the fork. Up to three writing variants within 0.03 of the best metadata score are emitted (one representative per native-script set or suspected romanization language); global selection remains external. Ordinary exact matches still emit one candidate. Artist-query corroboration remains false as in the original LRCLIB call site.
 - Application wiring and other providers remain separate future work.

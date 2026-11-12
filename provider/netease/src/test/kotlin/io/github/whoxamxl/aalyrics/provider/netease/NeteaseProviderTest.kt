@@ -15,6 +15,16 @@ class NeteaseProviderTest {
     private val track = Track("Synthetic Song", listOf("Test Artist"), "Test Album", 120_000)
     private val request = LyricsRequest(track)
 
+    @Test fun `catalog artist aliases survive local filtering and candidate handoff`() = withServer { server, provider ->
+        val aliased = song() + mapOf("ar" to listOf(mapOf("name" to "乐队", "alias" to listOf("Example Band"))))
+        server.json(search(aliased))
+        server.json(lyrics("[00:01.00]Original test", "[00:01.00]测试译文"))
+        val result = provider.search(LyricsRequest(track.copy(artists = listOf("樂隊 Example Band")))).single()
+        assertEquals(listOf("乐队"), result.matchedTrack.artists)
+        assertEquals(mapOf("乐队" to listOf("Example Band")), result.evidence.artistAliases)
+        assertEquals(2, server.requestCount)
+    }
+
     @Test fun `same response supplies original translation and contributor attribution`() = withServer { server, provider ->
         server.json(search(song()))
         server.json(lyrics("[00:01.00]First test line\n[00:02.50]Second test line", "[00:01.00]第一测试行\n[00:02.50]第二测试行"))

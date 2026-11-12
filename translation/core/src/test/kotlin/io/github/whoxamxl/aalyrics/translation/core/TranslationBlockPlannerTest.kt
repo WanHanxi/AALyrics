@@ -8,6 +8,17 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class TranslationBlockPlannerTest {
+    @Test fun `romanization identified as a native script language never reaches its model`() {
+        for ((language, nativeText) in listOf("ja" to "星の道", "ko" to "별이 빛나는 길", "zh" to "夜里的风")) {
+            val lyrics = LyricsDocument(listOf(PlainLyricLine("kimi no kokoro"), PlainLyricLine(nativeText)))
+            val profile = LanguageProfile(primary = language, secondaryCandidate = null,
+                secondaryActivation = SecondaryActivation.NONE,
+                lines = lyrics.lines.indices.map { ProfiledLyricLine(it, language, 0.99f, ProfiledLineRole.PRIMARY) })
+            val plan = TranslationBlockPlanner().plan(lyrics, profile, "en")
+            assertEquals(listOf(TranslationLineDisposition.PRESERVE, TranslationLineDisposition.TRANSLATE), plan.lines.map { it.disposition })
+            assertEquals(listOf(1), plan.blocks.single().coreLineIndices)
+        }
+    }
     @Test
     fun `language blank and timestamp gaps form hard boundaries`() {
         val lyrics = LyricsDocument(

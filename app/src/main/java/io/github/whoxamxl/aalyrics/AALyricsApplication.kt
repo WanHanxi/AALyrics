@@ -576,8 +576,20 @@ class AALyricsApplication : Application() {
             neteaseEnabled = lyricsSourceSettingsStore.settings.value.neteaseEnabled,
         )
         graph.updateTranslationPreference(translationSettingsStore.settings.value)
+        graph.updateKaraokePreference(
+            phonePresentationSettingsStore.karaokeFeatureEnabled.value,
+            phonePresentationSettingsStore.karaokeModeEnabled.value,
+        )
         applicationScope.launch {
             translationSettingsStore.settings.collect { graph.updateTranslationPreference(it) }
+        }
+        applicationScope.launch {
+            combine(
+                phonePresentationSettingsStore.karaokeFeatureEnabled,
+                phonePresentationSettingsStore.karaokeModeEnabled,
+            ) { featureEnabled, modeEnabled -> featureEnabled && modeEnabled }
+                .distinctUntilChanged()
+                .collect { enabled -> graph.updateKaraokePreference(enabled, enabled) }
         }
         applicationScope.launch(Dispatchers.Main.immediate) {
             lyricsSourceSettingsStore.settings.collect { graph.updateNeteaseEnabled(it.neteaseEnabled) }
@@ -925,9 +937,20 @@ internal class ApplicationGraph(
         lyricsDemandGate.refreshPreferences(clearRetainedLyrics = true)
     }
 
+    @Synchronized
     fun updateTranslationPreference(settings: TranslationSettings) {
-        val updated = selectionPreferences.copy(
+        val updated = currentSelectionPreferences.copy(
             preferredTranslationLanguage = settings.targetLanguage.takeIf { settings.enabled },
+        )
+        if (updated == currentSelectionPreferences) return
+        currentSelectionPreferences = updated
+        lyricsDemandGate.refreshPreferences()
+    }
+
+    @Synchronized
+    fun updateKaraokePreference(featureEnabled: Boolean, modeEnabled: Boolean) {
+        val updated = currentSelectionPreferences.copy(
+            preferredSyncType = LyricsSyncType.WORD.takeIf { featureEnabled && modeEnabled },
         )
         if (updated == currentSelectionPreferences) return
         currentSelectionPreferences = updated
@@ -985,7 +1008,7 @@ internal fun createProductionApplicationGraph(
         add(SyncLrcProvider(versionName = BuildConfig.VERSION_NAME))
     }
     val selector: CandidateSelector = CrossProviderCandidateSelector()
-    val preferences = CandidateSelectionPreferences(preferredSyncType = LyricsSyncType.WORD)
+    val preferences = CandidateSelectionPreferences()
 
     return ApplicationGraph(
         providers = providers,

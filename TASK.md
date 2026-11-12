@@ -1,118 +1,82 @@
-# Android Auto media selection and 1.2.2 preparation
+# Multilingual lyrics matching and Karaoke selection
 
-## Scope
+Personal baseline: `659c37f`; branch `fix/multilingual-lyrics-matching`; target
+`WanHanxi/AALyrics:main`; existing Draft PR #14. The owner authorized the original
+matching implementation and performance audit, then the November 12 follow-up:
+all enabled sources participate with either Karaoke state, word-timing priority
+follows the existing switches, and the translation-coverage threshold is removed.
 
-Start from personal `main` at `4a1562f` on `fix/android-auto-session-order`;
-target `WanHanxi/AALyrics:main`. Correct the order in which the lyrics session
-publishes playback and announces activation, so Android Auto can observe the
-current session ordering when projection playback starts.
+## Completed checkpoints
 
-Publish metadata and real playback state before initial activation. For a session
-already active when projection playback starts, refresh its active state once
-after publishing a valid playing snapshot. Carry a connection-scoped request from
-the application's existing activation owner so a host-retained browser service
-can handle the next connection too. Do not refresh on ordinary ticks, track
-changes, pause/resume, or metadata gaps within the same connection.
+1. Froze the original CPU/request baseline and implemented catalog equivalence,
+   identity corroboration, reliable-original preference, mixed-script handling,
+   bounded LRCLIB alternatives, translation input guards and diagnostics.
+2. Verified the original slice (948 unit tests, three script tests, Debug APK and
+   architecture checks), documented comparisons, and opened personal Draft PR #14.
+3. Removed the 80% translation gate and SyncLRC request gate; word-timing confidence
+   and selection priority now require an explicit WORD preference. The 67 focused
+   selector/SyncLRC/cache tests passed; this checkpoint was committed and pushed.
+4. Connected the existing persisted experimental/live Karaoke switches to selection.
+   Translation preference updates preserve Karaoke and vice versa. Every enabled
+   source remains eligible. Added integration coverage for all-source participation,
+   preference-keyed disk-cache reuse, restoration, switch reset and demand suspension.
+5. Completed 957 unit tests across 20 modules, three script tests, architecture and
+   whitespace checks, and Debug assembly. Reused the successful APK after test-only
+   benchmark changes. No emulator or physical-device claims.
+6. Compared frozen `68486d7` and updated production with identical synthetic inputs,
+   including mixed LINE/WORD candidates and both Karaoke preferences. Ordinary mixed
+   selection p50 was 0.522 -> 0.524 ms (off) and 0.562 -> 0.506 ms (on); p95 was
+   0.997 -> 1.045 ms and 0.819 -> 0.900 ms respectively. See MATCHING_PERFORMANCE.md.
+   Private catalog replay and targeted live checks remain outside the repository.
 
-No new preference, fake playback, extra media session, audio-focus request,
-provider change, UI redesign, or change to transport routing. The follow-up below
-prepares the 1.2.2 release in this same PR.
-Android Auto owns display selection; this is not a permanent pin API. Real car
-instrument-cluster behavior remains separate from Desktop Head Unit validation.
+## Phone artist-format regression follow-up
 
-## Checkpoints
+The owner reported a latest-build mismatch with NetEase enabled. Reproduction
+with the production providers confirms that a flat MediaSession artist field
+containing both an ampersand and a comma is rejected locally, while equivalent
+structured playlist credits pass. The previous audit missed this input shape.
 
-1. Implement publication/activation sequencing and focused lifecycle tests.
-   Verify architecture, unit tests, and Debug build within workstation limits;
-   commit and push the implementation checkpoint.
-2. Update the existing phone Debug install without removing its data. Validate
-   actual AA selection using wireless ADB and Desktop Head Unit, then document
-   the observed results and limits.
-3. Review the branch-wide diff and final checks, commit/push, and open a personal
-   Draft PR. Stop before review requests, ready-for-review, or merge.
+Completed: extended only the complete-participant comparison to include
+comma/semicolon separators when the existing ampersand grouping cannot cover the
+candidate. One-to-one coverage and the existing transliteration anchor, title,
+version and duration gates remain. Synthetic provider-to-selector regression
+coverage uses a flat phone-style field. Selection-policy version 5 excludes stale
+selected winners while preserving existing files and reset behavior.
 
-## Acceptance and validation
+Phone-shaped input now selects the supplied bilingual candidate through the real
+providers and selector. A private metadata replay also checks the same flat shape
+against the saved catalog candidates; this is not a full network audit. All 962
+unit tests across 20 modules, three script tests, architecture/whitespace checks
+and Debug assembly passed under the existing resource budget. No emulator or
+physical-device verification is claimed. No matching thresholds, provider request
+stages, settings or reset semantics changed. Delivery updates the same Draft PR.
 
-- [x] Initial state is published before the session becomes active.
-- [x] Already-playing and connect-before-playing cases refresh at most once per
-  connection/session; disconnected or invalid playback cannot consume a request.
-- [x] A surviving service can handle a new connection; repeated connection facts,
-  pause/resume, lyrics ticks, track/source changes, and gaps do not repeat refresh.
-- [x] Focused tests, architecture guardrail, whitespace check, and Debug build pass.
-- [x] Physical-phone/DHU checks cover already playing, playback after connection,
-  repeated reconnects, return to maps, and passive playback across track changes.
-  Record actual results, including any failed scenario, rather than treating
-  successful service creation as successful AA selection.
-- [x] Public documentation uses generic device descriptions and states what was
-  observed. Raw logs and location-containing screenshots remain local only.
+## Final behavior and scope
 
-Reset review: all new request/activation bookkeeping is process-local. No new
-persisted preference or cache, so `Reset AALyrics` has no additional reset target.
-No user-facing layout/copy changes; existing Compose Previews remain applicable.
+- Reliable original writing and recording identity still precede preferences.
+- Duration boundaries/weight and metadata/quality tolerances (.03/.05) are unchanged.
+- Any useful paired target-language translation can earn bilingual preference;
+  no new coverage percentage, language detector or minimum-line threshold replaces 80%.
+- Karaoke OFF: synchronized WORD and LINE lyrics compete without word-timing bonuses.
+- Karaoke ON (both existing switches): comparable usable WORD lyrics take priority;
+  supplied translations are preferred within that group, with LINE fallback.
+- All enabled sources, including SyncLRC, are queried for either preference.
+- Switching reselects the current track using its own preference-keyed cache;
+  a first miss performs normal lookup. No new cache of private candidate collections.
+- Cache schema remains 2; selection policy is 5. Existing files are retained.
+- Reset continues to turn both Karaoke switches OFF and reset the existing source
+  preferences separately. No new durable setting, model download or permission.
+- Existing layouts/Preview states remain applicable; Karaoke info text and contracts
+  now explain that its live switch may change the selected lyrics source.
 
-## Completed validation
+Deferred: Russian machine translation, source picker, broad language identification,
+general instrumental/credit cleanup, candidate completeness/timestamp heuristics,
+duration changes and further metadata-tolerance tuning. These are not silently
+included in this follow-up.
 
-- Implementation checkpoint `a16ddc2` publishes real playback before activating
-  the lyrics session and accepts one connection-scoped refresh request.
-- 462 Debug unit tests passed across `:app` and `:ui:automotive`; architecture,
-  whitespace, baseline, and branch-wide scope checks passed. Debug APK built
-  successfully with one Gradle worker, a 1 GiB JVM heap, and a verified 3 GiB
-  systemd memory limit with no swap. Later changes are documentation only;
-  reuse the successful build/tests.
-- Updated the physical phone's existing Debug installation without removing data.
-  Four DHU connections selected AALyrics without manually opening it after each
-  connection. Covered music already playing, AA autoplay after connection, and
-  a prior foreground Spotify selection.
-- Returning from Spotify's main view to maps restored AALyrics. Pause/resume
-  through the lyrics card worked without another activation refresh. Confirmed
-  the outgoing source separately from the dashboard carousel, which can still
-  show a Spotify card.
-- Final uninterrupted passive observation lasted 6m31s and crossed one natural
-  track transition. No AA source change or extra session activation occurred;
-  DHU still reported AALyrics Debug as its output source at the end. Across four
-  connections, diagnostics recorded four initial activations and four connection
-  refreshes. Spotify remained the system media-button target.
-- An earlier passive run ended with a DHU transport disconnect; it is excluded
-  from the continuous-duration result. Raw logs/screenshots remain local only.
-- DHU, observation, and build processes have finished; removed the task's port
-  forward. The updated Debug app and wireless debugging pairing remain available.
+## Workflow boundary
 
-Host bindings were released on actual disconnects in DHU, so retaining one
-service across reconnect has lifecycle-test coverage only. The owner subsequently
-reported successful priority selection across several real-car connections.
-Vehicle-specific instrument-cluster rendering, overnight/reboot recovery, and
-cross-version behavior are not claimed as separately confirmed. Android Auto still owns selection; no permanent pin is
-promised. No new settings, persistent state, or Preview/reset changes are needed.
-
-## 1.2.2 follow-up (2026-11-10)
-
-The owner reported that several real-car connections successfully prioritized
-AALyrics and requested a clearer PR description, a README Highlights entry, and
-release of this PR as 1.2.2. Future Release notes should omit
-routine Updating and installation text unless a release requires manual action.
-
-- [x] Describe the user-visible media-selection effect and the one-time
-  publication/activation mechanism, keeping actual audio playback with Spotify.
-- [x] Record the in-car feedback without device identifiers or unsupported
-  instrument-cluster compatibility claims.
-- [x] Add the 1.2.2 Changelog entry and update README/release preparation docs.
-  Preserve existing signing, package, provider configuration, and versionCode policy.
-- [x] Make the action-only installation-notes policy explicit for future releases;
-  retain historical release entries and actionable legacy-cache instructions.
-- [x] Verify note extraction, documentation consistency, and the updated PR CI.
-- [x] Update PR #12's title/description around the complete implementation and
-  1.2.2 scope, with the validation results.
-
-Runtime source has not changed since the successfully tested and device-validated
-implementation. Reuse the existing local build/test evidence. Build CI run
-`42948535245` passed for documentation/release checkpoint `cadba02`, including the
-updated bundled Changelog. Release-note extraction matches the 1.2.2 section;
-historical Changelog entries are unchanged. Architecture, whitespace, and
-documentation consistency checks passed.
-
-The owner's request authorizes publishing this PR as 1.2.2. After the final PR
-checks, squash-merge into personal main and create `v1.2.2` on the merged commit.
-The Release workflow must pass and publish the signed APK and checksum; verify
-the published notes, package/version, signing certificate, and bundled Changelog.
-Do not tag the feature-branch head. Publication evidence belongs to the GitHub
-Release and its workflow run.
+Final local validation and branch-scope inspection are complete. Delivery remains
+on the existing personal Draft PR #14, including the app-wiring and documentation
+checkpoint. Stop before review requests, ready-for-review, merge or release without
+user authorization.

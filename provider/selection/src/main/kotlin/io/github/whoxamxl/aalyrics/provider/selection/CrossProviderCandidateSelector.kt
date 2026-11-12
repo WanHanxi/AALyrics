@@ -1,6 +1,10 @@
 package io.github.whoxamxl.aalyrics.provider.selection
 
 import io.github.whoxamxl.aalyrics.provider.matching.MetadataMatchScore
+import io.github.whoxamxl.aalyrics.provider.matching.LyricsWriting
+import io.github.whoxamxl.aalyrics.provider.matching.RecordingVersionContext
+import io.github.whoxamxl.aalyrics.core.lyrics.CandidateSelectionDiagnostic
+import io.github.whoxamxl.aalyrics.core.lyrics.CandidateSelectionResult
 
 import io.github.whoxamxl.aalyrics.core.lyrics.CandidateSelectionPreferences
 import io.github.whoxamxl.aalyrics.core.lyrics.CandidateSelector
@@ -25,38 +29,71 @@ class CrossProviderCandidateSelector : CandidateSelector {
         candidates: List<LyricsCandidate>,
         preferences: CandidateSelectionPreferences,
     ): LyricsCandidate? {
-        val scored = scoreCandidates(track, candidates)
+        return selectWithDiagnostics(track, candidates, preferences).candidate
+    }
+
+    override fun selectWithDiagnostics(
+        track: Track,
+        candidates: List<LyricsCandidate>,
+        preferences: CandidateSelectionPreferences,
+    ): CandidateSelectionResult {
+        val rejected = mutableListOf<CandidateSelectionDiagnostic>()
+        val scored = scoreCandidates(track, candidates, preferences) { candidate, reason ->
+            rejected += CandidateSelectionDiagnostic(candidate.providerId.value, candidate.lyrics.attribution?.sourceId, reason)
+        }
+        val eligible = scored.filter { romanized ->
+            val language = romanized.writing.suspectedRomanization
+            language == null || RecordingVersionContext.languageVersion(track.title) == "english" || scored.none { original ->
+                original.writing.hasOriginal(language) && original.metadataScore >= 0.90 &&
+                    original.metadataScore >= romanized.metadataScore - KARAOKE_METADATA_TOLERANCE &&
+                    original.qualityScore >= romanized.qualityScore - KARAOKE_QUALITY_TOLERANCE &&
+                    (original.candidate.lyrics.syncType != LyricsSyncType.PLAIN || romanized.candidate.lyrics.syncType == LyricsSyncType.PLAIN)
+            }
+        }
+        val selected = choose(eligible, preferences)
+        val diagnostics = rejected + scored.map { score ->
+            CandidateSelectionDiagnostic(
+                score.candidate.providerId.value, score.candidate.lyrics.attribution?.sourceId,
+                when {
+                    score.candidate === selected -> "selected"
+                    eligible.none { it === score } -> "original-writing-preferred"
+                    else -> "lower-ranked"
+                },
+                score.metadataScore, score.qualityScore,
+                score.writing.suspectedRomanization?.let { "suspected-romanization:$it" }
+                    ?: score.writing.nativeRows.keys.sorted().joinToString(",").ifBlank { "unknown" },
+            )
+        }
+        return CandidateSelectionResult(selected, diagnostics.take(64))
+    }
+
+    private fun choose(scored: List<CandidateScore>, preferences: CandidateSelectionPreferences): LyricsCandidate? {
         val synced = scored.filter { it.candidate.lyrics.syncType != LyricsSyncType.PLAIN }
         val standardBest = best(scored = synced)
 
         if (standardBest != null) {
-            // A paired translation is preferred only after the existing identity/quality gates.
-            // This is a structural-coverage preference, not a score for translation accuracy.
-            val bilingualBest = best(scored = synced.filter { score ->
+            val comparable = synced.filter { score ->
+                score.metadataScore >= standardBest.metadataScore - KARAOKE_METADATA_TOLERANCE &&
+                    score.qualityScore >= standardBest.qualityScore - KARAOKE_QUALITY_TOLERANCE
+            }
+            // Only an explicit Karaoke preference gives usable word timing priority.
+            // WORD documents still participate as ordinary synchronized lyrics when it is off.
+            val wordCandidates = if (preferences.preferredSyncType == LyricsSyncType.WORD) {
+                comparable.filter { hasUsableWordTiming(it.candidate) }
+            } else emptyList()
+            val preferredCandidates = wordCandidates.ifEmpty { comparable }
+            // Any useful paired translation can help; untranslated English or vocalizations
+            // do not make the supplied translation ineligible. Identity/quality gates still apply.
+            val bilingualBest = best(scored = preferredCandidates.filter { score ->
                 val document = score.candidate.lyrics
                 val translation = document.suppliedTranslation
-                val usefulIndices = document.lines.indices.filter { index ->
-                    document.lines[index].text.any(Char::isLetterOrDigit)
-                }
                 translation != null && preferences.preferredTranslationLanguage == translation.languageTag &&
-                    usefulIndices.isNotEmpty() &&
-                    usefulIndices.count { translation.lines[it] != null }.toDouble() / usefulIndices.size >=
-                    MIN_TRANSLATION_COVERAGE &&
-                    score.metadataScore >= standardBest.metadataScore - KARAOKE_METADATA_TOLERANCE &&
-                    score.qualityScore >= standardBest.qualityScore - KARAOKE_QUALITY_TOLERANCE
+                    document.lines.indices.any { index ->
+                        document.lines[index].text.any(Char::isLetterOrDigit) && translation.lines[index] != null
+                    }
             }, preferIntactTranslation = true)
             if (bilingualBest != null) return bilingualBest.candidate
-
-            if (preferences.preferredSyncType == LyricsSyncType.WORD) {
-                val karaokeBest = best(
-                    scored = synced.filter { score ->
-                        hasUsableWordTiming(score.candidate) &&
-                            score.metadataScore >= standardBest.metadataScore - KARAOKE_METADATA_TOLERANCE &&
-                            score.qualityScore >= standardBest.qualityScore - KARAOKE_QUALITY_TOLERANCE
-                    },
-                )
-                if (karaokeBest != null) return karaokeBest.candidate
-            }
+            best(wordCandidates)?.let { return it.candidate }
             return standardBest.candidate
         }
 
@@ -68,15 +105,26 @@ class CrossProviderCandidateSelector : CandidateSelector {
     internal fun scoreCandidates(
         track: Track,
         candidates: Collection<LyricsCandidate>,
+        preferences: CandidateSelectionPreferences = CandidateSelectionPreferences(),
+        onRejected: (LyricsCandidate, String) -> Unit = { _, _ -> },
     ): List<CandidateScore> {
         return candidates.mapNotNull { candidate ->
-            if (!hasUsableLyricContent(candidate)) return@mapNotNull null
-
-            val metadata = metadataScore(track, candidate) ?: return@mapNotNull null
-            if (metadata < MIN_METADATA_SCORE) return@mapNotNull null
+            if (!hasUsableLyricContent(candidate)) {
+                onRejected(candidate, "empty-lyrics")
+                return@mapNotNull null
+            }
+            val metadata = metadataScore(track, candidate) { onRejected(candidate, "metadata:${it.name.lowercase(Locale.ROOT)}") }
+                ?: return@mapNotNull null
+            if (metadata < MIN_METADATA_SCORE) {
+                onRejected(candidate, "metadata:below-threshold")
+                return@mapNotNull null
+            }
 
             val quality = lyricsQualityScore(candidate, track.durationMs)
-            val confidence = sourceConfidence(track, candidate)
+            val writing = LyricsWriting.profile(candidate.lyrics.lines.map { it.text })
+            val confidence = sourceConfidence(
+                track, candidate, writing, preferWordTiming = preferences.preferredSyncType == LyricsSyncType.WORD,
+            )
             val finalScore = (
                 metadata * METADATA_WEIGHT +
                     quality * QUALITY_WEIGHT +
@@ -89,11 +137,15 @@ class CrossProviderCandidateSelector : CandidateSelector {
                 qualityScore = quality,
                 sourceConfidence = confidence,
                 finalScore = finalScore,
+                writing = writing,
             )
         }
     }
 
-    internal fun metadataScore(track: Track, candidate: LyricsCandidate): Double? = MetadataMatchScore.score(
+    internal fun metadataScore(
+        track: Track, candidate: LyricsCandidate,
+        onRejected: ((MetadataMatchScore.Rejection) -> Unit)? = null,
+    ): Double? = MetadataMatchScore.score(
         requestedTitle = track.title,
         candidateTitle = candidate.matchedTrack.title,
         requestedArtist = track.artists.joinToString(", "),
@@ -103,6 +155,10 @@ class CrossProviderCandidateSelector : CandidateSelector {
         requestedDurationMs = track.durationMs,
         candidateDurationMs = candidate.matchedTrack.durationMs,
         artistQueryCorroborated = candidate.evidence.artistQueryCorroborated,
+        requestedArtists = track.artists,
+        candidateArtists = candidate.matchedTrack.artists,
+        candidateArtistAliases = candidate.evidence.artistAliases,
+        onRejected = onRejected,
     )
 
     internal fun lyricsQualityScore(
@@ -114,71 +170,20 @@ class CrossProviderCandidateSelector : CandidateSelector {
         if (useful.isEmpty()) return 0.0
 
         var quality = 1.0
-        val classes = useful.map { line ->
-            val text = line.text.trim()
-            val japanese = JAPANESE_SCRIPT.containsMatchIn(text)
-            val latin = LATIN_SCRIPT.containsMatchIn(text)
-            when {
-                japanese -> ScriptClass.JAPANESE
-                latin -> ScriptClass.LATIN_ONLY
-                else -> ScriptClass.OTHER
+        // Alternating scripts alone are normal multilingual singing. Penalize only
+        // repeated native/romanized pairs sharing (nearly) the same timestamp.
+        val pairedRomanization = useful.zipWithNext().count { (left, right) ->
+            val leftTime = left.startTimeMsOrNull()
+            val rightTime = right.startTimeMsOrNull()
+            if (leftTime == null || rightTime == null || abs(leftTime - rightTime) > 750L) false
+            else {
+                val nativeLeft = LyricsWriting.nativeLanguage(left.text)
+                val nativeRight = LyricsWriting.nativeLanguage(right.text)
+                (nativeLeft != null && nativeLeft == LyricsWriting.romanizedLanguage(right.text)) ||
+                    (nativeRight != null && nativeRight == LyricsWriting.romanizedLanguage(left.text))
             }
         }
-
-        val japaneseCount = classes.count { it == ScriptClass.JAPANESE }
-        val latinOnlyCount = classes.count { it == ScriptClass.LATIN_ONLY }
-        val linguisticCount = japaneseCount + latinOnlyCount
-
-        if (japaneseCount >= 3 && latinOnlyCount >= 2 && linguisticCount >= 6) {
-            val latinRatio = latinOnlyCount.toDouble() / linguisticCount.toDouble()
-            var alternatingPairs = 0
-            var classifiedPairs = 0
-            var nearDuplicateTimestampPairs = 0
-
-            for (index in 1 until classes.size) {
-                val previous = classes[index - 1]
-                val current = classes[index]
-                if (previous == ScriptClass.OTHER || current == ScriptClass.OTHER) continue
-                classifiedPairs++
-                if (previous != current) {
-                    alternatingPairs++
-                    val previousTime = useful[index - 1].startTimeMsOrNull()
-                    val currentTime = useful[index].startTimeMsOrNull()
-                    if (
-                        previousTime != null &&
-                        currentTime != null &&
-                        abs(currentTime - previousTime) <= 750L
-                    ) {
-                        nearDuplicateTimestampPairs++
-                    }
-                }
-            }
-
-            val alternatingRatio = if (classifiedPairs > 0) {
-                alternatingPairs.toDouble() / classifiedPairs.toDouble()
-            } else {
-                0.0
-            }
-            val duplicateTimestampRatio = if (alternatingPairs > 0) {
-                nearDuplicateTimestampPairs.toDouble() / alternatingPairs.toDouble()
-            } else {
-                0.0
-            }
-
-            if (
-                latinRatio >= 0.18 &&
-                (alternatingRatio >= 0.25 || nearDuplicateTimestampPairs >= 2)
-            ) {
-                val ratioStrength = ((latinRatio - 0.18) / 0.32).coerceIn(0.0, 1.0)
-                val alternatingStrength = ((alternatingRatio - 0.25) / 0.55).coerceIn(0.0, 1.0)
-                val duplicateStrength = duplicateTimestampRatio.coerceIn(0.0, 1.0)
-                val contamination =
-                    ratioStrength * 0.50 +
-                        alternatingStrength * 0.30 +
-                        duplicateStrength * 0.20
-                quality -= 0.52 * contamination
-            }
-        }
+        if (pairedRomanization >= 2) quality -= 0.35
 
         if (
             candidate.lyrics.syncType != LyricsSyncType.PLAIN &&
@@ -197,16 +202,25 @@ class CrossProviderCandidateSelector : CandidateSelector {
         return quality.coerceIn(0.0, 1.0)
     }
 
-    internal fun sourceConfidence(track: Track, candidate: LyricsCandidate): Double {
-        val japaneseTrack = containsJapanese(track.title) ||
+    internal fun sourceConfidence(
+        track: Track, candidate: LyricsCandidate,
+        writing: LyricsWriting.Profile = LyricsWriting.profile(candidate.lyrics.lines.map { it.text }),
+        preferWordTiming: Boolean = false,
+    ): Double {
+        // Native lyric evidence works even when a playback source romanizes every metadata field.
+        // Explicit English performances retain the ordinary English-source preference.
+        val englishVersion = RecordingVersionContext.languageVersion(track.title) == "english" ||
+            RecordingVersionContext.languageVersion(track.album.orEmpty()) == "english"
+        val japaneseTrack = !englishVersion && (writing.hasOriginal("ja") || containsJapanese(track.title) ||
             track.artists.any(::containsJapanese) ||
-            track.album?.let(::containsJapanese) == true
+            track.album?.let(::containsJapanese) == true)
         val provider = candidate.providerId.value
         val syncType = candidate.lyrics.syncType
 
         return if (japaneseTrack) {
             when {
-                provider.equals(PETITLYRICS_PROVIDER_ID, ignoreCase = true) && syncType == LyricsSyncType.WORD -> 1.00
+                provider.equals(PETITLYRICS_PROVIDER_ID, ignoreCase = true) && syncType == LyricsSyncType.WORD ->
+                    if (preferWordTiming) 1.00 else 0.96
                 provider.equals(PETITLYRICS_PROVIDER_ID, ignoreCase = true) && syncType == LyricsSyncType.LINE -> 0.96
                 provider.equals(LRCLIB_PROVIDER_ID, ignoreCase = true) && syncType != LyricsSyncType.PLAIN -> 0.78
                 syncType == LyricsSyncType.PLAIN -> 0.55
@@ -215,7 +229,8 @@ class CrossProviderCandidateSelector : CandidateSelector {
         } else {
             when {
                 provider.equals(LRCLIB_PROVIDER_ID, ignoreCase = true) && syncType != LyricsSyncType.PLAIN -> 1.00
-                provider.equals(PETITLYRICS_PROVIDER_ID, ignoreCase = true) && syncType == LyricsSyncType.WORD -> 0.92
+                provider.equals(PETITLYRICS_PROVIDER_ID, ignoreCase = true) && syncType == LyricsSyncType.WORD ->
+                    if (preferWordTiming) 0.92 else 0.88
                 provider.equals(PETITLYRICS_PROVIDER_ID, ignoreCase = true) && syncType == LyricsSyncType.LINE -> 0.88
                 syncType == LyricsSyncType.PLAIN -> 0.55
                 else -> 0.80
@@ -277,17 +292,11 @@ class CrossProviderCandidateSelector : CandidateSelector {
         val qualityScore: Double,
         val sourceConfidence: Double,
         val finalScore: Double,
+        val writing: LyricsWriting.Profile,
     )
-
-    private enum class ScriptClass {
-        JAPANESE,
-        LATIN_ONLY,
-        OTHER,
-    }
 
     private companion object {
         const val MIN_METADATA_SCORE = 0.70
-        const val MIN_TRANSLATION_COVERAGE = 0.80
 
         const val METADATA_WEIGHT = 0.82
         const val QUALITY_WEIGHT = 0.10
@@ -300,7 +309,6 @@ class CrossProviderCandidateSelector : CandidateSelector {
         const val PETITLYRICS_PROVIDER_ID = "petitlyrics"
 
         val JAPANESE_SCRIPT = Regex("[\\u3040-\\u30ff\\u3400-\\u4dbf\\u4e00-\\u9fff]")
-        val LATIN_SCRIPT = Regex("[A-Za-z]")
     }
 }
 

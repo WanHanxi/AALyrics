@@ -21,3 +21,11 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
+tasks.register<JavaExec>("lookupBenchmark") {
+    group = "verification"
+    description = "Runs the opt-in controlled LRCLIB request/latency benchmark."
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("io.github.whoxamxl.aalyrics.provider.lrclib.LookupBenchmark")
+    maxHeapSize = "256m"
+}

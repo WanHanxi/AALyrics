@@ -77,7 +77,7 @@ Shared provider migration rules are in `docs/PROVIDER_ARCHITECTURE.md`. Provider
 | `lyrics/LrcParser.kt` | **PRESERVE / REFACTOR** | pure `:provider:lrc` shared parser | Migrated with LRCLIB. Parsing behavior is regression-covered and shared without provider networking ownership. SyncLRC reuses Enhanced-LRC `parseKaraoke`. |
 | `lyrics/PetitLyricsClient.kt` | **PRESERVE / REFACTOR** | `:provider:petitlyrics`; see `docs/providers/PETITLYRICS.md` | Migrated in PR #20. Preserves progressive search, ranking, attempted-result deduplication, WSY/LSY parsing, companion-text resolution, artist-query evidence, configuration invariants, and provider-contract failure/cancellation semantics. |
 | `lyrics/MusixmatchClient.kt` | **PRESERVE / REFACTOR** | `:provider:musixmatch`; see `docs/providers/MUSIXMATCH.md` | Migrated in PR #21. Preserves the anonymous mobile API flow, token/session behavior, macro lookup, RichSync/subtitle fallback, Spotify-aware identity validation, instrumental rejection, metadata validation, and failure isolation. |
-| `lyrics/SyncLrcClient.kt` | **PRESERVE / REFACTOR** | `:provider:synclrc`; see `docs/providers/SYNCLRC.md` | Migrated and merged in PR #24. Preserves its deliberate karaoke-only role, WORD-preference request gating, current/legacy response-shape compatibility, instrumental rejection, and genuine word-timing requirement. |
+| `lyrics/SyncLrcClient.kt` | **PRESERVE / REFACTOR** | `:provider:synclrc`; see `docs/providers/SYNCLRC.md` | Migrated and merged in PR #24. Preserves genuine karaoke payload retrieval, current/legacy response-shape compatibility, instrumental rejection, and word-timing validation. The November 2026 follow-up removes WORD-preference request gating so enabled sources participate with Karaoke off as well. |
 
 Provider migration is not a clean-room exercise. Mature provider implementation may be reused/refactored when it already expresses the behavior we intend to keep. The structural requirement is that legacy coupling does not cross the AALyrics provider boundary.
 
@@ -225,6 +225,10 @@ The Musixmatch slice re-fetched working-fork main at `8484bed2dbe8db5ca7b17dec54
 Preserved: the anonymous mobile `token.get` → `macro.subtitles.get` flow, TTL and rejected-token refresh, embedded RichSync preference, dedicated `track.richsync.get` fallback, line-subtitle fallback, metadata/instrumental validation, Spotify-ID request/match evidence, explicit Spotify-ID conflict rejection, artist-query corroboration, and RichSync word offsets. Structural changes: an in-memory provider session replaces Android preferences, HTTP is cancellable, failures follow the provider contract after local fallback is exhausted, and output is normalized to AALyrics models. Spotify reference extraction remains in `:platform:media`; the Musixmatch adapter consumes normalized identity only.
 
 ### SyncLRC implementation re-check
+
+The following records the original migration. The authorized November 2026
+follow-up removes its preference-based transport gate; current behavior is in
+`docs/providers/SYNCLRC.md`. Payload validation and transport budgets are retained.
 
 Working-fork main was re-checked at `8484bed2dbe8db5ca7b17dec5481b3c22714dc6f` on 2026-09-16 and was current at that review point. The slice inspected `SyncLrcClient.kt`, all eight SyncLRC regressions, shared `LrcParser.parseKaraoke`, and the relevant `MediaTracker` fan-out/normalization call sites. The public SyncLRC API documentation was also re-checked and matched the mature endpoint/query/response assumptions at implementation time.
 

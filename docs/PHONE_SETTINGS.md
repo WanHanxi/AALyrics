@@ -940,7 +940,7 @@ The Composable must not own persistence. A future implementation should receive 
 
 ### Experimental features — Karaoke mode
 
-`Karaoke mode` is an application-owned persisted feature gate, default OFF. Turning it ON makes the Expanded Player Quick-controls Karaoke switch available. The live switch is separately persisted and defaults OFF. Turning the feature gate OFF clears the live switch. Karaoke presentation requires both switches ON and a WORD_SYNC source; neither switch changes provider selection or `preferredSyncType`.
+`Karaoke mode` is an application-owned persisted feature gate, default OFF. Turning it ON makes the Expanded Player Quick-controls Karaoke switch available. The live switch is separately persisted and defaults OFF. Turning the feature gate OFF clears the live switch. Karaoke presentation requires both switches ON and a WORD_SYNC source. Both switches ON also enable the application word-timing selection preference. Turning either OFF removes that preference without disabling any lyrics source. The current track is reselected using its preference-keyed cache or a fresh lookup.
 
 The row's info explains its experimental status, where to enable the live switch, and that only word-synced lyrics are eligible. See `docs/KARAOKE_ARCHITECTURE.md` for the presentation contract.
 
@@ -1173,6 +1173,6 @@ Approved behaviour:
 - OFF: Karaoke is unavailable to Phone presentation and the Expanded Player Quick-controls Karaoke row is hidden;
 - ON: the Quick-controls Karaoke row becomes available;
 - turning this gate OFF also clears the persisted live Karaoke-mode toggle;
-- Reset AALyrics restores both the feature gate and live Karaoke-mode toggle to OFF.
+- Reset AALyrics restores both the feature gate and live Karaoke-mode toggle to OFF, removing word-timing selection priority. Existing lyric cache files survive; preference keys and selection-policy invalidation prevent stale winners from being reused.
 
 The row's info text should explain that Karaoke is experimental, is enabled from the media player's Quick controls after this gate is turned on, and only applies to word-synced lyrics.

@@ -124,6 +124,9 @@ It must not own MediaSession projection, canonical lyrics mutation, providers, T
 
 Production implementation of the `CandidateSelector` port. It owns cross-provider ranking policy including metadata plausibility, payload quality, source confidence, synchronized/plain fallback, recording-version handling, WORD/karaoke preference behavior, and the gated source-supplied translation preference.
 
+The multilingual policy uses pure comparison tables, catalog artist aliases and bounded lexical/phonotactic writing evidence; see `docs/MULTILINGUAL_MATCHING.md`. `selectWithDiagnostics` returns request-local decisions and scores without lyric text. The coordinator keeps at most 64 entries in current lookup diagnostics; they are not persisted or added to UI state.
+
+
 `:core:lyrics` never depends on this implementation; `:app` injects it through the core port.
 
 ### `:provider:matching` and `:provider:lrc`

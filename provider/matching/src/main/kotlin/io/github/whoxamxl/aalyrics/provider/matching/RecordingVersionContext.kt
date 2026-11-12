@@ -57,6 +57,20 @@ private val ALLOWED_ENGLISH_CONTEXT_WORDS = setOf(
 )
 
 object RecordingVersionContext {
+    private val languageVersion = Regex(
+        """\b(english|japanese|korean|chinese|russian|french|german|spanish|italian|portuguese)\s+(?:version|ver\.?)\b\.?""",
+        RegexOption.IGNORE_CASE,
+    )
+
+    fun normalizeLanguageVersion(value: String): String = languageVersion.replace(value) {
+        "${it.groupValues[1].lowercase(Locale.ROOT)} version"
+    }
+
+    fun languageVersion(value: String): String? = languageVersion.find(value)?.groupValues?.get(1)?.lowercase(Locale.ROOT)
+
+    private fun qualifiers(value: String): Set<String> = MetadataMatching.extractVersionQualifiers(value) +
+        listOfNotNull(languageVersion(value)?.let { "language:$it" })
+
     fun extractAlbumVersionQualifiers(value: String): Set<String> {
         if (value.isBlank()) return emptySet()
 
@@ -70,7 +84,7 @@ object RecordingVersionContext {
         }
 
         return contexts
-            .flatMap { MetadataMatching.extractVersionQualifiers(it).toList() }
+            .flatMap { qualifiers(it).toList() }
             .toSet()
     }
 
@@ -95,7 +109,7 @@ object RecordingVersionContext {
         }
 
         return contexts
-            .flatMap { MetadataMatching.extractVersionQualifiers(it).toList() }
+            .flatMap { qualifiers(it).toList() }
             .toSet()
     }
 
@@ -142,6 +156,11 @@ object RecordingVersionContext {
     private fun isExplicitVersionContext(value: String): Boolean {
         val text = value.trim()
         if (text.isBlank()) return false
+
+        val withoutLanguage = languageVersion.replace(text, "").trim(' ', '.', '-', ',', '/')
+        if (withoutLanguage != text) {
+            return withoutLanguage.isEmpty() || isExplicitVersionContext(withoutLanguage)
+        }
 
         if (JAPANESE_VERSION_CONTEXT.matches(text)) return true
         if (CHINESE_INSTRUMENTAL_CONTEXT.matches(text)) return true

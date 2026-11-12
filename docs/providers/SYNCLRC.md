@@ -13,13 +13,13 @@ This file records SyncLRC-specific behavior only. Shared provider rules are defi
 
 ## Capability and role
 
-SyncLRC is intentionally a karaoke/word-timing provider, not a second source for ordinary plain or line-synchronized lyrics already covered by LRCLIB, PetitLyrics, and Musixmatch.
+SyncLRC retrieves genuine word-timed lyrics. Those documents can also be displayed by line when Karaoke is off.
 
 AALyrics descriptor capability: `WORD` only.
 
-The working fork invokes SyncLRC only when karaoke/word synchronization is preferred. AALyrics carries that preference through `LyricsRequest.preferredSyncType` and preserves the same request gate: when the preference is not `WORD`, return no candidates without making a SyncLRC network request.
+The original migration preserved the working fork's WORD-preference request gate. The authorized November 2026 selection change removes that gate: whenever enabled by the application, SyncLRC queries regardless of `LyricsRequest.preferredSyncType`.
 
-This gate is provider-local request behavior, not cross-provider winner policy. The production `CandidateSelector` still decides whether a returned WORD candidate beats other synchronized candidates.
+The production `CandidateSelector` decides whether a returned WORD candidate beats other synchronized candidates. Word-timing priority applies only when both existing Karaoke switches are enabled; provider participation does not depend on those switches.
 
 ## Public API and mature request behavior
 
@@ -35,7 +35,7 @@ with:
 - `album` when known,
 - `duration` when known, rounded from milliseconds to seconds.
 
-The current public API documentation still describes this request shape and currently documents a 30 requests/minute limit. This migration does not introduce new global rate-limit/retry policy; avoiding non-WORD requests preserves the mature narrow usage pattern.
+The current public API documentation still describes this request shape and currently documents a 30 requests/minute limit. This change does not introduce a new global rate-limit/retry policy. Provider budgets remain one request per uncached lookup; disabling Karaoke no longer suppresses that request.
 
 A blank title or artist is not enough to make a useful karaoke request and must not be sent as if it were complete metadata.
 
@@ -85,7 +85,7 @@ Preserve the working-fork regressions around:
 
 AALyrics-specific deterministic coverage must additionally verify:
 
-- no HTTP request when `preferredSyncType != WORD`;
+- the same HTTP query and valid WORD result with and without a WORD preference;
 - normalized `WORD` output and milliseconds;
 - operational HTTP/service failure surfaces as an exception instead of "not found";
 - malformed/unusable provider payloads remain no-result rather than operational failures;
@@ -97,7 +97,7 @@ AALyrics-specific deterministic coverage must additionally verify:
 Provider-local:
 
 - SyncLRC HTTP transport and query construction;
-- WORD-preference request gating;
+- preference-independent retrieval of the karaoke payload;
 - response DTO/shape compatibility;
 - karaoke-only acceptance policy;
 - provider-local payload validation;
