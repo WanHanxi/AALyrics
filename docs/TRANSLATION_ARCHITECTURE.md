@@ -587,3 +587,12 @@ Future Translation implementation must preserve all of the following:
 8. One completed Translation Artifact uses one Translation Provider unless explicitly changed later.
 9. Persistent generated Translation Cache remains disabled. Source-supplied translations are explicitly stored with their canonical originals in the NetEase slice.
 10. Optional Translation failure never invalidates usable canonical lyrics.
+
+## Native-script input guard
+
+The block planner preserves Latin-only rows identified as Japanese, Korean or
+Chinese instead of sending romanization to a model trained for native writing.
+This is a model-input compatibility check, not general language identification or
+transliteration. English rows classified as English remain translatable. Supplied
+translations bypass model planning as before, including partial paired documents.
+Russian machine translation support is unchanged.
