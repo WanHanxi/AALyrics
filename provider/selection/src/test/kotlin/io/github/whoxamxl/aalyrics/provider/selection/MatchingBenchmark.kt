@@ -30,7 +30,8 @@ object MatchingBenchmark {
                         fixtureIndex == 5 -> "Свет над рекой"
                         else -> "We follow the evening light"
                     }
-                    TimedLyricLine(text, line * 3_800L)
+                    // 75% distinct rows; repeated choruses must not dominate the CPU sample.
+                    TimedLyricLine(if (line % 4 == 0) text else "$text $line", line * 3_800L)
                 }
                 val matched = track.copy(
                     title = when {
@@ -51,7 +52,10 @@ object MatchingBenchmark {
             }
             track to candidates
         }
-        repeat(1_200) { i ->
+        val coldStart = System.nanoTime()
+        sink = selector.select(fixtures[2].first, fixtures[2].second, preferences)
+        println("COLD case=2 first_selection_ms=${(System.nanoTime() - coldStart) / 1_000_000.0}")
+        repeat(2_400) { i ->
             val (track, candidates) = fixtures[i % fixtures.size]
             sink = selector.select(track, candidates, preferences)
         }

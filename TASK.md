@@ -21,11 +21,11 @@ Duration scores/weight and bilingual coverage/tolerances stay unchanged.
 
 - [x] Traditional/simplified, aliases, feature credits and equivalent language
   version spellings match; unrelated artists and incompatible versions do not.
-- [ ] Mixed original/English lyrics retain quality; originals can beat romanization
+- [x] Mixed original/English lyrics retain quality; originals can beat romanization
   without widening bilingual thresholds or merging sources.
-- [ ] Ordinary LRCLIB exact match stays one request. Optional search is bounded
+- [x] Ordinary LRCLIB exact match stays one request. Optional search is bounded
   and its failure cannot discard a healthy exact result.
-- [ ] Romanized model input remains original-only. Supplied translations still
+- [x] Romanized model input remains original-only. Supplied translations still
   display below the preference coverage threshold.
 - [ ] Record regression/performance results with synthetic public fixtures;
   private playlist evidence and full lyrics stay outside the repository.
@@ -38,3 +38,8 @@ placeholder cleanup, duration changes and threshold tuning.
 
 Checkpoint: metadata and all provider/selection regressions passed. Architecture
 and whitespace checks passed. Baseline benchmark frozen before production changes.
+
+Checkpoint: original-writing selection, bounded optional discovery, translation
+script compatibility, cache invalidation and request-local diagnostics regressions
+passed. Japanese lyric text informs source confidence when metadata is romanized;
+English performance labels preserve the existing English-source preference.

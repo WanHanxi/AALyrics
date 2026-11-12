@@ -31,6 +31,8 @@ class MultilingualMetadataTest {
     @Test fun collaborationExpansionNeedsEveryParticipantAndDirectIdentityAnchor() {
         assertEquals(0.95, ArtistIdentity.similarity(listOf("Svet & Mir", "Novy"),
             listOf("Svet", "Мир", "Новый"), allowComponents = true, allowTransliteration = true))
+        assertEquals(0.95, ArtistIdentity.similarity(listOf("Alpha & Endspiel", "Rem Vega"),
+            listOf("Alpha", "Эндшпиль", "Рем Вега"), allowComponents = true, allowTransliteration = true))
         assertTrue(ArtistIdentity.similarity(listOf("Svet & Mir", "Novy"),
             listOf("Svet", "Unrelated", "Other"), allowComponents = true, allowTransliteration = true)!! < 0.7)
         assertTrue(ArtistIdentity.similarity(listOf("Mir"), listOf("Мир"),
@@ -45,5 +47,13 @@ class MultilingualMetadataTest {
         assertNull(MetadataMatchScore.score("Echo", "Echo", "Singer", "别的歌手",
             requestedDurationMs = 240_000, candidateDurationMs = 240_100, onRejected = { reason = it }))
         assertEquals(MetadataMatchScore.Rejection.ARTIST, reason)
+    }
+
+    @Test fun secondaryCatalogCreditsNeedSamePrimaryAlbumAndDuration() {
+        val score = MetadataMatchScore.score("Echo", "Echo", "Lead, Pianist", "Lead, Label", "Album", "Album", 240_000, 240_000,
+            requestedArtists = listOf("Lead", "Pianist"), candidateArtists = listOf("Lead", "Label"))
+        assertEquals(0.985, score)
+        assertTrue((ArtistIdentity.similarity(listOf("Lead", "Guest"), listOf("Stranger", "Guest"),
+            allowComponents = true, allowSecondaryCreditMismatch = true) ?: 0.0) < 0.95)
     }
 }

@@ -8,6 +8,7 @@ object ArtistIdentity {
         aliases: Map<String, List<String>> = emptyMap(),
         allowComponents: Boolean = false,
         allowTransliteration: Boolean = false,
+        allowSecondaryCreditMismatch: Boolean = false,
     ): Double? {
         if (requested.isEmpty() || candidate.isEmpty()) return null
         if (requested == candidate) return 1.0
@@ -23,6 +24,9 @@ object ArtistIdentity {
             requested.single().count { it == ',' || it == ';' } >= 2
         val left = if (legacy) requested.single().split(Regex("\\s*[,;]\\s*")) else requested
         val primaryRecognized = names.any { compare(left.first(), it) >= 0.999 }
+        if (allowSecondaryCreditMismatch && compare(left.first(), names.first()) >= 0.999) {
+            return maxOf(direct, 0.95)
+        }
         if ((legacy || primaryRecognized) && candidate.size <= left.size && names.all { variants ->
                 left.any { compare(it, variants) >= 0.999 }
             }) return maxOf(direct, 0.95)
@@ -39,7 +43,7 @@ object ArtistIdentity {
                     MetadataMatching.stringSimilarity(ComparisonText.foldCyrillic(name), ComparisonText.foldCyrillic(variant))
                 })
             } }
-            if (covers(supported, 0.80)) return maxOf(direct, 0.95)
+            if (covers(supported, 0.75)) return maxOf(direct, 0.95)
         }
         return direct
     }

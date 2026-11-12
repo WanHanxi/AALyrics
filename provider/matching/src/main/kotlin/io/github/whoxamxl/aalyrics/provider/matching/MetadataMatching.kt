@@ -44,6 +44,11 @@ object MetadataMatching {
         val requestedTitleVersions = RecordingVersionContext.extractTitleVersionQualifiers(requestedTitle)
         val candidateTitleVersions = RecordingVersionContext.extractTitleVersionQualifiers(candidateTitle) +
             if (candidateInstrumental) setOf("instrumental") else emptySet()
+        val requestedLanguage = (requestedTitleVersions + RecordingVersionContext.extractAlbumVersionQualifiers(requestedAlbum))
+            .filter { it.startsWith("language:") }.toSet()
+        val candidateLanguage = (candidateTitleVersions + RecordingVersionContext.extractAlbumVersionQualifiers(candidateAlbum))
+            .filter { it.startsWith("language:") }.toSet()
+        if (requestedLanguage != candidateLanguage) return false
         if (requestedTitleVersions == candidateTitleVersions) return true
 
         if (requestedTitleVersions.isNotEmpty() && candidateTitleVersions.isNotEmpty()) {

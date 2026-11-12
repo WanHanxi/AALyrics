@@ -28,7 +28,28 @@ data class CandidateSelectionPreferences(
  * implementation is reserved for later adaptation of the proven resolver in the
  * working Auto Lyrics fork.
  */
+data class CandidateSelectionDiagnostic(
+    val providerId: String,
+    val sourceId: String?,
+    val decision: String,
+    val metadataScore: Double? = null,
+    val qualityScore: Double? = null,
+    val writing: String? = null,
+)
+
+data class CandidateSelectionResult(
+    val candidate: LyricsCandidate?,
+    val diagnostics: List<CandidateSelectionDiagnostic> = emptyList(),
+)
+
 interface CandidateSelector {
+    /** Bounded, request-local explanations; no lyric text or artist metadata. */
+    fun selectWithDiagnostics(
+        track: Track,
+        candidates: List<LyricsCandidate>,
+        preferences: CandidateSelectionPreferences = CandidateSelectionPreferences(),
+    ): CandidateSelectionResult = CandidateSelectionResult(select(track, candidates, preferences))
+
     /**
      * Returns the selected candidate, or null when none of [candidates] is usable.
      *

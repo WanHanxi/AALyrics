@@ -42,6 +42,7 @@ data class LyricsLookupDiagnostics(
     val attemptCount: Int = 0,
     val providerFailures: List<LyricsProviderFailureDiagnostic> = emptyList(),
     val cacheHit: Boolean = false,
+    val selection: List<CandidateSelectionDiagnostic> = emptyList(),
 )
 
 class LyricsCoordinator(
@@ -129,17 +130,15 @@ class LyricsCoordinator(
                     .filterIsInstance<ProviderAttempt.Succeeded>()
                     .flatMap { it.candidates }
 
+                val selection = selector.selectWithDiagnostics(track, candidates, preferences)
+                val selected = selection.candidate
                 publishDiagnostics(
                     lookupId = lookup.id,
                     attemptCount = attemptNumber,
                     failures = failures,
+                    selection = selection.diagnostics,
                 )
 
-                val selected = selector.select(
-                    track = track,
-                    candidates = candidates,
-                    preferences = preferences,
-                )
                 require(selected == null || selected in candidates) {
                     "CandidateSelector must return one of the supplied candidates"
                 }
@@ -226,11 +225,13 @@ class LyricsCoordinator(
         lookupId: LyricsLookupId,
         attemptCount: Int,
         failures: List<ProviderAttempt.Failed>,
+        selection: List<CandidateSelectionDiagnostic>,
     ) {
         if ((_state.value as? LyricsState.ForLookup)?.lookup?.id != lookupId) return
         _diagnostics.value = LyricsLookupDiagnostics(
             lookupId = lookupId,
             attemptCount = attemptCount,
+            selection = selection.take(64),
             providerFailures = failures.map { failure ->
                 LyricsProviderFailureDiagnostic(
                     providerId = failure.providerId,

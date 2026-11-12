@@ -19,6 +19,40 @@ import kotlin.test.*
 class LrcLibProviderTest {
     private val request = LyricsRequest(Track("Song", listOf("Artist"), "Album", 240_999))
 
+    private val romanized = (1..6).joinToString("\n") { "[00:0$it.00]kimi no kokoro ni yume ga aru" }
+    private val original = (1..6).joinToString("\n") { "[00:0$it.00]星の道を歩いている" }
+
+    @Test fun suspectedRomanizationGetsOneExtraSearchAndKeepsWritingAlternatives() = withServer { server, provider ->
+        server.enqueueJson(row(id = 1, synced = romanized))
+        server.enqueueJson(listOf(row(id = 2, synced = original), row(id = 3, synced = original), row(id = 4, title = "Song (Live)", synced = original)))
+        assertEquals(listOf("1", "2"), provider.search(request).map { it.lyrics.attribution?.sourceId })
+        assertEquals(2, server.requestCount)
+        server.nextRequest()
+        assertNull(server.nextRequest().requestUrl!!.queryParameter("album_name"))
+    }
+
+    @Test fun optionalSearchFailurePreservesHealthyExactResult() = withServer { server, provider ->
+        server.enqueueJson(row(id = 1, synced = romanized))
+        server.enqueue(MockResponse().setResponseCode(503))
+        assertEquals("1", provider.search(request).single().lyrics.attribution?.sourceId)
+        assertEquals(2, server.requestCount)
+    }
+
+    @Test fun optionalSearchHasOneSecondDeadline() = withServer { server, provider ->
+        server.enqueueJson(row(id = 1, synced = romanized))
+        server.enqueue(MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE))
+        withTimeout(2_500) {
+            assertEquals("1", provider.search(request).single().lyrics.attribution?.sourceId)
+        }
+        assertEquals(2, server.requestCount)
+    }
+
+    @Test fun explicitEnglishVersionKeepsExactFastPath() = withServer { server, provider ->
+        server.enqueueJson(row(title = "Song (English ver.)", synced = "[00:01.00]We follow the evening light"))
+        assertEquals(1, provider.search(request.copy(track = request.track.copy(title = "Song - English Version"))).size)
+        assertEquals(1, server.requestCount)
+    }
+
     @Test
     fun strongExactMatchSkipsSearchAndNormalizesProviderMetadata() = withServer { server, provider ->
         server.enqueueJson(row(id = 42, duration = 241.5))

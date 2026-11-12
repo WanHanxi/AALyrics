@@ -35,7 +35,8 @@ class TranslationBlockPlanner(
         val targetModelSupported = TranslationLanguages.isModelSupported(target)
         val linePlans = profile.lines.map { line ->
             val sourceModelSupported =
-                TranslationLanguages.isModelSupported(line.languageTag)
+                TranslationLanguages.isModelSupported(line.languageTag) &&
+                    hasSupportedWriting(lyrics.lines[line.index].text, line.languageTag)
             val shouldTranslate = when (line.role) {
                 ProfiledLineRole.PRIMARY ->
                     targetModelSupported &&
@@ -136,6 +137,14 @@ class TranslationBlockPlanner(
         }
         flush()
         return chunks
+    }
+
+    /** Language identification can label romanization ja/ko/zh; these models expect native script. */
+    private fun hasSupportedWriting(text: String, language: String?): Boolean = when (language) {
+        "ja" -> text.any { it in '\u3040'..'\u30ff' || it in '\u3400'..'\u9fff' }
+        "ko" -> text.any { it in '\uac00'..'\ud7af' || it in '\u1100'..'\u11ff' }
+        "zh" -> text.any { it in '\u3400'..'\u9fff' }
+        else -> true
     }
 
     private fun hasLargeTimestampGap(

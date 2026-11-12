@@ -62,13 +62,13 @@ class CrossProviderCandidateSelectorTest {
             syncType = LyricsSyncType.LINE,
             lines = listOf(
                 timed(1_000, "これは日本語です"),
-                timed(2_000, "kore wa nihongo desu"),
+                timed(1_050, "kore wa nihongo desu"),
                 timed(3_000, "次の日本語です"),
-                timed(4_000, "tsugi no nihongo desu"),
+                timed(3_050, "tsugi no nihongo desu"),
                 timed(5_000, "さらに日本語です"),
-                timed(6_000, "sarani nihongo desu"),
+                timed(5_050, "sarani nihongo desu"),
                 timed(7_000, "最後の日本語です"),
-                timed(8_000, "saigo no nihongo desu"),
+                timed(7_050, "saigo no nihongo desu"),
             ),
         )
         val clean = candidate(

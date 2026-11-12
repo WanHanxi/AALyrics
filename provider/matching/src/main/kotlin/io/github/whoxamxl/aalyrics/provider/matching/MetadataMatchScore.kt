@@ -53,6 +53,8 @@ object MetadataMatchScore {
             requestedArtists, candidateArtists, candidateArtistAliases,
             allowComponents = titleScore >= 0.95,
             allowTransliteration = titleScore >= 0.95 && (durationScore ?: 0.0) >= 0.85,
+            allowSecondaryCreditMismatch = titleScore >= 0.95 && (albumScore ?: 0.0) >= 0.95 &&
+                (durationScore ?: 0.0) >= 0.85,
         )
 
         val crossScriptArtist = rawArtistScore != null &&

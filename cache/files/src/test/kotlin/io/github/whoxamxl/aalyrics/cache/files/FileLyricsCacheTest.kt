@@ -33,6 +33,17 @@ class FileLyricsCacheTest {
     )
     private val plain = LyricsDocument(listOf(PlainLyricLine("こんにちは — 歌詞 🎵")))
 
+    @Test
+    fun `old selection policy cannot restore a stale winner`() {
+        val identity = LyricsCacheCodec.identity(key)
+        val oldIdentity = com.google.gson.JsonParser.parseString(identity).asJsonObject.apply {
+            addProperty("selectionPolicy", 2)
+        }.toString()
+        val stale = LyricsCacheCodec.encode(oldIdentity, plain)
+        kotlin.test.assertFailsWith<IllegalArgumentException> { LyricsCacheCodec.decode(identity, stale) }
+        assertEquals(plain, LyricsCacheCodec.decode(identity, LyricsCacheCodec.encode(identity, plain)))
+    }
+
     @AfterTest
     fun cleanUp() { directory.deleteRecursively() }
 
