@@ -63,16 +63,57 @@ object MediaConnectionDiagnostics {
         if (sink != null) notifications.incrementAndGet()
     }
 
-    internal fun <Token> sessions(controllers: List<RuntimeMediaController<Token>>) {
+    /** Original system order, before AALyrics' own source-selection policy runs. */
+    internal fun <Token> sessions(controllers: List<RuntimeMediaController<Token>>, reason: String) {
         if (sink == null) return
-        sessionQueries.incrementAndGet()
-        changed("sessions_observed") {
-            mapOf(
-                "count" to controllers.size.toString(),
-                "packages_playing" to controllers.take(16).joinToString(",") {
-                    "${it.packageName}:${it.isPlaying}"
-                },
-            )
+        val sequence = sessionQueries.incrementAndGet()
+        // Identical callbacks matter: a quick active-state flip may leave the list unchanged.
+        record("sessions_observed") {
+            buildMap {
+                put("reason", reason)
+                put("sequence", sequence.toString())
+                put("count", controllers.size.toString())
+                put("omitted", (controllers.size - 16).coerceAtLeast(0).toString())
+                controllers.take(16).forEachIndexed { rank, controller ->
+                    put("session_$rank", controllerFields(controller).entries.joinToString(" ") { (key, value) ->
+                        "$key=$value"
+                    })
+                }
+            }
+        }
+    }
+
+    internal fun <Token> controllerEvent(
+        event: String,
+        controller: RuntimeMediaController<Token>,
+        deduplicate: Boolean = false,
+    ) {
+        if (deduplicate) changed(event) { controllerFields(controller) }
+        else record(event) { controllerFields(controller) }
+    }
+
+    /** Correlates the automotive session with framework controllers without storing a raw token. */
+    fun sessionEvent(
+        event: String,
+        token: Any,
+        fields: Map<String, String>,
+        deduplicate: Boolean = false,
+    ) {
+        val values = { fields + ("token_hash" to tokenFingerprint(token)) }
+        if (deduplicate) changed(event, values) else record(event, values)
+    }
+
+    internal fun tokenFingerprint(token: Any?): String =
+        token?.hashCode()?.toUInt()?.toString(16) ?: "none"
+
+    private fun <Token> controllerFields(controller: RuntimeMediaController<Token>): Map<String, String> = buildMap {
+        try {
+            put("package", controller.packageName)
+            put("token_hash", tokenFingerprint(controller.token))
+            putAll(controller.diagnosticPlayback())
+        } catch (failure: RuntimeException) {
+            // A vanished controller must not hide the remaining entries or affect selection.
+            put("read_error", failure.javaClass.simpleName)
         }
     }
 

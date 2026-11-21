@@ -53,7 +53,7 @@ internal class MediaSessionObservation<Token>(
             return
         }
 
-        applySessions(controllers)
+        applySessions(controllers, reason = "query")
     }
 
     fun disconnect() {
@@ -82,11 +82,11 @@ internal class MediaSessionObservation<Token>(
 
     private fun onSessionsChanged(controllers: List<RuntimeMediaController<Token>>) {
         if (!connected) return
-        applySessions(controllers)
+        applySessions(controllers, reason = "active_sessions_callback")
     }
 
-    private fun applySessions(controllers: List<RuntimeMediaController<Token>>) {
-        MediaConnectionDiagnostics.sessions(controllers)
+    private fun applySessions(controllers: List<RuntimeMediaController<Token>>, reason: String) {
+        MediaConnectionDiagnostics.sessions(controllers, reason)
         val result = try {
             runtime.updateSessions(controllers)
         } catch (failure: SecurityException) {

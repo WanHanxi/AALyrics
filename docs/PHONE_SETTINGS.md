@@ -106,6 +106,16 @@ This is independent of Verbose details and works with the Phone closed while And
 
 Records include UTC/monotonic timestamps, build/device identity, package names, permission and battery/background-restriction facts, lifecycle events, observed session summaries, selected source, playback state, recovery attempts/outcomes and exception class names. Android 11+ startup also records up to three system-reported AALyrics process exits (PID, UTC time, reason/status codes and importance), without descriptions or traces. Android may return no exit information. They exclude notification contents, song titles, lyrics, media IDs/URIs, credentials and exception messages. No diagnostics are uploaded automatically. This is app instrumentation, not a full Android bug report; OEM-specific autostart restrictions are not readable through these public facts.
 
+Android Auto incident records additionally preserve the received system-session order,
+query/callback origin, token fingerprints, playback state/type, and connection request
+IDs around AALyrics' publication and active-state transitions. Identical system-list
+callbacks are retained; repeated unchanged playback states are deduplicated. Lists
+include at most 16 entries with an explicit omitted count. Raw session tokens and
+track metadata are not stored. Recording observes existing reads/callbacks without
+requesting extra session refreshes or changing media selection. These records describe
+the source AALyrics follows and its own session; they cannot directly report Android
+Auto's chosen display source. See the [AA incident export procedure](ANDROID_AUTO_ACTIVATION.md#导出证据和进程恢复检查).
+
 Storage is private `noBackupFilesDir/connection-diagnostics`: four 256 KiB event files and three 128 KiB incident files (1.375 MiB total). A 256-command queue bounds pending work; IO runs off the main thread. Export waits for earlier accepted events and reports dropped-event and write-failure totals. Old events/incidents rotate across process restarts. Diagnostics intentionally survive Reset AALyrics so resetting while troubleshooting does not erase evidence; the Debug reset dialog says so. Android Clear storage or uninstall removes local records. Exported copies are user-owned and remain outside the reset/storage boundary. Compose previews cover the export row at normal/narrow/landscape sizes and the diagnostic-retention reset dialog.
 
 The production connection-recovery policy is independent of this Debug observer. After timeout, the Phone Reconnect action on Android 14+ requests one listener unbind/rebind pair without revoking notification access; automatic retries remain ordinary rebind requests. Unbind request/return/failure events are recorded separately from an actual connection. Recovery adds no durable preferences or reset target; system access and retained diagnostic records keep their existing reset treatment. See `MEDIA_CONNECTION_RECOVERY.md` for the complete retry policy and notification-access Settings fallback.

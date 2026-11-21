@@ -735,11 +735,16 @@ class AALyricsApplication : Application() {
         automotiveBinding = AutomotiveRuntimeBinding(
             playback = graph.playbackState,
             sessionActivationRequest = androidAutoActivation.sessionActivationRequest,
-            onSessionActivated = { refreshed ->
-                MediaConnectionDiagnostics.record("automotive_session_activated") {
-                    mapOf("reason" to if (refreshed) "projection_refresh" else "initial")
+            onSessionDiagnostic = if (BuildConfig.DEBUG) {
+                { event, token, fields ->
+                    MediaConnectionDiagnostics.sessionEvent(
+                        event,
+                        token,
+                        fields,
+                        deduplicate = event == "automotive_playback_published",
+                    )
                 }
-            },
+            } else null,
             lyrics = graph.lyricsState,
             lyricsTimingOffset = lyricsTimingSettings.offset,
             artwork = mutableAutomotiveArtworkState.asStateFlow(),
