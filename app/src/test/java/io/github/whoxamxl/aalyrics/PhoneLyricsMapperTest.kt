@@ -1133,6 +1133,94 @@ class PhoneLyricsMapperTest {
         assertEquals(1, second.viewport.currentLineIndex)
     }
 
+    @Test
+    fun `lyric line mapping preserves timestamps and seek eligibility`() {
+        val playback = PlaybackSnapshot(
+            track = track(),
+            source = PlaybackSource("com.spotify.music"),
+        )
+        val lyrics = ready(
+            playback = playback,
+            lines = listOf(
+                TimedLyricLine(
+                    "First",
+                    1_000L,
+                    words = listOf(TimedWord("First", 1_000L)),
+                ),
+                PlainLyricLine("Untimed"),
+            ),
+        )
+
+        val eligible = mapPhoneLyricsViewportLines(
+            playback = playback,
+            lyricsState = lyrics,
+            canSeek = true,
+        )
+
+        assertEquals(1_000L, eligible[0].startMs)
+        assertTrue(eligible[0].seekEnabled)
+        assertEquals(listOf("First"), eligible[0].words)
+        assertNull(eligible[1].startMs)
+        assertEquals(false, eligible[1].seekEnabled)
+    }
+
+    @Test
+    fun `lyric line mapping disables seeking for unsupported sources`() {
+        val playback = PlaybackSnapshot(
+            track = track(),
+            source = PlaybackSource("com.example.unsupported"),
+        )
+        val lyrics = ready(
+            playback = playback,
+            lines = listOf(TimedLyricLine("Timed", 5_000L)),
+        )
+
+        val rows = mapPhoneLyricsViewportLines(
+            playback = playback,
+            lyricsState = lyrics,
+            canSeek = false,
+        )
+
+        assertEquals(5_000L, rows.single().startMs)
+        assertEquals(false, rows.single().seekEnabled)
+    }
+
+    @Test
+    fun `seek target applies positive and negative offsets and clamps duration`() {
+        assertEquals(
+            58_000L,
+            seekTargetForLyricLine(
+                lineStartMs = 60_000L,
+                lyricsTimingOffset = LyricsTimingOffset(2_000L),
+                durationMs = 120_000L,
+            ),
+        )
+        assertEquals(
+            62_000L,
+            seekTargetForLyricLine(
+                lineStartMs = 60_000L,
+                lyricsTimingOffset = LyricsTimingOffset(-2_000L),
+                durationMs = 120_000L,
+            ),
+        )
+        assertEquals(
+            0L,
+            seekTargetForLyricLine(
+                lineStartMs = 1_000L,
+                lyricsTimingOffset = LyricsTimingOffset(2_000L),
+                durationMs = 120_000L,
+            ),
+        )
+        assertEquals(
+            120_000L,
+            seekTargetForLyricLine(
+                lineStartMs = 121_000L,
+                lyricsTimingOffset = LyricsTimingOffset(-2_000L),
+                durationMs = 120_000L,
+            ),
+        )
+    }
+
 
     private fun track() = Track(
         title = "Midnight Signals",

@@ -149,6 +149,7 @@ internal fun mapPhoneLyricsViewportLines(
     lyricsState: LyricsState,
     translationState: TranslationState = TranslationState.Idle,
     translationSettings: TranslationSettings = TranslationSettings(enabled = false),
+    canSeek: Boolean = false,
 ): List<LyricsViewportLineUiState> {
     val matchingLyricsState = lyricsState
         .takeIf { state ->
@@ -179,10 +180,16 @@ internal fun mapPhoneLyricsViewportLines(
     return document.lines.mapIndexed { index, line ->
         LyricsViewportLineUiState(
             text = line.text,
+            words = (line as? TimedLyricLine)
+                ?.words
+                ?.map { word -> word.text }
+                .orEmpty(),
             translatedText = translatedLines
                 ?.get(index)
                 ?.takeIf { it.translated && it.text.isNotBlank() }
                 ?.text,
+            startMs = (line as? TimedLyricLine)?.startMs,
+            seekEnabled = canSeek && line is TimedLyricLine,
         )
     }
 }
@@ -335,4 +342,21 @@ private fun LyricsSyncType.label(): String = when (this) {
     LyricsSyncType.PLAIN -> "Plain"
     LyricsSyncType.LINE -> "Line synced"
     LyricsSyncType.WORD -> "Word synced"
+}
+
+internal fun seekTargetForLyricLine(
+    lineStartMs: Long,
+    lyricsTimingOffset: LyricsTimingOffset,
+    durationMs: Long?,
+): Long {
+    val target = try {
+        Math.subtractExact(lineStartMs, lyricsTimingOffset.milliseconds)
+    } catch (_: ArithmeticException) {
+        if (lyricsTimingOffset.milliseconds >= 0L) Long.MIN_VALUE else Long.MAX_VALUE
+    }
+    val upperBound = durationMs?.takeIf { it > 0L }
+    return target.coerceIn(
+        minimumValue = 0L,
+        maximumValue = upperBound ?: Long.MAX_VALUE,
+    )
 }

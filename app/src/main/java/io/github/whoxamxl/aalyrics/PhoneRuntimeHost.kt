@@ -197,12 +197,14 @@ internal fun PhoneRuntimeHost(
         lyricsState,
         translationState,
         translationSettings,
+        playbackSurface?.canSeek,
     ) {
         mapPhoneLyricsViewportLines(
             playback = playback,
             lyricsState = lyricsState,
             translationState = translationState,
             translationSettings = translationSettings,
+            canSeek = playbackSurface?.canSeek == true,
         )
     }
 
@@ -340,6 +342,22 @@ internal fun PhoneRuntimeHost(
                     AlbumArtwork(image = playbackArtworkImage)
                 },
                 onViewportInteractionModeChange = { lyricsInteractionMode = it },
+                onSeekToLine = { lineIndex ->
+                    val startMs = lyricsUiState.viewport.lines
+                        .getOrNull(lineIndex)
+                        ?.takeIf { line -> line.seekEnabled && line.startMs != null }
+                        ?.startMs
+                        ?: return@LyricsScreen
+                    val targetIndex = lyricsUiState.viewport.currentLineIndex
+                    if (lineIndex == targetIndex) return@LyricsScreen
+                    val targetMs = seekTargetForLyricLine(
+                        lineStartMs = startMs,
+                        lyricsTimingOffset = lyricsTimingOffset,
+                        durationMs = playback.track?.durationMs,
+                    )
+                    application.seekTo(targetMs)
+                    lyricsInteractionMode = LyricsViewportInteractionMode.FOLLOW
+                },
                 onTranslationRetry = application::retryTranslation,
                 onEnterPerformanceMode = {
                     lyricsInteractionMode = LyricsViewportInteractionMode.FOLLOW
