@@ -57,6 +57,8 @@ data class LyricsViewportLineUiState(
     val text: String,
     val words: List<String> = emptyList(),
     val translatedText: String? = null,
+    val startMs: Long? = null,
+    val seekEnabled: Boolean = false,
 )
 
 /** Character range in the canonical current line and its Phone visual sweep progress. */

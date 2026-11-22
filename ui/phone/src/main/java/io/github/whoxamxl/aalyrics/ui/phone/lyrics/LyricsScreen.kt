@@ -20,6 +20,7 @@ fun LyricsScreen(
     bottomOverlayInset: Dp = 0.dp,
     artwork: (@Composable BoxScope.() -> Unit)? = null,
     onViewportInteractionModeChange: (LyricsViewportInteractionMode) -> Unit = {},
+    onSeekToLine: (Int) -> Unit = {},
     onTranslationRetry: (() -> Unit)? = null,
     onEnterPerformanceMode: (() -> Unit)? = null,
 ) {
@@ -46,6 +47,7 @@ fun LyricsScreen(
                 .weight(1f)
                 .padding(bottom = bottomOverlayInset),
             onInteractionModeChange = onViewportInteractionModeChange,
+            onSeekToLine = onSeekToLine,
         )
     }
 }

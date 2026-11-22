@@ -92,6 +92,7 @@ fun LyricsViewport(
     modifier: Modifier = Modifier,
     listState: LazyListState = rememberLazyListState(),
     onInteractionModeChange: (LyricsViewportInteractionMode) -> Unit = {},
+    onSeekToLine: (Int) -> Unit = {},
 ) {
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
         val density = LocalDensity.current
@@ -393,6 +394,10 @@ fun LyricsViewport(
                         focusPosition = animatedFocusIndex,
                         rowSpacingPx = rowSpacingPx,
                         modifier = Modifier.fillMaxWidth(),
+                        seekEnabled = line.seekEnabled &&
+                            line.startMs != null &&
+                            index != state.currentLineIndex,
+                        onSeek = { onSeekToLine(index) },
                         onTextHeightChanged = { height ->
                             lineHeights[index] = height
                         },
@@ -468,6 +473,8 @@ private fun LyricsViewportRow(
     focusPosition: Animatable<Float, AnimationVector1D>,
     rowSpacingPx: Int,
     modifier: Modifier = Modifier,
+    seekEnabled: Boolean = false,
+    onSeek: () -> Unit = {},
     onTextHeightChanged: (Int) -> Unit,
 ) {
     val virtualIndex = index + 1f
@@ -489,6 +496,18 @@ private fun LyricsViewportRow(
                         1f
                     } else {
                         TimedTextWidthFraction
+                    },
+                )
+                .then(
+                    if (seekEnabled) {
+                        Modifier
+                            .semantics {
+                                contentDescription = "Seek to lyric: ${line.text}"
+                                role = Role.Button
+                            }
+                            .clickable(onClick = onSeek)
+                    } else {
+                        Modifier
                     },
                 )
                 .onSizeChanged { size ->
